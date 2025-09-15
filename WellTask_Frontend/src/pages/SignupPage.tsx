@@ -45,7 +45,7 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
-      <div className="flex h-[80vh] rounded-2xl overflow-hidden shadow-lg w-full max-w-7xl">
+      <div className="flex h-[90vh] rounded-2xl overflow-hidden shadow-lg w-3/4 max-w-7xl">
         <SidePanel
           title={panelObj.title}
           subtitle={panelObj.subtitle}

@@ -19,5 +19,29 @@ export default tseslint.config([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      'react/jsx-boolean-value': [1, 'always'],
+      'testing-library/no-container': 1,
+      'testing-library/no-node-access': 1,
+      'jsx-a11y/anchor-is-valid': [
+        2,
+        {
+          components: ['Link'],
+          specialLink: ['to'],
+          aspects: ['invalidHref'],
+        },
+      ],
+      'no-console': [
+        2,
+        {
+          allow: ['error', 'warn'],
+        },
+      ],
+      'no-unused-vars': 2,
+      'react/prop-types': 2,
+      'react/require-default-props': 2,
+      'import/first': 2,
+      'import/order': 2,
+    },
   },
 ])

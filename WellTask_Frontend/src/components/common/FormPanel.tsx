@@ -11,7 +11,7 @@ export interface FormField {
   placeholder?: string;
 }
 
-interface FeatureFormProps {
+interface FormProps {
   title: string;
   description?: string;
   submitText: string;
@@ -25,7 +25,7 @@ export function FormPanel({
   submitText,
   redirectLink,
   fields,
-}: FeatureFormProps) {
+}: FormProps) {
   return (
     <div className="flex-1 p-10 flex items-center justify-center bg-white">
       <div className="w-full max-w-md">

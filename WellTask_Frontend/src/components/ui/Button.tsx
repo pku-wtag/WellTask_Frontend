@@ -32,9 +32,11 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${
-        fullWidth ? "w-full" : ""
-      } ${className}`}
+      className={`${baseStyles} 
+      ${variantStyles[variant]} 
+      ${sizeStyles[size]} 
+      ${fullWidth ? "w-full" : ""} 
+      ${className}`}
       {...props}
     >
       {children}

@@ -1,12 +1,10 @@
 import { Button } from "../ui/Button";
 
-interface FeaturePanelProps {
+interface SidePanelProps {
   title: string;
   subtitle: string;
   showAppButtons?: boolean;
   position?: "left" | "right";
-  gradientFrom?: string;
-  gradientTo?: string;
 }
 
 export function SidePanel({
@@ -14,20 +12,21 @@ export function SidePanel({
   subtitle,
   showAppButtons = false,
   position = "left",
-  gradientFrom = "blue-600",
-  gradientTo = "blue-500",
-}: FeaturePanelProps) {
-  const gradientClass =
-    gradientFrom === "blue-600" && gradientTo === "blue-500"
-      ? "from-blue-600 to-blue-500"
-      : "from-blue-600 to-blue-500";
-
+}: SidePanelProps) {
   return (
     <div
       className={`relative hidden md:flex w-1/2 text-white p-12 flex-col overflow-hidden 
-        bg-gradient-to-br ${gradientClass} 
         ${position === "right" ? "order-last" : "order-first"}`}
     >
+      {/* Background image */}
+      <div
+        className={`absolute inset-0 bg-cover bg-center ${
+          position === "right" ? "scale-x-[-1]" : ""
+        }`}
+        style={{ backgroundImage: "url('/image.png')" }}
+      />
+
+      {/* Content */}
       <div className="relative z-10 flex-grow flex flex-col justify-center">
         <div className="max-w-md">
           <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-12">
@@ -43,6 +42,7 @@ export function SidePanel({
           )}
         </div>
       </div>
+
       <div className="relative z-10 text-sm opacity-80">
         <p>Copyright {new Date().getFullYear()} | All Rights Reserved</p>
       </div>

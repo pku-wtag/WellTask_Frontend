@@ -38,9 +38,10 @@ export function Input({
       )}
       <input
         id={id}
-        className={`${baseStyles} ${variantStyles[variant]} ${
-          fullWidth ? "w-full" : ""
-        } ${className}`}
+        className={`${baseStyles} 
+        ${variantStyles[variant]} 
+        ${fullWidth ? "w-full" : ""} 
+        ${className}`}
         {...props}
       />
       {hint && <p className="mt-1 text-xs text-gray-500">{hint}</p>}
