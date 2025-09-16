@@ -1,4 +1,5 @@
-import { Button } from "../ui/Button";
+import classNames from "classnames";
+import { Button } from "./Button";
 
 interface SidePanelProps {
   title: string;
@@ -13,20 +14,25 @@ export function SidePanel({
   showAppButtons = false,
   position = "left",
 }: SidePanelProps) {
+  const containerClass = classNames(
+    "relative hidden md:flex w-1/2 text-white p-12 flex-col overflow-hidden",
+    {
+      "order-last": position === "right",
+      "order-first": position === "left",
+    }
+  );
+
+  const bgClass = classNames("absolute inset-0 bg-cover bg-center", {
+    "scale-x-[-1]": position === "right",
+  });
+
   return (
-    <div
-      className={`relative hidden md:flex w-1/2 text-white p-12 flex-col overflow-hidden 
-        ${position === "right" ? "order-last" : "order-first"}`}
-    >
-      {/* Background image */}
+    <div className={containerClass}>
       <div
-        className={`absolute inset-0 bg-cover bg-center ${
-          position === "right" ? "scale-x-[-1]" : ""
-        }`}
+        className={bgClass}
         style={{ backgroundImage: "url('/image.png')" }}
       />
 
-      {/* Content */}
       <div className="relative z-10 flex-grow flex flex-col justify-center">
         <div className="max-w-md">
           <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-12">
