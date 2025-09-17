@@ -22,7 +22,7 @@ export function AuthCardLayout({
       {topRightLink && (
         <div className="absolute top-6 right-6">
           <Link to={topRightLink.to}>
-            <Button variant="outline">{topRightLink.label}</Button>
+            <Button type="outline">{topRightLink.label}</Button>
           </Link>
         </div>
       )}

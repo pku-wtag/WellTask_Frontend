@@ -1,5 +1,5 @@
-import { SidePanel } from "../components/base-component/SidePanel";
-import { FormPanel } from "../components/base-component/FormPanel";
+import { SidePanel } from "@/components/base-component/SidePanel";
+import { FormPanel } from "@/components/base-component/FormPanel";
 
 export default function LoginPage() {
   const panelObj = {
@@ -7,6 +7,7 @@ export default function LoginPage() {
     subtitle: "Get back to your dashboard",
     showAppButtons: true,
     position: "right" as "left" | "right",
+    isVisible: true,
   };
 
   const formObj = {
@@ -49,6 +50,7 @@ export default function LoginPage() {
           subtitle={panelObj.subtitle}
           position={panelObj.position}
           showAppButtons={panelObj.showAppButtons}
+          isVisible={panelObj.isVisible}
         />
       </div>
     </div>

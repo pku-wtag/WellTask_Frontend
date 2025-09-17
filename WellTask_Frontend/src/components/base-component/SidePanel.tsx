@@ -6,6 +6,7 @@ interface SidePanelProps {
   subtitle: string;
   showAppButtons?: boolean;
   position?: "left" | "right";
+  isVisible?: boolean;
 }
 
 export function SidePanel({
@@ -13,7 +14,10 @@ export function SidePanel({
   subtitle,
   showAppButtons = false,
   position = "left",
+  isVisible = true,
 }: SidePanelProps) {
+  if (!isVisible) return null;
+
   const containerClass = classNames(
     "relative hidden md:flex w-1/2 text-white p-12 flex-col overflow-hidden",
     {
@@ -42,8 +46,8 @@ export function SidePanel({
 
           {showAppButtons && (
             <div className="flex gap-4">
-              <Button variant="secondary">Download on Apple</Button>
-              <Button variant="secondary">Download on Android</Button>
+              <Button type="secondary">Download on Apple</Button>
+              <Button type="secondary">Download on Android</Button>
             </div>
           )}
         </div>
