@@ -1,5 +1,5 @@
-import { FormPanel } from "../components/base-component/FormPanel";
-import { SidePanel } from "../components/base-component/SidePanel";
+import { FormPanel } from "@/components/base-component/FormPanel";
+import { SidePanel } from "@/components/base-component/SidePanel";
 
 export default function SignupPage() {
   const panelObj = {

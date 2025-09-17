@@ -1,5 +1,5 @@
-import { SidePanel } from "../components/base-component/SidePanel";
-import { FormPanel } from "../components/base-component/FormPanel";
+import { SidePanel } from "@/components/base-component/SidePanel";
+import { FormPanel } from "@/components/base-component/FormPanel";
 
 export default function LoginPage() {
   const panelObj = {
