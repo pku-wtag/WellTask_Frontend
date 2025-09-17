@@ -1,6 +1,6 @@
 import React from "react";
-import { Button } from "../ui/Button";
 import { Link } from "react-router-dom";
+import { Button } from "./Button";
 
 interface AuthCardLayoutProps {
   title: string;
@@ -19,7 +19,6 @@ export function AuthCardLayout({
 }: AuthCardLayoutProps) {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 relative overflow-hidden">
-   
       {topRightLink && (
         <div className="absolute top-6 right-6">
           <Link to={topRightLink.to}>
@@ -28,10 +27,11 @@ export function AuthCardLayout({
         </div>
       )}
 
-      {/* Card content */}
       <div className="w-full max-w-md text-center z-10">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">{title}</h2>
-        {description && <p className="text-sm text-gray-500 mb-8">{description}</p>}
+        {description && (
+          <p className="text-sm text-gray-500 mb-8">{description}</p>
+        )}
 
         {children}
 
@@ -43,9 +43,8 @@ export function AuthCardLayout({
         )}
       </div>
 
-      
       <img
-        src="/bg.png" 
+        src="/bg.png"
         alt="Background"
         className="absolute bottom-0 left-0 w-full object-cover pointer-events-none select-none"
       />

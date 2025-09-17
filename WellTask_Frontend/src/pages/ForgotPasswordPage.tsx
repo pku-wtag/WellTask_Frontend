@@ -1,6 +1,6 @@
-import { AuthCardLayout } from "../components/common/AuthCardLayout";
-import { Button } from "../components/ui/Button";
-import { Input } from "../components/ui/Input";
+import { AuthCardLayout } from "../components/base-component/AuthCardLayout";
+import { Button } from "../components/base-component/Button";
+import { Input } from "../components/base-component/Input";
 
 export default function ForgotPasswordPage() {
   const layoutObj = {

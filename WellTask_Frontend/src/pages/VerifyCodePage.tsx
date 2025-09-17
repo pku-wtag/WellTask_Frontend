@@ -1,6 +1,6 @@
-import { AuthCardLayout } from "../components/common/AuthCardLayout";
-import { Button } from "../components/ui/Button";
-import { OTPInput } from "../components/ui/OTPInput";
+import { AuthCardLayout } from "../components/base-component/AuthCardLayout";
+import { Button } from "../components/base-component/Button";
+import { OTPInput } from "../components/base-component/OTPInput";
 
 export default function VerifyCodePage() {
   const layoutObj = {

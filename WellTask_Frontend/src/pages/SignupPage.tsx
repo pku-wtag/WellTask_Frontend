@@ -1,15 +1,13 @@
-import { FormPanel } from "../components/common/FormPanel";
-import { SidePanel } from "../components/common/SidePanel";
+import { FormPanel } from "../components/base-component/FormPanel";
+import { SidePanel } from "../components/base-component/SidePanel";
 
 export default function SignupPage() {
-
   const panelObj = {
     title: "Take your productivity to the next level.",
     subtitle: "Get the Mobile App",
     showAppButtons: true,
     position: "left" as "left" | "right",
   };
-
 
   const formObj = {
     title: "Create an Account",
