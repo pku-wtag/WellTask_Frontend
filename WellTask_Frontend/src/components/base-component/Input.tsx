@@ -1,10 +1,12 @@
 import React from "react";
 import classNames from "classnames";
 
-type InputVariant = "default" | "error" | "success";
+type InputType = "default" | "error" | "success";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  variant?: InputVariant;
+interface InputProps
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {
+  type?: InputType;
+  htmlType?: string;
   fullWidth?: boolean;
   label?: React.ReactNode;
   hint?: string;
@@ -13,17 +15,18 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export function Input({
-  variant = "default",
+  type = "default",
   fullWidth = false,
   label,
   hint,
   id,
   className,
+  htmlType,
   ...props
 }: InputProps) {
   const inputClass = classNames(
     "input",
-    `input-${variant}`,
+    `input-${type}`,
     { "input-full": fullWidth },
     className
   );
@@ -35,7 +38,7 @@ export function Input({
           {label}
         </label>
       )}
-      <input id={id} className={inputClass} {...props} />
+      <input id={id} className={inputClass} type={htmlType} {...props} />
       {hint && <p className="input-hint">{hint}</p>}
     </div>
   );

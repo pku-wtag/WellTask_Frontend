@@ -7,6 +7,7 @@ export default function SignupPage() {
     subtitle: "Get the Mobile App",
     showAppButtons: true,
     position: "left" as "left" | "right",
+    isVisible: true,
   };
 
   const formObj = {
@@ -49,6 +50,7 @@ export default function SignupPage() {
           subtitle={panelObj.subtitle}
           position={panelObj.position}
           showAppButtons={panelObj.showAppButtons}
+          isVisible={panelObj.isVisible}
         />
         <FormPanel
           title={formObj.title}

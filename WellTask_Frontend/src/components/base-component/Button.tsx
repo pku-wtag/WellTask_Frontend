@@ -1,17 +1,20 @@
 import React from "react";
 import classNames from "classnames";
 
-type ButtonVariant = "primary" | "secondary" | "outline";
+type ButtonType = "primary" | "secondary" | "outline";
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant;
+interface ButtonProps
+  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "type"> {
+  type?: ButtonType;
+  htmlType?: "submit" | "reset" | "button";
   fullWidth?: boolean;
   size?: "sm" | "md" | "lg";
 }
 
 export function Button({
   children,
-  variant = "primary",
+  type = "primary",
+  htmlType,
   fullWidth = false,
   size = "md",
   className,
@@ -19,14 +22,14 @@ export function Button({
 }: ButtonProps) {
   const buttonClass = classNames(
     "btn",
-    `btn-${variant}`,
+    `btn-${type}`,
     `btn-${size}`,
     { "btn-full": fullWidth },
     className
   );
 
   return (
-    <button className={buttonClass} {...props}>
+    <button className={buttonClass} type={htmlType} {...props}>
       {children}
     </button>
   );

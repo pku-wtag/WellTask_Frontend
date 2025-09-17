@@ -8,7 +8,7 @@ export interface FormField {
   id: string;
   name: string;
   label: React.ReactNode;
-  type?: string;
+  htmlType?: string;
   hint?: string;
   placeholder?: string;
 }
@@ -42,12 +42,12 @@ export function FormPanel({
             <form onSubmit={handleSubmit} className="space-y-5">
               {fields.map((field) => (
                 <Field key={field.id} name={field.name}>
-                  {({ input }) => (
+                  {({ input: { type, ...restOfInputProps } }) => (
                     <Input
                       id={field.id}
-                      {...input}
-                      type={field.type || "text"}
-                      label={typeof field.label === "string" ? field.label : ""}
+                      {...restOfInputProps}
+                      htmlType={field.htmlType || "text"}
+                      label={field.label || ""}
                       hint={field.hint}
                       placeholder={field.placeholder}
                       fullWidth
@@ -55,7 +55,7 @@ export function FormPanel({
                   )}
                 </Field>
               ))}
-              <Button type="submit" fullWidth>
+              <Button htmlType="submit" fullWidth>
                 {submitText}
               </Button>
             </form>
