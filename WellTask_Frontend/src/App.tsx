@@ -6,9 +6,9 @@ import {
 } from "react-router-dom";
 import LoginPage from "@/components/login";
 import SignupPage from "@/components/sign-up";
-import ForgotPasswordPage from "@/components/ForgotPasswordPage";
-import VerifyCodePage from "@/components/VerifyCodePage";
-import ResetPasswordPage from "@/components/ResetPasswordPage";
+import ForgotPasswordPage from "./components/forgot-password";
+import VerifyCodePage from "@/components/verify-code";
+import ResetPasswordPage from "@/components/reset-password";
 
 
 
