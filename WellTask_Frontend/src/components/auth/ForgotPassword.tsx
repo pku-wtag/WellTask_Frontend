@@ -2,7 +2,7 @@ import { AuthCardLayout } from "@/components/base-component/AuthCardLayout";
 import { Button } from "@/components/base-component/Button";
 import { Input } from "@/components/base-component/Input";
 
-export default function ForgotPasswordPage() {
+export default function ForgotPassword() {
   const layoutObj = {
     title: "Forgot Password?",
     description:

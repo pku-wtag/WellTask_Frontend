@@ -1,7 +1,7 @@
 import { SidePanel } from "@/components/base-component/SidePanel";
 import { FormPanel } from "@/components/base-component/FormPanel";
 
-export default function LoginPage() {
+export default function Login() {
   const panelObj = {
     title: "Welcome Back!",
     subtitle: "Get back to your dashboard",

@@ -1,10 +1,10 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import SignupPage from "@/components/sign-up";
-import LoginPage from "@/components/login";
-import VerifyCodePage from "@/components/verify-code";
-import ResetPasswordPage from "@/components/reset-password";
-import ForgotPasswordPage from "./components/forgot-password";
+import LoginPage from "./pages/login";
+import SignupPage from "./pages/sign-up";
+import ForgotPasswordPage from "./pages/forgot-password";
+import ResetPasswordPage from "./pages/reset-password";
+import VerifyCodePage from "./pages/verify-code";
 
 const RoutesComponent: React.FC = () => {
   return (

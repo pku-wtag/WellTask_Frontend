@@ -2,7 +2,7 @@ import { AuthCardLayout } from "@/components/base-component/AuthCardLayout";
 import { Button } from "@/components/base-component/Button";
 import { OTPInput } from "@/components/base-component/OTPInput";
 
-export default function VerifyCodePage() {
+export default function VerifyCode() {
   const layoutObj = {
     title: "Verify Code",
     description:
