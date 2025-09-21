@@ -1,7 +1,7 @@
 import { FormPanel } from "@/components/base-component/FormPanel";
 import { SidePanel } from "@/components/base-component/SidePanel";
 
-export default function SignupPage() {
+export default function Signup() {
   const panelObj = {
     title: "Take your productivity to the next level.",
     subtitle: "Get the Mobile App",

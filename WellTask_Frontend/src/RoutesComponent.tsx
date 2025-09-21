@@ -1,7 +1,7 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import SignupPage from "./components/sign-up";
-import LoginPage from "./components/login";
+import LoginPage from "./pages/login";
+import SignupPage from "./pages/sign-up";
 
 const RoutesComponent: React.FC = () => {
   return (
