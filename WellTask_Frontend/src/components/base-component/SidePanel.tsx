@@ -14,7 +14,7 @@ export function SidePanel({
   subtitle,
   showAppButtons = false,
   position = "left",
-  isVisible = true,
+  isVisible = false,
 }: SidePanelProps) {
   if (!isVisible) return null;
 
