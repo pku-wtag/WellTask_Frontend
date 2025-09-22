@@ -18,6 +18,7 @@ export interface InputProps {
   inputType?: string;
   options?: Option[];
   placeholder?: string;
+  maxLength?: number;
 }
 
 export function Input({
@@ -32,6 +33,7 @@ export function Input({
   inputType = "text",
   options = [],
   placeholder,
+  maxLength,
 }: InputProps) {
   const inputClass = classNames(
     "input",
@@ -57,6 +59,7 @@ export function Input({
               type={inputType}
               placeholder={placeholder}
               className={inputClass}
+              maxLength={maxLength}
             />
           )}
 
