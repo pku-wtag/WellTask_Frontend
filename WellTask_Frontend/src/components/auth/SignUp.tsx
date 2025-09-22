@@ -1,4 +1,7 @@
-import { FormPanel } from "@/components/base-component/FormPanel";
+import {
+  FormPanel,
+  type FormField,
+} from "@/components/base-component/FormPanel";
 import { SidePanel } from "@/components/base-component/SidePanel";
 
 export default function Signup() {
@@ -10,7 +13,13 @@ export default function Signup() {
     isVisible: true,
   };
 
-  const formObj = {
+  const formObj: {
+    title: string;
+    description: string;
+    submitText: string;
+    redirectLink: { text: string; to: string };
+    fields: FormField[];
+  } = {
     title: "Create an Account",
     description: "It's Simple and Easy!",
     submitText: "Create Account",
@@ -22,22 +31,26 @@ export default function Signup() {
         label: "Fullname",
         hint: "Information about the input",
         placeholder: "Enter your full name",
+        fieldType: "input",
+        inputType: "text",
       },
       {
         id: "email",
         name: "email",
         label: "Email Address",
-        type: "email",
         hint: "Example: name@gmail.com",
         placeholder: "Enter your email",
+        fieldType: "input",
+        inputType: "email",
       },
       {
         id: "password",
         name: "password",
         label: "Password",
-        type: "password",
         hint: "Use 8 characters with an uppercase, lowercase, symbol, and number.",
         placeholder: "Enter your password",
+        fieldType: "input",
+        inputType: "password",
       },
     ],
   };

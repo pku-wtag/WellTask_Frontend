@@ -1,16 +1,20 @@
 import React from "react";
-import { Form, Field } from "react-final-form";
+import { Form } from "react-final-form";
 import { Button } from "./Button";
 import { Input } from "./Input";
 import { Link } from "react-router-dom";
+
+export type Option = { value: string; label: string };
 
 export interface FormField {
   id: string;
   name: string;
   label: React.ReactNode;
-  htmlType?: string;
+  inputType?: string;
   hint?: string;
   placeholder?: string;
+  options?: Option[];
+  fieldType?: "input" | "textarea" | "select" | "checkbox" | "radio";
 }
 
 interface FormProps {
@@ -41,19 +45,18 @@ export function FormPanel({
           render={({ handleSubmit }) => (
             <form onSubmit={handleSubmit} className="space-y-5">
               {fields.map((field) => (
-                <Field key={field.id} name={field.name}>
-                  {({ input: { type, ...restOfInputProps } }) => (
-                    <Input
-                      id={field.id}
-                      {...restOfInputProps}
-                      htmlType={field.htmlType || "text"}
-                      label={field.label || ""}
-                      hint={field.hint}
-                      placeholder={field.placeholder}
-                      fullWidth
-                    />
-                  )}
-                </Field>
+                <Input
+                  key={field.id}
+                  id={field.id}
+                  name={field.name}
+                  fieldType={field.fieldType ?? "input"}
+                  inputType={field.inputType ?? "text"}
+                  label={field.label}
+                  hint={field.hint}
+                  placeholder={field.placeholder}
+                  options={field.options}
+                  fullWidth
+                />
               ))}
               <Button htmlType="submit" fullWidth>
                 {submitText}
