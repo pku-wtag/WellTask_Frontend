@@ -1,6 +1,7 @@
 import { AuthCardLayout } from "@/components/base-component/AuthCardLayout";
 import { Button } from "@/components/base-component/Button";
 import { Input } from "@/components/base-component/Input";
+import { Form } from "react-final-form";
 
 export default function ForgotPassword() {
   const layoutObj = {
@@ -20,11 +21,16 @@ export default function ForgotPassword() {
         id: "email",
         name: "email",
         label: "Email Address",
-        type: "email",
+        fieldType: "input" as const,
+        inputType: "email",
         placeholder: "Enter your email",
       },
     ],
     submitText: "Next",
+  };
+
+  const handleSubmit = (values: any) => {
+    console.log("Forgot Password submitted:", values);
   };
 
   return (
@@ -34,20 +40,28 @@ export default function ForgotPassword() {
       topRightLink={layoutObj.topRightLink}
       alert={layoutObj.alert}
     >
-      <form className="space-y-5 text-left">
-        {formObj.fields.map((field) => (
-          <Input
-            key={field.id}
-            id={field.id}
-            name={field.name}
-            htmlType={field.type}
-            label={field.label}
-            placeholder={field.placeholder}
-            fullWidth
-          />
-        ))}
-        <Button fullWidth>{formObj.submitText}</Button>
-      </form>
+      <Form
+        onSubmit={handleSubmit}
+        render={({ handleSubmit }) => (
+          <form onSubmit={handleSubmit} className="space-y-5 text-left">
+            {formObj.fields.map((field) => (
+              <Input
+                key={field.id}
+                id={field.id}
+                name={field.name}
+                label={field.label}
+                fieldType={field.fieldType}
+                inputType={field.inputType}
+                placeholder={field.placeholder}
+                fullWidth
+              />
+            ))}
+            <Button htmlType="submit" fullWidth>
+              {formObj.submitText}
+            </Button>
+          </form>
+        )}
+      />
     </AuthCardLayout>
   );
 }

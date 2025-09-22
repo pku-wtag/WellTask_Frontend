@@ -1,5 +1,8 @@
 import { SidePanel } from "@/components/base-component/SidePanel";
-import { FormPanel } from "@/components/base-component/FormPanel";
+import {
+  FormPanel,
+  type FormField,
+} from "@/components/base-component/FormPanel";
 
 export default function Login() {
   const panelObj = {
@@ -10,7 +13,13 @@ export default function Login() {
     isVisible: true,
   };
 
-  const formObj = {
+  const formObj: {
+    title: string;
+    description: string;
+    submitText: string;
+    redirectLink: { text: string; to: string };
+    fields: FormField[];
+  } = {
     title: "Log in to Your Account",
     description: "Enter your credentials to continue",
     submitText: "Log In",
@@ -20,17 +29,19 @@ export default function Login() {
         id: "email",
         name: "email",
         label: "Email Address",
-        type: "email",
         hint: "Example: name@gmail.com",
         placeholder: "Enter your email",
+        fieldType: "input",
+        inputType: "email",
       },
       {
         id: "password",
         name: "password",
         label: "Password",
-        type: "password",
         hint: "Enter your password",
         placeholder: "Enter your password",
+        fieldType: "input",
+        inputType: "password",
       },
     ],
   };

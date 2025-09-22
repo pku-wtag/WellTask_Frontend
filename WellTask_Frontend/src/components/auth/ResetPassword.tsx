@@ -1,6 +1,7 @@
 import { AuthCardLayout } from "@/components/base-component/AuthCardLayout";
 import { Button } from "@/components/base-component/Button";
 import { Input } from "@/components/base-component/Input";
+import { Form } from "react-final-form";
 
 export default function ResetPassword() {
   const layoutObj = {
@@ -20,18 +21,24 @@ export default function ResetPassword() {
         id: "password",
         name: "password",
         label: "New Password",
-        type: "password",
+        fieldType: "input" as const,
+        inputType: "password",
         placeholder: "Enter your new password",
       },
       {
         id: "confirmPassword",
         name: "confirmPassword",
         label: "Confirm Password",
-        type: "password",
+        fieldType: "input" as const,
+        inputType: "password",
         placeholder: "Confirm your new password",
       },
     ],
     submitText: "Update Password",
+  };
+
+  const handleSubmit = (values: any) => {
+    console.log("Reset Password submitted:", values);
   };
 
   return (
@@ -41,20 +48,28 @@ export default function ResetPassword() {
       topRightLink={layoutObj.topRightLink}
       alert={layoutObj.alert}
     >
-      <form className="space-y-5 text-left">
-        {formObj.fields.map((field) => (
-          <Input
-            key={field.id}
-            id={field.id}
-            name={field.name}
-            htmlType={field.type}
-            label={field.label}
-            placeholder={field.placeholder}
-            fullWidth
-          />
-        ))}
-        <Button fullWidth>{formObj.submitText}</Button>
-      </form>
+      <Form
+        onSubmit={handleSubmit}
+        render={({ handleSubmit }) => (
+          <form onSubmit={handleSubmit} className="space-y-5 text-left">
+            {formObj.fields.map((field) => (
+              <Input
+                key={field.id}
+                id={field.id}
+                name={field.name}
+                label={field.label}
+                fieldType={field.fieldType}
+                inputType={field.inputType}
+                placeholder={field.placeholder}
+                fullWidth
+              />
+            ))}
+            <Button htmlType="submit" fullWidth>
+              {formObj.submitText}
+            </Button>
+          </form>
+        )}
+      />
     </AuthCardLayout>
   );
 }
