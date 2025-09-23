@@ -5,6 +5,7 @@ import SignupPage from "./pages/sign-up";
 import ForgotPasswordPage from "./pages/forgot-password";
 import ResetPasswordPage from "./pages/reset-password";
 import VerifyCodePage from "./pages/verify-code";
+import WorkspacePage from "./pages/work-space";
 
 const RoutesComponent: React.FC = () => {
   return (
@@ -15,6 +16,7 @@ const RoutesComponent: React.FC = () => {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/verify-code" element={<VerifyCodePage />} />
+      <Route path="/workspace" element={<WorkspacePage />} />
     </Routes>
   );
 };
