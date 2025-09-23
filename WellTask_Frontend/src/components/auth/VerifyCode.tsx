@@ -1,7 +1,7 @@
 import { Button } from "@/components/base-component/Button";
 import { Form } from "react-final-form";
 import { AuthCardLayout } from "../base-component/AuthCardLayout";
-import { OTPInput } from "../base-component/OTPInput";
+import { OTPInput } from "../base-component/OTPinput";
 
 export default function VerifyCode() {
   const layoutObj = {

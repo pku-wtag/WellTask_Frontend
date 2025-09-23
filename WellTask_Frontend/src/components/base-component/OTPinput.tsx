@@ -1,6 +1,5 @@
 import { Input } from "../fields/Input";
 
-
 interface OTPInputProps {
   length?: number;
   namePrefix?: string;
