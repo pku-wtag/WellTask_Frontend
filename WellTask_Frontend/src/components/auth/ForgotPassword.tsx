@@ -1,7 +1,16 @@
 import { AuthCardLayout } from "@/components/base-component/AuthCardLayout";
 import { Button } from "@/components/base-component/Button";
-import { Input } from "@/components/base-component/Input";
 import { Form } from "react-final-form";
+import { Input } from "../fields/Input";
+
+interface FormField {
+  id: string;
+  name: string;
+  label: string;
+  hint?: string;
+  placeholder?: string;
+  inputType?: string;
+}
 
 export default function ForgotPassword() {
   const layoutObj = {
@@ -15,22 +24,21 @@ export default function ForgotPassword() {
     },
   };
 
-  const formObj = {
+  const formObj: {
+    fields: FormField[];
+    submitText: string;
+  } = {
     fields: [
       {
         id: "email",
         name: "email",
         label: "Email Address",
-        fieldType: "input" as const,
-        inputType: "email",
+        hint: "Example: name@gmail.com",
         placeholder: "Enter your email",
+        inputType: "email",
       },
     ],
     submitText: "Next",
-  };
-
-  const handleSubmit = (values: any) => {
-    console.log("Forgot Password submitted:", values);
   };
 
   return (
@@ -41,7 +49,7 @@ export default function ForgotPassword() {
       alert={layoutObj.alert}
     >
       <Form
-        onSubmit={handleSubmit}
+        onSubmit={() => {}}
         render={({ handleSubmit }) => (
           <form onSubmit={handleSubmit} className="space-y-5 text-left">
             {formObj.fields.map((field) => (
@@ -50,9 +58,9 @@ export default function ForgotPassword() {
                 id={field.id}
                 name={field.name}
                 label={field.label}
-                fieldType={field.fieldType}
-                inputType={field.inputType}
+                hint={field.hint}
                 placeholder={field.placeholder}
+                inputType={field.inputType}
                 fullWidth
               />
             ))}

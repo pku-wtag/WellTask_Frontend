@@ -8,7 +8,7 @@ interface ButtonProps
   type?: ButtonType;
   htmlType?: "submit" | "reset" | "button";
   fullWidth?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: "small" | "medium" | "large";
 }
 
 export function Button({
@@ -16,7 +16,7 @@ export function Button({
   type = "primary",
   htmlType,
   fullWidth = false,
-  size = "md",
+  size = "medium",
   className,
   ...props
 }: ButtonProps) {

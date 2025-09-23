@@ -1,7 +1,11 @@
 import React from "react";
 import { Form } from "react-final-form";
 import { Button } from "./Button";
-import { Input } from "./Input";
+import { Input } from "../fields/Input";
+import { Textarea } from "../fields/Textarea";
+import { SelectBox } from "../fields/Select";
+import { Checkbox } from "../fields/Checkbox";
+import { Radio } from "../fields/Radio";
 import { Link } from "react-router-dom";
 
 export type Option = { value: string; label: string };
@@ -9,12 +13,12 @@ export type Option = { value: string; label: string };
 export interface FormField {
   id: string;
   name: string;
-  label: React.ReactNode;
+  label?: React.ReactNode;
   inputType?: string;
   hint?: string;
   placeholder?: string;
   options?: Option[];
-  fieldType?: "input" | "textarea" | "select" | "checkbox" | "radio";
+  fieldType: "input" | "textarea" | "select" | "checkbox" | "radio";
 }
 
 interface FormProps {
@@ -32,6 +36,75 @@ export function FormPanel({
   redirectLink,
   fields,
 }: FormProps) {
+  const renderField = (field: FormField) => {
+    switch (field.fieldType) {
+      case "input":
+        return (
+          <Input
+            key={field.id}
+            id={field.id}
+            name={field.name}
+            label={field.label}
+            hint={field.hint}
+            placeholder={field.placeholder}
+            inputType={field.inputType}
+            fullWidth
+          />
+        );
+
+      case "textarea":
+        return (
+          <Textarea
+            key={field.id}
+            id={field.id}
+            name={field.name}
+            label={field.label}
+            hint={field.hint}
+            placeholder={field.placeholder}
+            fullWidth
+          />
+        );
+
+      case "select":
+        return (
+          <SelectBox
+            key={field.id}
+            id={field.id}
+            name={field.name}
+            label={field.label}
+            hint={field.hint}
+            options={field.options ?? []}
+            fullWidth
+          />
+        );
+
+      case "checkbox":
+        return (
+          <Checkbox
+            key={field.id}
+            id={field.id}
+            name={field.name}
+            label={field.label}
+            hint={field.hint}
+          />
+        );
+
+      case "radio":
+        return (
+          <Radio
+            key={field.id}
+            name={field.name}
+            label={field.label}
+            hint={field.hint}
+            options={field.options ?? []}
+          />
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="flex-1 p-10 flex items-center justify-center bg-white">
       <div className="w-full max-w-md">
@@ -44,20 +117,7 @@ export function FormPanel({
           onSubmit={() => {}}
           render={({ handleSubmit }) => (
             <form onSubmit={handleSubmit} className="space-y-5">
-              {fields.map((field) => (
-                <Input
-                  key={field.id}
-                  id={field.id}
-                  name={field.name}
-                  fieldType={field.fieldType ?? "input"}
-                  inputType={field.inputType ?? "text"}
-                  label={field.label}
-                  hint={field.hint}
-                  placeholder={field.placeholder}
-                  options={field.options}
-                  fullWidth
-                />
-              ))}
+              {fields.map(renderField)}
               <Button htmlType="submit" fullWidth>
                 {submitText}
               </Button>

@@ -1,7 +1,16 @@
 import { AuthCardLayout } from "@/components/base-component/AuthCardLayout";
 import { Button } from "@/components/base-component/Button";
-import { Input } from "@/components/base-component/Input";
 import { Form } from "react-final-form";
+import { Input } from "../fields/Input";
+
+interface FormField {
+  id: string;
+  name: string;
+  label: string;
+  placeholder?: string;
+  inputType?: string;
+  hint?: string;
+}
 
 export default function ResetPassword() {
   const layoutObj = {
@@ -15,13 +24,15 @@ export default function ResetPassword() {
     },
   };
 
-  const formObj = {
+  const formObj: {
+    fields: FormField[];
+    submitText: string;
+  } = {
     fields: [
       {
         id: "password",
         name: "password",
         label: "New Password",
-        fieldType: "input" as const,
         inputType: "password",
         placeholder: "Enter your new password",
       },
@@ -29,16 +40,11 @@ export default function ResetPassword() {
         id: "confirmPassword",
         name: "confirmPassword",
         label: "Confirm Password",
-        fieldType: "input" as const,
         inputType: "password",
         placeholder: "Confirm your new password",
       },
     ],
     submitText: "Update Password",
-  };
-
-  const handleSubmit = (values: any) => {
-    console.log("Reset Password submitted:", values);
   };
 
   return (
@@ -49,7 +55,7 @@ export default function ResetPassword() {
       alert={layoutObj.alert}
     >
       <Form
-        onSubmit={handleSubmit}
+        onSubmit={() => {}}
         render={({ handleSubmit }) => (
           <form onSubmit={handleSubmit} className="space-y-5 text-left">
             {formObj.fields.map((field) => (
@@ -58,9 +64,8 @@ export default function ResetPassword() {
                 id={field.id}
                 name={field.name}
                 label={field.label}
-                fieldType={field.fieldType}
-                inputType={field.inputType}
                 placeholder={field.placeholder}
+                inputType={field.inputType}
                 fullWidth
               />
             ))}

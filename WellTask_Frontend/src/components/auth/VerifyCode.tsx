@@ -1,6 +1,7 @@
 import { AuthCardLayout } from "@/components/base-component/AuthCardLayout";
 import { Button } from "@/components/base-component/Button";
 import { OTPInput } from "@/components/base-component/OTPInput";
+import { Form } from "react-final-form";
 
 export default function VerifyCode() {
   const layoutObj = {
@@ -14,16 +15,6 @@ export default function VerifyCode() {
     },
   };
 
-  const formObj = {
-    fields: [
-      {
-        type: "otp",
-        length: 6,
-      },
-    ],
-    submitText: "Verify & Continue",
-  };
-
   return (
     <AuthCardLayout
       title={layoutObj.title}
@@ -31,14 +22,15 @@ export default function VerifyCode() {
       topRightLink={layoutObj.topRightLink}
       alert={layoutObj.alert}
     >
-      <form className="space-y-6 text-left">
-        {formObj.fields.map((field, index) =>
-          field.type === "otp" ? (
-            <OTPInput key={index} length={field.length} />
-          ) : null
+      <Form
+        onSubmit={() => {}}
+        render={({ handleSubmit }) => (
+          <form onSubmit={handleSubmit} className="space-y-6 text-left">
+            <OTPInput length={6} namePrefix="otp" />
+            <Button fullWidth>Verify & Continue</Button>
+          </form>
         )}
-        <Button fullWidth>{formObj.submitText}</Button>
-      </form>
+      />
     </AuthCardLayout>
   );
 }
