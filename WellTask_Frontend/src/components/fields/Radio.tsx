@@ -15,17 +15,17 @@ export function Radio({ name, options, label, hint }: RadioProps) {
     <FieldWrapper id={name} name={name} label={label} hint={hint}>
       {(input) => (
         <div className="flex flex-col gap-1">
-          {options.map((opt) => (
-            <label key={opt.value} className="flex items-center gap-2">
+          {options.map((option) => (
+            <label key={option.value} className="flex items-center gap-2">
               <input
                 type="radio"
                 name={input.name}
-                value={opt.value}
-                checked={input.value === opt.value}
+                value={option.value}
+                checked={input.value === option.value}
                 onChange={() => {}}
                 className="w-4 h-4"
               />
-              <span>{opt.label}</span>
+              <span>{option.label}</span>
             </label>
           ))}
         </div>

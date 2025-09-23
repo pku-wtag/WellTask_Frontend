@@ -3,7 +3,7 @@ import { Form } from "react-final-form";
 import { Button } from "./Button";
 import { Input } from "../fields/Input";
 import { Textarea } from "../fields/Textarea";
-import { Select } from "../fields/Select";
+import { SelectBox } from "../fields/Select";
 import { Checkbox } from "../fields/Checkbox";
 import { Radio } from "../fields/Radio";
 import { Link } from "react-router-dom";
@@ -67,7 +67,7 @@ export function FormPanel({
 
       case "select":
         return (
-          <Select
+          <SelectBox
             key={field.id}
             id={field.id}
             name={field.name}

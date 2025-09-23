@@ -14,7 +14,7 @@ export interface SelectProps {
   className?: string;
 }
 
-export function Select({
+export function SelectBox({
   id,
   name,
   label,
@@ -33,9 +33,9 @@ export function Select({
     <FieldWrapper id={id} name={name} label={label} hint={hint}>
       {(input) => (
         <select {...input} id={id} className={inputClass}>
-          {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
             </option>
           ))}
         </select>
