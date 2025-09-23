@@ -2,6 +2,9 @@ import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./pages/login";
 import SignupPage from "./pages/sign-up";
+import ForgotPasswordPage from "./pages/forgot-password";
+import ResetPasswordPage from "./pages/reset-password";
+import VerifyCodePage from "./pages/verify-code";
 
 const RoutesComponent: React.FC = () => {
   return (
@@ -9,6 +12,9 @@ const RoutesComponent: React.FC = () => {
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/verify-code" element={<VerifyCodePage />} />
     </Routes>
   );
 };
