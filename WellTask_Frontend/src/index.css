@@ -14,13 +14,13 @@
 .btn-outline {
   @apply border border-blue-600 text-blue-600 hover:bg-blue-50;
 }
-.btn-sm {
+.btn-small {
   @apply px-3 py-1 text-sm;
 }
-.btn-md {
+.btn-medium {
   @apply px-4 py-2 text-base;
 }
-.btn-lg {
+.btn-large {
   @apply px-6 py-3 text-lg;
 }
 
