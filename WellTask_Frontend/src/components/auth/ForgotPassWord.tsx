@@ -2,15 +2,7 @@ import { Button } from "@/components/base-component/Button";
 import { Form } from "react-final-form";
 import { Input } from "../fields/Input";
 import { AuthCardLayout } from "../base-component/AuthCardLayout";
-
-interface FormField {
-  id: string;
-  name: string;
-  label: string;
-  hint?: string;
-  placeholder?: string;
-  inputType?: string;
-}
+import type { FormField } from "../base-component/FormPanel";
 
 export default function ForgotPassword() {
   const layoutObj = {
@@ -36,6 +28,7 @@ export default function ForgotPassword() {
         hint: "Example: name@gmail.com",
         placeholder: "Enter your email",
         inputType: "email",
+        fieldType: "input",
       },
     ],
     submitText: "Next",

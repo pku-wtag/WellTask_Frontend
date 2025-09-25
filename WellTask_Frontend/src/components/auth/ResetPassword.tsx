@@ -2,15 +2,7 @@ import { Button } from "@/components/base-component/Button";
 import { Form } from "react-final-form";
 import { Input } from "../fields/Input";
 import { AuthCardLayout } from "../base-component/AuthCardLayout";
-
-interface FormField {
-  id: string;
-  name: string;
-  label: string;
-  placeholder?: string;
-  inputType?: string;
-  hint?: string;
-}
+import type { FormField } from "../base-component/FormPanel";
 
 export default function ResetPassword() {
   const layoutObj = {
@@ -35,6 +27,7 @@ export default function ResetPassword() {
         label: "New Password",
         inputType: "password",
         placeholder: "Enter your new password",
+        fieldType: "input",
       },
       {
         id: "confirmPassword",
@@ -42,6 +35,7 @@ export default function ResetPassword() {
         label: "Confirm Password",
         inputType: "password",
         placeholder: "Confirm your new password",
+        fieldType: "input",
       },
     ],
     submitText: "Update Password",
