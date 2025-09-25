@@ -1,7 +1,7 @@
 import React from "react";
 import classNames from "classnames";
 
-type ButtonType = "primary" | "secondary" | "outline";
+type ButtonType = "primary" | "secondary" | "outline" | "custom";
 
 interface ButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "type"> {
