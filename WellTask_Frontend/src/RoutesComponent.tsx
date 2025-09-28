@@ -8,6 +8,7 @@ import VerifyCodePage from "./pages/verify-code";
 import WorkspacePage from "./pages/work-space";
 import DashBoardPage from "./pages/dash-board";
 import { ProtectedRoute } from "./components/base-component/ProtectedRoute";
+import BoardPage from "./pages/board";
 
 const RoutesComponent: React.FC = () => {
   return (
@@ -21,6 +22,7 @@ const RoutesComponent: React.FC = () => {
       <Route path="/workspace" element={<WorkspacePage />} />
       <Route path="/dashboard/*" element={<ProtectedRoute />}>
         <Route index element={<DashBoardPage />} />
+        <Route path="board" element={<BoardPage />} />
       </Route>
     </Routes>
   );
