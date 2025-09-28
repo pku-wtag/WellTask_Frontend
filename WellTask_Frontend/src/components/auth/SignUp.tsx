@@ -17,13 +17,13 @@ export default function Signup() {
     title: string;
     description: string;
     submitText: string;
-    redirectLink: { text: string; to: string };
+    redirectLink: { text: string; path: string };
     fields: FormField[];
   } = {
     title: "Create an Account",
     description: "It's Simple and Easy!",
     submitText: "Create Account",
-    redirectLink: { text: "Already have an account?", to: "/login" },
+    redirectLink: { text: "Already have an account?", path: "/login" },
     fields: [
       {
         id: "fullname",
