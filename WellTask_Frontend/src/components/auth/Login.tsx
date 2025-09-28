@@ -17,13 +17,13 @@ export default function Login() {
     title: string;
     description: string;
     submitText: string;
-    redirectLink: { text: string; to: string };
+    redirectLink: { text: string; path: string };
     fields: FormField[];
   } = {
     title: "Log in to Your Account",
     description: "Enter your credentials to continue",
     submitText: "Log In",
-    redirectLink: { text: "Don't have an account?", to: "/signup" },
+    redirectLink: { text: "Don't have an account?", path: "/signup" },
     fields: [
       {
         id: "email",
