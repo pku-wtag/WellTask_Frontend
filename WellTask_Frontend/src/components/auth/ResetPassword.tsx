@@ -9,7 +9,7 @@ export default function ResetPassword() {
     title: "Set New Password",
     description:
       "Enter your new password below. Make sure it’s strong and easy to remember.",
-    topRightLink: { label: "Back to Login", to: "/login" },
+    topRightLink: { label: "Back to Login", path: "/login" },
     alert: {
       title: "Hello Mano,",
       message: "You are about to reset your password.",

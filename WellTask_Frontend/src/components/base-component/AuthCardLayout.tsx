@@ -6,7 +6,7 @@ interface AuthCardLayoutProps {
   title: string;
   description?: string;
   children: React.ReactNode;
-  topRightLink?: { label: string; to: string };
+  topRightLink?: { label: string; path: string };
   alert?: { title?: string; message: string };
 }
 
@@ -21,7 +21,7 @@ export function AuthCardLayout({
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 relative overflow-hidden">
       {topRightLink && (
         <div className="absolute top-6 right-6">
-          <Link to={topRightLink.to}>
+          <Link to={topRightLink.path}>
             <Button type="outline">{topRightLink.label}</Button>
           </Link>
         </div>
