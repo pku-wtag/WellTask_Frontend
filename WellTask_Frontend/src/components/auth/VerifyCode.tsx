@@ -8,7 +8,7 @@ export default function VerifyCode() {
     title: "Verify Code",
     description:
       "We’ve sent a 6-digit verification code to your email. Enter it below to continue.",
-    topRightLink: { label: "Back to Login", to: "/login" },
+    topRightLink: { label: "Back to Login", path: "/login" },
     alert: {
       title: "Hello Mano,",
       message: "Check your inbox for the verification code!",
