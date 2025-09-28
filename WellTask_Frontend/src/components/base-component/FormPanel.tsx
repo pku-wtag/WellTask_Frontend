@@ -25,7 +25,7 @@ interface FormProps {
   title: string;
   description?: string;
   submitText: string;
-  redirectLink?: { text: string; to: string };
+  redirectLink?: { text: string; path: string };
   fields: FormField[];
 }
 
@@ -129,8 +129,8 @@ export function FormPanel({
           <div className="text-sm text-gray-500 mt-4">
             <p className="flex items-center gap-1">
               <span>{redirectLink.text}</span>
-              <Link to={redirectLink.to} className="text-blue-600 underline">
-                {redirectLink.to.replace("/", "")}
+              <Link to={redirectLink.path} className="text-blue-600 underline">
+                {redirectLink.path.replace("/", "")}
               </Link>
             </p>
           </div>
