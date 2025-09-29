@@ -5,7 +5,7 @@ import {
 } from "@/components/base-component/FormPanel";
 
 export default function Login() {
-  const panelObj = {
+  const panel = {
     title: "Welcome Back!",
     subtitle: "Get back to your dashboard",
     showAppButtons: true,
@@ -13,7 +13,7 @@ export default function Login() {
     isVisible: true,
   };
 
-  const formObj: {
+  const form: {
     title: string;
     description: string;
     submitText: string;
@@ -50,18 +50,18 @@ export default function Login() {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
       <div className="flex h-[90vh] rounded-2xl overflow-hidden shadow-lg w-3/4 max-w-7xl">
         <FormPanel
-          title={formObj.title}
-          description={formObj.description}
-          submitText={formObj.submitText}
-          redirectLink={formObj.redirectLink}
-          fields={formObj.fields}
+          title={form.title}
+          description={form.description}
+          submitText={form.submitText}
+          redirectLink={form.redirectLink}
+          fields={form.fields}
         />
         <SidePanel
-          title={panelObj.title}
-          subtitle={panelObj.subtitle}
-          position={panelObj.position}
-          showAppButtons={panelObj.showAppButtons}
-          isVisible={panelObj.isVisible}
+          title={panel.title}
+          subtitle={panel.subtitle}
+          position={panel.position}
+          showAppButtons={panel.showAppButtons}
+          isVisible={panel.isVisible}
         />
       </div>
     </div>

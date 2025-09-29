@@ -17,8 +17,6 @@ export function Checkbox({ id, name, label, hint }: CheckboxProps) {
             id={id}
             type="checkbox"
             checked={!!input.value}
-            onChange={() => {}}
-            onBlur={() => input.onBlur(input.value)}
             className="w-4 h-4"
           />
           {label && <span>{label}</span>}
