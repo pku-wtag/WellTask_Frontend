@@ -5,7 +5,7 @@ import { AuthCardLayout } from "../base-component/AuthCardLayout";
 import type { FormField } from "../base-component/FormPanel";
 
 export default function ResetPassword() {
-  const layoutObj = {
+  const layout = {
     title: "Set New Password",
     description:
       "Enter your new password below. Make sure it’s strong and easy to remember.",
@@ -16,7 +16,7 @@ export default function ResetPassword() {
     },
   };
 
-  const formObj: {
+  const form: {
     fields: FormField[];
     submitText: string;
   } = {
@@ -43,16 +43,16 @@ export default function ResetPassword() {
 
   return (
     <AuthCardLayout
-      title={layoutObj.title}
-      description={layoutObj.description}
-      topRightLink={layoutObj.topRightLink}
-      alert={layoutObj.alert}
+      title={layout.title}
+      description={layout.description}
+      topRightLink={layout.topRightLink}
+      alert={layout.alert}
     >
       <Form
         onSubmit={() => {}}
         render={({ handleSubmit }) => (
           <form onSubmit={handleSubmit} className="space-y-5 text-left">
-            {formObj.fields.map((field) => (
+            {form.fields.map((field) => (
               <Input
                 key={field.id}
                 id={field.id}
@@ -64,7 +64,7 @@ export default function ResetPassword() {
               />
             ))}
             <Button htmlType="submit" fullWidth>
-              {formObj.submitText}
+              {form.submitText}
             </Button>
           </form>
         )}

@@ -4,7 +4,7 @@ import { AuthCardLayout } from "../base-component/AuthCardLayout";
 import { OTPInput } from "../base-component/OTPinput";
 
 export default function VerifyCode() {
-  const layoutObj = {
+  const layout = {
     title: "Verify Code",
     description:
       "We’ve sent a 6-digit verification code to your email. Enter it below to continue.",
@@ -17,10 +17,10 @@ export default function VerifyCode() {
 
   return (
     <AuthCardLayout
-      title={layoutObj.title}
-      description={layoutObj.description}
-      topRightLink={layoutObj.topRightLink}
-      alert={layoutObj.alert}
+      title={layout.title}
+      description={layout.description}
+      topRightLink={layout.topRightLink}
+      alert={layout.alert}
     >
       <Form
         onSubmit={() => {}}
