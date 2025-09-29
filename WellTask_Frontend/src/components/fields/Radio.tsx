@@ -22,7 +22,6 @@ export function Radio({ name, options, label, hint }: RadioProps) {
                 name={input.name}
                 value={option.value}
                 checked={input.value === option.value}
-                onChange={() => {}}
                 className="w-4 h-4"
               />
               <span>{option.label}</span>
