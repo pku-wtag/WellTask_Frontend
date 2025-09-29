@@ -8,6 +8,7 @@ import {
   Filter,
   Calendar,
 } from "lucide-react";
+import { Button } from "../base-component/Button";
 
 type BoardNavbarProps = {
   name: string;
@@ -48,18 +49,30 @@ export function BoardNavbar({
         </span>
       </div>
       <div className="flex items-center gap-2 text-gray-600">
-        <button className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-gray-100">
+        <Button
+          type="custom"
+          className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-gray-100"
+        >
           <Zap className="w-4 h-4" /> Power-Ups
-        </button>
-        <button className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-gray-100">
+        </Button>
+        <Button
+          type="custom"
+          className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-gray-100"
+        >
           <Calendar className="w-4 h-4" /> Views
-        </button>
-        <button className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-gray-100">
+        </Button>
+        <Button
+          type="custom"
+          className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md hover:bg-gray-100"
+        >
           <Filter className="w-4 h-4" /> Filter
-        </button>
-        <button className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600">
+        </Button>
+        <Button
+          type="custom"
+          className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600"
+        >
           <Users className="w-4 h-4" /> Invite
-        </button>
+        </Button>
         <MoreHorizontal className="w-5 h-5 cursor-pointer hover:text-gray-800" />
       </div>
     </div>

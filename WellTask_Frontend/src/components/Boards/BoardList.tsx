@@ -6,6 +6,7 @@ import {
   ChevronsLeftRight,
 } from "lucide-react";
 import { BoardCard } from "./BoardCard";
+import { Button } from "../base-component/Button";
 
 type Card = {
   id: string;
@@ -73,12 +74,13 @@ export function BoardList({
         ))}
       </div>
 
-      <button
-        onClick={onAddCard}
+      <Button
+        type="custom"
         className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-b-lg shrink-0"
+        onClick={onAddCard}
       >
         <Plus className="w-4 h-4" /> Add a card
-      </button>
+      </Button>
     </div>
   );
 }

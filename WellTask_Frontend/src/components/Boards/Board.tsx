@@ -1,8 +1,9 @@
+import { Button } from "../base-component/Button";
 import { BoardList } from "./BoardList";
 import { BoardNavbar } from "./BoardNavbar";
 
+
 export default function Board() {
-  // Dummy data for testing
   const lists = [
     {
       id: "1",
@@ -34,7 +35,6 @@ export default function Board() {
     <div className="flex flex-col h-full">
       <BoardNavbar name="Project A" starred />
 
-      {/* Board content: lists side by side */}
       <div className="flex-1 overflow-x-auto px-4 py-4">
         <div className="flex items-start gap-4">
           {lists.map((list) => (
@@ -47,10 +47,13 @@ export default function Board() {
             />
           ))}
 
-          {/* Add another list button */}
-          <button className="w-72 flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg">
+          <Button
+            type="custom"
+            className="w-72 flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg"
+            onClick={() => console.log("Add another list")}
+          >
             + Add another list
-          </button>
+          </Button>
         </div>
       </div>
     </div>
