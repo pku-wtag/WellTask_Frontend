@@ -1,21 +1,25 @@
 import React from "react";
 import { Field } from "react-final-form";
+import type { FieldRenderProps } from "react-final-form";
 
-interface FieldWrapperProps {
+interface FieldWrapperProps<T = string> {
   id: string;
   name: string;
   label?: React.ReactNode;
   hint?: string;
-  children: (input: any, meta: any) => React.ReactNode;
+  children: (
+    input: FieldRenderProps<T>["input"],
+    meta: FieldRenderProps<T>["meta"]
+  ) => React.ReactNode;
 }
 
-export function FieldWrapper({
+export function FieldWrapper<T = string>({
   id,
   name,
   label,
   hint,
   children,
-}: FieldWrapperProps) {
+}: FieldWrapperProps<T>) {
   return (
     <Field name={name}>
       {({ input, meta }) => (
