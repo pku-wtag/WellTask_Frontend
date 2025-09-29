@@ -1,15 +1,21 @@
 import React from "react";
 import { Field } from "react-final-form";
-import type { FieldRenderProps } from "react-final-form";
+import type { FieldInputProps, FieldRenderProps } from "react-final-form";
+
+export type ValidatorFn<T = string> = (
+  value: T,
+  allValues?: Record<string, T>
+) => string | undefined;
 
 interface FieldWrapperProps<T = string> {
   id: string;
   name: string;
   label?: React.ReactNode;
   hint?: string;
+  validate?: ValidatorFn<T>;
   children: (
-    input: FieldRenderProps<T>["input"],
-    meta: FieldRenderProps<T>["meta"]
+    input: FieldInputProps<T, HTMLElement>,
+    meta: FieldRenderProps<T, HTMLElement>["meta"]
   ) => React.ReactNode;
 }
 
@@ -18,10 +24,19 @@ export function FieldWrapper<T = string>({
   name,
   label,
   hint,
+  validate,
   children,
 }: FieldWrapperProps<T>) {
   return (
-    <Field name={name}>
+    <Field<T>
+      name={name}
+      validate={
+        validate
+          ? (value, allValues) =>
+              validate(value, allValues as Record<string, T>)
+          : undefined
+      }
+    >
       {({ input, meta }) => (
         <div className="mb-4">
           {label && (
@@ -33,7 +48,7 @@ export function FieldWrapper<T = string>({
           {children(input, meta)}
 
           {hint && <div className="text-xs text-gray-500 mt-1">{hint}</div>}
-          {meta?.touched && meta?.error && (
+          {meta.touched && meta.error && (
             <div className="text-xs text-red-500 mt-1">{meta.error}</div>
           )}
         </div>

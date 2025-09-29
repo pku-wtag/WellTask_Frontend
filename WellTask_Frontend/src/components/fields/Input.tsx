@@ -1,8 +1,9 @@
 import React from "react";
 import classNames from "classnames";
 import { FieldWrapper } from "./FieldWrapper";
+import type { ValidatorFn } from "./FieldWrapper";
 
-export interface InputProps {
+interface InputProps {
   id: string;
   name: string;
   label?: React.ReactNode;
@@ -12,37 +13,72 @@ export interface InputProps {
   fullWidth?: boolean;
   maxLength?: number;
   className?: string;
+  validate?: ValidatorFn<string>;
+  onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  onPaste?: (event: React.ClipboardEvent<HTMLInputElement>) => void;
 }
 
-export function Input({
-  id,
-  name,
-  label,
-  placeholder,
-  hint,
-  inputType = "text",
-  fullWidth = false,
-  maxLength,
-  className,
-}: InputProps) {
-  const inputClass = classNames(
-    "input",
-    { "input-full": fullWidth },
-    className
-  );
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  (
+    {
+      id,
+      name,
+      label,
+      placeholder,
+      hint,
+      inputType = "text",
+      fullWidth = false,
+      maxLength,
+      className,
+      validate,
+      onChange,
+      onKeyDown,
+      onPaste,
+    },
+    ref
+  ) => {
+    return (
+      <FieldWrapper<string>
+        id={id}
+        name={name}
+        label={label}
+        hint={hint}
+        validate={validate}
+      >
+        {(input, meta) => {
+          const inputClass = classNames(
+            "input p-2 border rounded",
+            {
+              "w-full": fullWidth,
+              "border-red-500": meta.touched && meta.error,
+            },
+            className
+          );
 
-  return (
-    <FieldWrapper id={id} name={name} label={label} hint={hint}>
-      {(input) => (
-        <input
-          {...input}
-          id={id}
-          type={inputType}
-          placeholder={placeholder}
-          className={inputClass}
-          maxLength={maxLength}
-        />
-      )}
-    </FieldWrapper>
-  );
-}
+          const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            input.onChange(e);
+            if (onChange) {
+              onChange(e);
+            }
+          };
+
+          return (
+            <input
+              {...input}
+              ref={ref}
+              id={id}
+              type={inputType}
+              placeholder={placeholder}
+              className={inputClass}
+              maxLength={maxLength}
+              onChange={handleChange}
+              onKeyDown={onKeyDown}
+              onPaste={onPaste}
+            />
+          );
+        }}
+      </FieldWrapper>
+    );
+  }
+);

@@ -1,6 +1,5 @@
-import React from "react";
 import { Form } from "react-final-form";
-import { Button } from "./Button";
+import { Button } from "@/components/base-component/Button";
 import { Input } from "../fields/Input";
 import { Textarea } from "../fields/Textarea";
 import { SelectBox } from "../fields/Select";
@@ -10,7 +9,7 @@ import { Link } from "react-router-dom";
 
 export type Option = { value: string; label: string };
 
-export interface FormField {
+export interface FormField<T = string> {
   id: string;
   name: string;
   label?: React.ReactNode;
@@ -19,6 +18,7 @@ export interface FormField {
   placeholder?: string;
   options?: Option[];
   fieldType: "input" | "textarea" | "select" | "checkbox" | "radio";
+  validate?: (value: T, allValues?: Record<string, unknown>) => string | undefined;
 }
 
 interface FormProps {
@@ -27,6 +27,7 @@ interface FormProps {
   submitText: string;
   redirectLink?: { text: string; path: string };
   fields: FormField[];
+  onSubmit?: (values: Record<string, unknown>) => void;
 }
 
 export function FormPanel({
@@ -35,6 +36,7 @@ export function FormPanel({
   submitText,
   redirectLink,
   fields,
+  onSubmit,
 }: FormProps) {
   const renderField = (field: FormField) => {
     switch (field.fieldType) {
@@ -49,6 +51,7 @@ export function FormPanel({
             placeholder={field.placeholder}
             inputType={field.inputType}
             fullWidth
+            validate={field.validate}
           />
         );
 
@@ -109,16 +112,14 @@ export function FormPanel({
     <div className="flex-1 p-10 flex items-center justify-center bg-white">
       <div className="w-full max-w-md">
         <h2 className="text-2xl font-bold text-gray-800 mb-1">{title}</h2>
-        {description && (
-          <p className="text-sm text-gray-500 mb-8">{description}</p>
-        )}
+        {description && <p className="text-sm text-gray-500 mb-8">{description}</p>}
 
         <Form
-          onSubmit={() => {}}
-          render={({ handleSubmit }) => (
-            <form onSubmit={handleSubmit} className="space-y-5">
+          onSubmit={onSubmit || (() => {})}
+          render={({ handleSubmit, submitting }) => (
+            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
               {fields.map(renderField)}
-              <Button htmlType="submit" fullWidth>
+              <Button htmlType="submit" fullWidth disabled={submitting}>
                 {submitText}
               </Button>
             </form>
