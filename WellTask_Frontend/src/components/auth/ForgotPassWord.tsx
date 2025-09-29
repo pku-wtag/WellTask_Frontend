@@ -5,7 +5,7 @@ import { AuthCardLayout } from "../base-component/AuthCardLayout";
 import type { FormField } from "../base-component/FormPanel";
 
 export default function ForgotPassword() {
-  const layoutObj = {
+  const layout = {
     title: "Forgot Password?",
     description:
       "We are sorry to hear that happened. Don’t be sad, we could help you get back to productivity in no time.",
@@ -16,7 +16,7 @@ export default function ForgotPassword() {
     },
   };
 
-  const formObj: {
+  const form: {
     fields: FormField[];
     submitText: string;
   } = {
@@ -36,16 +36,16 @@ export default function ForgotPassword() {
 
   return (
     <AuthCardLayout
-      title={layoutObj.title}
-      description={layoutObj.description}
-      topRightLink={layoutObj.topRightLink}
-      alert={layoutObj.alert}
+      title={layout.title}
+      description={layout.description}
+      topRightLink={layout.topRightLink}
+      alert={layout.alert}
     >
       <Form
         onSubmit={() => {}}
         render={({ handleSubmit }) => (
           <form onSubmit={handleSubmit} className="space-y-5 text-left">
-            {formObj.fields.map((field) => (
+            {form.fields.map((field) => (
               <Input
                 key={field.id}
                 id={field.id}
@@ -58,7 +58,7 @@ export default function ForgotPassword() {
               />
             ))}
             <Button htmlType="submit" fullWidth>
-              {formObj.submitText}
+              {form.submitText}
             </Button>
           </form>
         )}
