@@ -114,7 +114,6 @@ export default function WorkspacePage({
         <Dialog
           message={dialog.message}
           type={dialog.type}
-          onClose={() => setDialog(null)}
         />
       )}
       <div
