@@ -91,7 +91,10 @@ export default function Login() {
         type: "success",
       });
 
-      setTimeout(() => navigate("/workspace"), 1500);
+      const savedWorkspace = localStorage.getItem("workspace");
+      const redirectPath = savedWorkspace ? "/dashboard" : "/workspace";
+
+      setTimeout(() => navigate(redirectPath), 1000);
     } else {
       setDialog({ message: "Invalid email or password.", type: "error" });
     }

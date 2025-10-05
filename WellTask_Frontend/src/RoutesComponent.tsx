@@ -19,7 +19,10 @@ const RoutesComponent: React.FC = () => {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/verify-code" element={<VerifyCodePage />} />
-      <Route path="/workspace" element={<ProtectedRoute />}>
+      <Route
+        path="/workspace"
+        element={<ProtectedRoute showNavbar={false} showSidebar={false} />}
+      >
         <Route index element={<WorkspacePage />} />
       </Route>
       <Route path="/dashboard/*" element={<ProtectedRoute />}>
