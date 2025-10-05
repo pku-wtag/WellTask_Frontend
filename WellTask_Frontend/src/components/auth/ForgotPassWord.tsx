@@ -9,7 +9,7 @@ export default function ForgotPassword() {
     title: "Forgot Password?",
     description:
       "We are sorry to hear that happened. Don’t be sad, we could help you get back to productivity in no time.",
-    topRightLink: { label: "Create Account", path: "/signup" },
+    url: { label: "Create Account", path: "/signup" },
     alert: {
       title: "Hello Mano,",
       message: "You need to send a recovery link to this email!",
@@ -38,7 +38,7 @@ export default function ForgotPassword() {
     <AuthCardLayout
       title={layout.title}
       description={layout.description}
-      topRightLink={layout.topRightLink}
+      url={layout.url}
       alert={layout.alert}
     >
       <Form

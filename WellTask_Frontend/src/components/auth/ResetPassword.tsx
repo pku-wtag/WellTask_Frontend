@@ -9,7 +9,7 @@ export default function ResetPassword() {
     title: "Set New Password",
     description:
       "Enter your new password below. Make sure it’s strong and easy to remember.",
-    topRightLink: { label: "Back to Login", path: "/login" },
+    url: { label: "Back to Login", path: "/login" },
     alert: {
       title: "Hello Mano,",
       message: "You are about to reset your password.",
@@ -45,7 +45,7 @@ export default function ResetPassword() {
     <AuthCardLayout
       title={layout.title}
       description={layout.description}
-      topRightLink={layout.topRightLink}
+      url={layout.url}
       alert={layout.alert}
     >
       <Form
