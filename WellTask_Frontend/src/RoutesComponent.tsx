@@ -19,7 +19,9 @@ const RoutesComponent: React.FC = () => {
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/verify-code" element={<VerifyCodePage />} />
-      <Route path="/workspace" element={<WorkspacePage />} />
+      <Route path="/workspace" element={<ProtectedRoute />}>
+        <Route index element={<WorkspacePage />} />
+      </Route>
       <Route path="/dashboard/*" element={<ProtectedRoute />}>
         <Route index element={<DashBoardPage />} />
         <Route path="board" element={<BoardPage />} />

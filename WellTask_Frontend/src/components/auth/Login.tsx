@@ -91,7 +91,7 @@ export default function Login() {
         type: "success",
       });
 
-      setTimeout(() => navigate("/dashboard"), 1500);
+      setTimeout(() => navigate("/workspace"), 1500);
     } else {
       setDialog({ message: "Invalid email or password.", type: "error" });
     }
