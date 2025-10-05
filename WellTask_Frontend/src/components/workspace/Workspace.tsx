@@ -1,7 +1,24 @@
-import { FormPanel, type FormField } from "../base-component/FormPanel";
-import { SidePanel } from "../base-component/SidePanel";
+import {
+  FormPanel,
+  type FormField,
+} from "@/components/base-component/FormPanel";
+import { SidePanel } from "@/components/base-component/SidePanel";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import type { AppDispatch } from "@/redux/store";
+import { Dialog } from "@/components/base-component/Dialog";
+import { setWorkspace, type Workspace } from "@/redux/slices/workspaceSlice";
 
-export default function Workspace() {
+export default function WorkspacePage() {
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+
+  const [dialog, setDialog] = useState<{
+    message: string;
+    type: "success" | "error" | "info";
+  } | null>(null);
+
   const panel = {
     title: "Create Your Workspace",
     subtitle: "Set up your workspace and start collaborating",
@@ -60,8 +77,44 @@ export default function Workspace() {
     ],
   };
 
+  const handleCreateWorkspace = (values: Record<string, unknown>) => {
+    const workspaceName = String(values.workspaceName ?? "");
+    const workspaceType = String(values.workspaceType ?? "");
+    const workspaceDescription = String(values.workspaceDescription ?? "");
+
+    if (!workspaceName || !workspaceType) {
+      setDialog({
+        message: "Please fill out all required fields.",
+        type: "error",
+      });
+      return;
+    }
+
+    const newWorkspace: Workspace = {
+      name: workspaceName,
+      type: workspaceType,
+      description: workspaceDescription,
+    };
+
+    dispatch(setWorkspace(newWorkspace));
+    setDialog({
+      message: "Workspace created successfully! Redirecting...",
+      type: "success",
+    });
+
+    setTimeout(() => navigate("/dashboard"), 1500);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+      {dialog && (
+        <Dialog
+          message={dialog.message}
+          type={dialog.type}
+          onClose={() => setDialog(null)}
+        />
+      )}
+
       <div className="flex h-[90vh] rounded-2xl overflow-hidden shadow-lg w-3/4 max-w-7xl">
         <SidePanel
           title={panel.title}
@@ -77,6 +130,7 @@ export default function Workspace() {
           submitText={form.submitText}
           redirectLink={form.redirectLink}
           fields={form.fields}
+          onSubmit={handleCreateWorkspace}
         />
       </div>
     </div>
