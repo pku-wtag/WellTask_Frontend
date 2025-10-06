@@ -59,6 +59,7 @@ export default function ForgotPassword() {
         type: "error",
       });
       dispatch(setError("No account found. Please sign up."));
+      setTimeout(() => navigate("/signup"), 1500);
       return;
     }
 
