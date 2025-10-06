@@ -1,4 +1,5 @@
 import React from "react";
+import classNames from "classnames";
 import { Button } from "../Button";
 
 interface NavButtonProps {
@@ -16,12 +17,13 @@ export function NavButton({
   badge,
   className,
 }: NavButtonProps) {
+  const navButtonClass = classNames(
+    "relative flex items-center rounded-lg text-sm",
+    className
+  );
+
   return (
-    <Button
-      type="custom"
-      onClick={onClick}
-      className={`relative flex items-center rounded-lg text-sm ${className}`}
-    >
+    <Button type="custom" onClick={onClick} className={navButtonClass}>
       {icon}
       {label && <span>{label}</span>}
       {badge && (

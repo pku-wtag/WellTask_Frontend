@@ -1,5 +1,5 @@
 import { useState } from "react";
-import clsx from "classnames";
+import classNames from "classnames";
 import { WorkspaceSection } from "./WorkspaceSection";
 import { TeamSection } from "./TeamSection";
 import { NavigationSection } from "./NavigationSection";
@@ -11,9 +11,9 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
-  const [isNavOpen, setIsNavOpen] = useState(true);
+  const [isNavOpen, setIsNavBarOpen] = useState(true);
 
-  const sidebarClasses = clsx(
+  const sidebarClasses = classNames(
     "fixed inset-y-0 left-0 z-30 h-screen bg-white shadow-lg transform transition-all duration-300 ease-in-out md:relative md:h-full md:inset-y-auto md:left-auto md:shadow-sm overflow-hidden",
     isOpen ? "w-64 translate-x-0" : "w-0 -translate-x-full"
   );
@@ -40,7 +40,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
             <TeamSection
               isOpen={isNavOpen}
-              onToggle={() => setIsNavOpen((prev) => !prev)}
+              onToggle={() => setIsNavBarOpen((prev) => !prev)}
             />
 
             <NavigationSection />

@@ -3,7 +3,7 @@ import { Sidebar } from "./sidebar/Sidebar";
 import { Navbar } from "./navbar/Navbar";
 import { Outlet } from "react-router-dom";
 
-export function ProtectedComponent() {
+export function ProtectedRoute() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth);
 

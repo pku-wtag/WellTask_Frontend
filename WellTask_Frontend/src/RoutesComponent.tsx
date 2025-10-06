@@ -7,7 +7,7 @@ import ResetPasswordPage from "./pages/reset-password";
 import VerifyCodePage from "./pages/verify-code";
 import WorkspacePage from "./pages/work-space";
 import DashBoardPage from "./pages/dash-board";
-import { ProtectedComponent } from "./components/base-component/ProtectedComponent";
+import { ProtectedRoute } from "./components/base-component/ProtectedRoute";
 
 const RoutesComponent: React.FC = () => {
   return (
@@ -19,7 +19,7 @@ const RoutesComponent: React.FC = () => {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/verify-code" element={<VerifyCodePage />} />
       <Route path="/workspace" element={<WorkspacePage />} />
-      <Route path="/dashboard/*" element={<ProtectedComponent />}>
+      <Route path="/dashboard/*" element={<ProtectedRoute />}>
         <Route index element={<DashBoardPage />} />
       </Route>
     </Routes>

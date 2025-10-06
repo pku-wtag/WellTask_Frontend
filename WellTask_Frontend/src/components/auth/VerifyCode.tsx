@@ -8,7 +8,7 @@ export default function VerifyCode() {
     title: "Verify Code",
     description:
       "We’ve sent a 6-digit verification code to your email. Enter it below to continue.",
-    topRightLink: { label: "Back to Login", path: "/login" },
+    url: { label: "Back to Login", path: "/login" },
     alert: {
       title: "Hello Mano,",
       message: "Check your inbox for the verification code!",
@@ -19,7 +19,7 @@ export default function VerifyCode() {
     <AuthCardLayout
       title={layout.title}
       description={layout.description}
-      topRightLink={layout.topRightLink}
+      url={layout.url}
       alert={layout.alert}
     >
       <Form
