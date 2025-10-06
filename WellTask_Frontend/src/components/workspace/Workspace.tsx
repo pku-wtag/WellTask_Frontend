@@ -12,7 +12,6 @@ import { Modal } from "../base-component/modal";
 import { addWorkspace, type Workspace } from "@/redux/slices/workspaceSlice";
 import { createNewWorkspace } from "@/utils/workspaceUtils";
 
-
 interface WorkspacePageProps {
   isModal?: boolean;
   onClose?: () => void;

@@ -7,22 +7,18 @@ import {
 } from "lucide-react";
 import { BoardCard } from "./BoardCard";
 import { Button } from "../base-component/Button";
+import type { Card } from "@/redux/slices/workspaceSlice";
 
-type Card = {
-  id: string;
-  title: string;
-};
-
-type ListProps = {
-  title: string;
+interface ListProps {
+  name: string;
   cards: Card[];
-  onAddCard: () => void;
-  onMoreOptions: () => void;
+  onAddCard?: () => void;
+  onMoreOptions?: () => void;
   onCardClick?: (id: string) => void;
-};
+}
 
 export function BoardList({
-  title,
+  name,
   cards,
   onAddCard,
   onMoreOptions,
@@ -39,7 +35,7 @@ export function BoardList({
       >
         <ChevronsLeftRight className="w-5 h-5 text-gray-500 shrink-0" />
         <h2 className="mt-4 text-sm font-semibold text-gray-800 [writing-mode:vertical-rl] transform rotate-180 whitespace-nowrap">
-          {title}
+          {name}
         </h2>
       </div>
     );
@@ -48,14 +44,14 @@ export function BoardList({
   return (
     <div className="w-72 bg-gray-50 rounded-lg shadow-sm border border-gray-200 flex flex-col h-fit max-h-[90vh]">
       <div className="flex items-center justify-between px-3 py-2 shrink-0">
-        <h2 className="text-sm font-semibold text-gray-800 truncate">
-          {title}
-        </h2>
+        <h2 className="text-sm font-semibold text-gray-800 truncate">{name}</h2>
         <div className="flex items-center gap-1">
-          <MoreHorizontal
-            className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-700"
-            onClick={onMoreOptions}
-          />
+          {onMoreOptions && (
+            <MoreHorizontal
+              className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-700"
+              onClick={onMoreOptions}
+            />
+          )}
           <ChevronsRightLeft
             className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-700"
             onClick={() => setIsCollapsed(true)}
@@ -68,19 +64,21 @@ export function BoardList({
           <BoardCard
             key={card.id}
             id={card.id}
-            title={card.title}
+            name={card.name}
             onClick={onCardClick}
           />
         ))}
       </div>
 
-      <Button
-        type="custom"
-        className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-b-lg shrink-0"
-        onClick={onAddCard}
-      >
-        <Plus className="w-4 h-4" /> Add a card
-      </Button>
+      {onAddCard && (
+        <Button
+          type="custom"
+          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-b-lg shrink-0"
+          onClick={onAddCard}
+        >
+          <Plus className="w-4 h-4" /> Add a card
+        </Button>
+      )}
     </div>
   );
 }

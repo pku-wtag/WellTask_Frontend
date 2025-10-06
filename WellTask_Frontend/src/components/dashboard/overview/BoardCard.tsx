@@ -1,27 +1,27 @@
-import { Star } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface BoardCardProps {
+  id: string;
   name: string;
-  starred?: boolean;
   bgColor?: string;
 }
 
 export function BoardCard({
+  id,
   name,
-  starred,
   bgColor = "bg-blue-100",
 }: BoardCardProps) {
+  const navigate = useNavigate();
+
   return (
     <div
       className={`${bgColor} p-4 rounded-lg hover:${bgColor.replace(
         "100",
         "200"
       )} cursor-pointer flex flex-col gap-2`}
+      onClick={() => navigate(`/dashboard/board/${id}`)}
     >
-      <div className="flex items-center justify-between">
-        <span className="text-gray-800 font-medium">{name}</span>
-        {starred && <Star className="w-5 h-5 text-yellow-500 ml-2" />}
-      </div>
+      <span className="text-gray-800 font-medium">{name}</span>
     </div>
   );
 }

@@ -27,7 +27,7 @@ const RoutesComponent: React.FC = () => {
       </Route>
       <Route path="/dashboard/*" element={<ProtectedRoute />}>
         <Route index element={<DashBoardPage />} />
-        <Route path="board" element={<BoardPage />} />
+        <Route path="board/:boardId" element={<BoardPage />} />
       </Route>
     </Routes>
   );

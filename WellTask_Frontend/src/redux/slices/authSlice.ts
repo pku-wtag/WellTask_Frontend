@@ -36,7 +36,7 @@ const authSlice = createSlice({
     },
 
     signupSuccess: (state, action: PayloadAction<User>) => {
-      state.user = action.payload; // keep password
+      state.user = action.payload;
       state.isAuthenticated = true;
       state.isLoading = false;
       state.error = null;
@@ -45,12 +45,12 @@ const authSlice = createSlice({
     },
 
     loginSuccess: (state, action: PayloadAction<User>) => {
-      state.user = action.payload; // keep password
+      state.user = action.payload;
       state.isAuthenticated = true;
       state.isLoading = false;
       state.error = null;
       state.message = "Login successful!";
-      localStorage.setItem("user", JSON.stringify(action.payload)); // include password for login
+      localStorage.setItem("user", JSON.stringify(action.payload));
     },
 
     logout: (state) => {

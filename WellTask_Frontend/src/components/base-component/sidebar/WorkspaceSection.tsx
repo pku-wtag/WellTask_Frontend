@@ -1,5 +1,7 @@
 import { Plus, X } from "lucide-react";
 import { Button } from "../Button";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/redux/store";
 
 interface WorkspaceSectionProps {
   isOpen: boolean;
@@ -12,6 +14,10 @@ export function WorkspaceSection({
   onToggle,
   onClose,
 }: WorkspaceSectionProps) {
+  const workspaces = useSelector(
+    (state: RootState) => state.workspace.workspaces
+  );
+
   return (
     <div>
       <div className="flex items-center justify-between px-2 pt-2">
@@ -32,7 +38,9 @@ export function WorkspaceSection({
         onClick={onToggle}
         className="flex items-center justify-between w-full py-2 px-3 bg-blue-100 rounded-lg hover:bg-blue-200"
       >
-        <span className="font-semibold">Team Alpha</span>
+        <span className="font-semibold">
+          {workspaces[0]?.name || "Workspace"}
+        </span>
         <Plus
           className={`w-5 h-5 transition-transform ${
             isOpen ? "rotate-45" : ""
@@ -42,18 +50,16 @@ export function WorkspaceSection({
 
       {isOpen && (
         <div className="w-full bg-blue-50 rounded-lg shadow-sm p-2 flex flex-col gap-1 transition-all duration-300">
-          <Button
-            type="custom"
-            className="w-full text-left px-3 py-2 text-sm rounded hover:bg-blue-100 font-semibold bg-blue-100"
-          >
-            Team Alpha
-          </Button>
-          <Button
-            type="custom"
-            className="w-full text-left px-3 py-2 text-sm rounded hover:bg-blue-100"
-          >
-            Marketing
-          </Button>
+          {workspaces.map((ws) => (
+            <Button
+              key={ws.id}
+              type="custom"
+              className="w-full text-left px-3 py-2 text-sm rounded hover:bg-blue-100 font-semibold"
+            >
+              {ws.name}
+            </Button>
+          ))}
+
           <Button
             type="custom"
             className="w-full text-left px-3 py-2 text-sm rounded hover:bg-blue-100 flex items-center gap-2"
