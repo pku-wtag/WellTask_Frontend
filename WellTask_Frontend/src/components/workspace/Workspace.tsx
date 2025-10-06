@@ -8,9 +8,20 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import type { AppDispatch } from "@/redux/store";
 import { Dialog } from "@/components/base-component/Dialog";
-import { setWorkspace, type Workspace } from "@/redux/slices/workspaceSlice";
+import { Modal } from "../base-component/modal";
+import { addWorkspace, type Workspace } from "@/redux/slices/workspaceSlice";
+import { createNewWorkspace } from "@/utils/workspaceUtils";
 
-export default function WorkspacePage() {
+
+interface WorkspacePageProps {
+  isModal?: boolean;
+  onClose?: () => void;
+}
+
+export default function WorkspacePage({
+  isModal = false,
+  onClose,
+}: WorkspacePageProps) {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
@@ -78,11 +89,8 @@ export default function WorkspacePage() {
   };
 
   const handleCreateWorkspace = (values: Record<string, unknown>) => {
-    const workspaceName = String(values.workspaceName ?? "");
-    const workspaceType = String(values.workspaceType ?? "");
-    const workspaceDescription = String(values.workspaceDescription ?? "");
-
-    if (!workspaceName || !workspaceType) {
+    const workspace: Workspace | null = createNewWorkspace(values);
+    if (!workspace) {
       setDialog({
         message: "Please fill out all required fields.",
         type: "error",
@@ -90,23 +98,18 @@ export default function WorkspacePage() {
       return;
     }
 
-    const newWorkspace: Workspace = {
-      name: workspaceName,
-      type: workspaceType,
-      description: workspaceDescription,
-    };
-
-    dispatch(setWorkspace(newWorkspace));
+    dispatch(addWorkspace(workspace));
     setDialog({
       message: "Workspace created successfully! Redirecting...",
       type: "success",
     });
 
-    setTimeout(() => navigate("/dashboard"), 1500);
+    if (isModal && onClose) setTimeout(onClose, 1000);
+    else setTimeout(() => navigate("/dashboard"), 1500);
   };
 
-  return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+  const content = (
+    <>
       {dialog && (
         <Dialog
           message={dialog.message}
@@ -114,25 +117,28 @@ export default function WorkspacePage() {
           onClose={() => setDialog(null)}
         />
       )}
-
-      <div className="flex h-[90vh] rounded-2xl overflow-hidden shadow-lg w-3/4 max-w-7xl">
-        <SidePanel
-          title={panel.title}
-          subtitle={panel.subtitle}
-          position={panel.position}
-          showAppButtons={panel.showAppButtons}
-          isVisible={panel.isVisible}
-        />
-
-        <FormPanel
-          title={form.title}
-          description={form.description}
-          submitText={form.submitText}
-          redirectLink={form.redirectLink}
-          fields={form.fields}
-          onSubmit={handleCreateWorkspace}
-        />
+      <div
+        className={`${
+          isModal
+            ? "w-full flex-1 overflow-auto"
+            : "flex h-[90vh] rounded-2xl overflow-hidden shadow-lg w-3/4 max-w-7xl"
+        }`}
+      >
+        {!isModal && <SidePanel {...panel} />}
+        <FormPanel {...form} onSubmit={handleCreateWorkspace} />
       </div>
+    </>
+  );
+
+  if (isModal)
+    return (
+      <Modal isOpen={true} onClose={onClose}>
+        {content}
+      </Modal>
+    );
+  return (
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
+      {content}
     </div>
   );
 }
