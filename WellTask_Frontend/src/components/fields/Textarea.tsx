@@ -1,6 +1,6 @@
 import React from "react";
 import classNames from "classnames";
-import { FieldWrapper } from "./FieldWrapper";
+import { FieldWrapper, type ValidatorFn } from "./FieldWrapper";
 
 export interface TextareaProps {
   id: string;
@@ -10,6 +10,7 @@ export interface TextareaProps {
   hint?: string;
   fullWidth?: boolean;
   className?: string;
+  validate?: ValidatorFn<string>;
 }
 
 export function Textarea({
@@ -20,6 +21,7 @@ export function Textarea({
   hint,
   fullWidth = false,
   className,
+  validate,
 }: TextareaProps) {
   const inputClass = classNames(
     "input",
@@ -28,7 +30,7 @@ export function Textarea({
   );
 
   return (
-    <FieldWrapper id={id} name={name} label={label} hint={hint}>
+    <FieldWrapper id={id} name={name} label={label} hint={hint} validate={validate}>
       {(input) => (
         <textarea
           {...input}

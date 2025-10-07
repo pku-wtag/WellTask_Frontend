@@ -1,76 +1,49 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-
-export interface Card {
-  id: string;
-  name: string;
-  description?: string;
-}
-
-export interface List {
-  id: string;
-  name: string;
-  cards: Card[];
-}
-
-export interface Board {
-  id: string;
-  name: string;
-  starred?: boolean;
-  lists: List[];
-}
-
-export interface Workspace {
-  id: string;
-  name: string;
-  type: string;
-  description?: string;
-  boards: Board[];
-}
+import type { Workspace } from "@/types/Workspace";
 
 interface WorkspaceState {
   workspaces: Workspace[];
+  isLoading: boolean;
+  error: string | null;
+  message: string | null;
 }
 
-const savedWorkspaces = localStorage.getItem("workspaces");
-
 const initialState: WorkspaceState = {
-  workspaces: savedWorkspaces ? JSON.parse(savedWorkspaces) : [],
+  workspaces: [],
+  isLoading: false,
+  error: null,
+  message: null,
 };
 
 const workspaceSlice = createSlice({
   name: "workspace",
   initialState,
   reducers: {
-    addWorkspace: (state, action: PayloadAction<Workspace>) => {
-      state.workspaces.push(action.payload);
-      localStorage.setItem("workspaces", JSON.stringify(state.workspaces));
+    startLoading: (state) => {
+      state.isLoading = true;
+      state.error = null;
+      state.message = null;
     },
-    updateWorkspace: (state, action: PayloadAction<Workspace>) => {
-      const index = state.workspaces.findIndex(
-        (w) => w.id === action.payload.id
-      );
-      if (index > -1) {
-        state.workspaces[index] = action.payload;
-        localStorage.setItem("workspaces", JSON.stringify(state.workspaces));
-      }
+    setError: (state, action: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = action.payload;
+      state.message = null;
     },
-    removeWorkspace: (state, action: PayloadAction<string>) => {
-      state.workspaces = state.workspaces.filter(
-        (w) => w.id !== action.payload
-      );
-      localStorage.setItem("workspaces", JSON.stringify(state.workspaces));
+    setMessage: (state, action: PayloadAction<string>) => {
+      state.isLoading = false;
+      state.error = null;
+      state.message = action.payload;
     },
-    clearWorkspaces: (state) => {
-      state.workspaces = [];
-      localStorage.removeItem("workspaces");
+    clearError: (state) => {
+      state.error = null;
+    },
+    clearMessage: (state) => {
+      state.message = null;
     },
   },
 });
 
-export const {
-  addWorkspace,
-  updateWorkspace,
-  removeWorkspace,
-  clearWorkspaces,
-} = workspaceSlice.actions;
+export const { startLoading, setError, setMessage, clearError, clearMessage } =
+  workspaceSlice.actions;
+
 export default workspaceSlice.reducer;

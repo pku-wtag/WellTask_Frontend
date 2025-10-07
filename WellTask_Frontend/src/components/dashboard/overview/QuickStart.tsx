@@ -2,6 +2,9 @@ import { TemplateCard } from "./TemplateCard";
 import { BoardCard } from "./BoardCard";
 import { WorkspaceCard, type Board } from "./WorkspaceCard";
 import { Plus } from "lucide-react";
+import Workspace from "@/components/workspace/Workspace";
+import { useState } from "react";
+
 type Workspace = {
   id: string;
   name: string;
@@ -27,6 +30,7 @@ const recentlyViewed: Board[] = [
 const templates = ["Kanban", "Project Plan", "Marketing", "Product Launch"];
 
 export function QuickStart() {
+  const [isWorkspaceModalOpen, setWorkspaceModalOpen] = useState(false);
   const starredBoards = dummyWorkspaces.flatMap((w) =>
     w.boards.filter((b) => b.starred)
   );
@@ -77,10 +81,20 @@ export function QuickStart() {
           />
         ))}
 
-        <div className="flex items-center justify-center p-6 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 text-gray-600 font-medium">
+        <div
+          className="flex items-center justify-center p-6 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 text-gray-600 font-medium"
+          onClick={() => setWorkspaceModalOpen(true)}
+        >
           <Plus className="w-5 h-5 mr-2" /> Create Workspace
         </div>
       </div>
+
+      {isWorkspaceModalOpen && (
+        <Workspace
+          isModal={true}
+          onClose={() => setWorkspaceModalOpen(false)}
+        />
+      )}
     </div>
   );
 }
