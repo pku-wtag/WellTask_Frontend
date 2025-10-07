@@ -3,27 +3,20 @@ import {
   FormPanel,
   type FormField,
 } from "@/components/base-component/FormPanel";
-import { required, email } from "@/utils/validators";
-import {
-  loginSuccess,
-  startLoading,
-  type User,
-} from "@/redux/slices/authSlice";
+import { email, passwordStrength } from "@/utils/validators";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import type { RootState } from "@/redux/store";
+import type { RootState, AppDispatch } from "@/redux/store";
+import { loginUser } from "@/redux/thunks/authThunks";
 import { Dialog } from "../base-component/Dialog";
+import { Button } from "@/components/base-component/Button";
 
 export default function Login() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { isLoading } = useSelector((state: RootState) => state.auth);
-
-  const [dialog, setDialog] = useState<{
-    message: string;
-    type: "success" | "error" | "info";
-  } | null>(null);
+  const { isLoading, error, message } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   const panel = {
     title: "Welcome Back!",
@@ -63,58 +56,61 @@ export default function Login() {
         placeholder: "Enter your password",
         fieldType: "input",
         inputType: "password",
-        validate: required,
+        validate: passwordStrength,
       },
     ],
   };
 
-  const handleLogin = (values: Record<string, unknown>) => {
-    dispatch(startLoading());
-
-    const savedUser = localStorage.getItem("user");
-    if (!savedUser) {
-      setDialog({
-        message: "No account found. Please sign up.",
-        type: "error",
-      });
-      return;
-    }
-
-    const user: User = JSON.parse(savedUser);
-    const emailValue = String(values.email);
-    const passwordValue = String(values.password);
-
-    if (emailValue === user.email && passwordValue === user.password) {
-      dispatch(loginSuccess(user));
-      setDialog({
-        message: "Login successful! Redirecting...",
-        type: "success",
-      });
-
+  const handleLogin = async (values: Record<string, unknown>) => {
+    try {
+      await dispatch(
+        loginUser({
+          email: String(values.email),
+          password: String(values.password),
+        })
+      ).unwrap();
       setTimeout(() => navigate("/workspace"), 1500);
-    } else {
-      setDialog({ message: "Invalid email or password.", type: "error" });
+    } catch (err) {
+      const payload = err as { code?: string; message: string };
+      if (payload.code === "NO_ACCOUNT") {
+        setTimeout(() => navigate("/signup"), 1500);
+      }
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
-      {dialog && (
+      {(message || error) && (
         <Dialog
-          message={dialog.message}
-          type={dialog.type}
-          onClose={() => setDialog(null)}
+          message={message || error || ""}
+          type={message ? "success" : "error"}
+          duration={3000}
         />
       )}
-      <div className="flex h-[90vh] rounded-2xl overflow-hidden shadow-lg w-3/4 max-w-7xl">
-        <FormPanel
-          title={form.title}
-          description={form.description}
-          submitText={isLoading ? "Logging in..." : form.submitText}
-          redirectLink={form.redirectLink}
-          fields={form.fields}
-          onSubmit={handleLogin}
-        />
+
+      <div className="flex h-[90vh] rounded-2xl overflow-hidden shadow-lg w-3/4 ">
+        <div className="flex-1 flex flex-col justify-center bg-white p-10">
+          <div className="w-full max-w-md">
+            <FormPanel
+              title={form.title}
+              description={form.description}
+              submitText={isLoading ? "Logging in..." : form.submitText}
+              redirectLink={form.redirectLink}
+              fields={form.fields}
+              onSubmit={handleLogin}
+            />
+
+            <div className="text-right mt-4">
+              <Button
+                type="outline"
+                onClick={() => navigate("/forgot-password")}
+              >
+                Forgot Password?
+              </Button>
+            </div>
+          </div>
+        </div>
+
         <SidePanel
           title={panel.title}
           subtitle={panel.subtitle}

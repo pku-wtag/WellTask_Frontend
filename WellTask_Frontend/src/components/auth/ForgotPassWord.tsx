@@ -4,38 +4,21 @@ import { Input } from "../fields/Input";
 import { AuthCardLayout } from "../base-component/AuthCardLayout";
 import type { FormField } from "../base-component/FormPanel";
 import { email } from "@/utils/validators";
-import { setError } from "@/redux/slices/authSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import type { RootState, AppDispatch } from "@/redux/store";
+import { sendRecoveryLink } from "@/redux/thunks/authThunks";
 import { Dialog } from "../base-component/Dialog";
+import { authPageConfigs } from "./authPageConfigs";
 
 export default function ForgotPassword() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const [dialog, setDialog] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
+  const { message, error } = useSelector((state: RootState) => state.auth);
 
-  const savedUser = localStorage.getItem("user");
-  const user = savedUser ? JSON.parse(savedUser) : null;
+  const layout = authPageConfigs.forgotPassword;
 
-  const layout = {
-    title: "Forgot Password?",
-    description:
-      "We are sorry to hear that happened. Don’t be sad, we could help you get back to productivity in no time.",
-    url: { label: "Create Account", path: "/signup" },
-    alert: {
-      title: user ? `Hello ${user.fullname},` : "Hello,",
-      message: "You need to send a recovery link to this email!",
-    },
-  };
-
-  const form: {
-    fields: FormField[];
-    submitText: string;
-  } = {
+  const form: { fields: FormField[]; submitText: string } = {
     fields: [
       {
         id: "email",
@@ -51,34 +34,17 @@ export default function ForgotPassword() {
     submitText: "Next",
   };
 
-  const handleForgotPassword = (values: Record<string, unknown>) => {
-    const savedUser = localStorage.getItem("user");
-    if (!savedUser) {
-      setDialog({
-        message: "No account found. Please sign up.",
-        type: "error",
-      });
-      dispatch(setError("No account found. Please sign up."));
-      setTimeout(() => navigate("/signup"), 1500);
-      return;
-    }
-
-    const user = JSON.parse(savedUser);
+  const handleForgotPassword = async (values: Record<string, unknown>) => {
     const emailValue = String(values.email);
 
-    if (emailValue === user.email) {
-      setDialog({
-        message: `Recovery link sent to ${user.email}`,
-        type: "success",
-      });
-
+    try {
+      await dispatch(sendRecoveryLink(emailValue)).unwrap();
       setTimeout(() => navigate("/verify-code"), 1500);
-    } else {
-      setDialog({
-        message: "Email not found. Please check or sign up.",
-        type: "error",
-      });
-      dispatch(setError("Email not found. Please check or sign up."));
+    } catch (err) {
+      const payload = err as { code?: string; message: string };
+      if (payload?.code === "NO_ACCOUNT") {
+        setTimeout(() => navigate("/signup"), 1500);
+      }
     }
   };
 
@@ -89,11 +55,11 @@ export default function ForgotPassword() {
       url={layout.url}
       alert={layout.alert}
     >
-      {dialog && (
+      {(message || error) && (
         <Dialog
-          message={dialog.message}
-          type={dialog.type}
-          onClose={() => setDialog(null)}
+          message={message || error || ""}
+          type={message ? "success" : "error"}
+          duration={3000}
         />
       )}
 

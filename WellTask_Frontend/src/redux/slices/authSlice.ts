@@ -1,12 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-
-export interface User {
-  id: string;
-  fullname: string;
-  email: string;
-  token: string;
-  password?: string;
-}
+import type { User } from "@/types/User";
+import { saveUser } from "@/utils/authStorage";
 
 interface AuthState {
   user: User | null;
@@ -16,10 +10,9 @@ interface AuthState {
   message: string | null;
 }
 
-const savedUser = localStorage.getItem("user");
 const initialState: AuthState = {
-  user: savedUser ? JSON.parse(savedUser) : null,
-  isAuthenticated: !!savedUser,
+  user: null,
+  isAuthenticated: false,
   isLoading: false,
   error: null,
   message: null,
@@ -35,22 +28,16 @@ const authSlice = createSlice({
       state.message = null;
     },
 
-    signupSuccess: (state, action: PayloadAction<User>) => {
-      state.user = action.payload; // keep password
+    setAuthUser: (
+      state,
+      action: PayloadAction<{ user: User; message?: string }>
+    ) => {
+      state.user = action.payload.user;
       state.isAuthenticated = true;
       state.isLoading = false;
       state.error = null;
-      state.message = "Signup successful!";
-      localStorage.setItem("user", JSON.stringify(action.payload));
-    },
-
-    loginSuccess: (state, action: PayloadAction<User>) => {
-      state.user = action.payload; // keep password
-      state.isAuthenticated = true;
-      state.isLoading = false;
-      state.error = null;
-      state.message = "Login successful!";
-      localStorage.setItem("user", JSON.stringify(action.payload)); // include password for login
+      state.message = action.payload.message || null;
+      saveUser(action.payload.user);
     },
 
     logout: (state) => {
@@ -64,7 +51,7 @@ const authSlice = createSlice({
     updateUser: (state, action: PayloadAction<Partial<User>>) => {
       if (state.user) {
         state.user = { ...state.user, ...action.payload };
-        localStorage.setItem("user", JSON.stringify(state.user));
+        saveUser(state.user);
       }
     },
 
@@ -78,6 +65,12 @@ const authSlice = createSlice({
       state.error = null;
     },
 
+    setMessage: (state, action: PayloadAction<string>) => {
+      state.message = action.payload;
+      state.isLoading = false;
+      state.error = null;
+    },
+
     clearMessage: (state) => {
       state.message = null;
     },
@@ -86,12 +79,12 @@ const authSlice = createSlice({
 
 export const {
   startLoading,
-  signupSuccess,
-  loginSuccess,
+  setAuthUser,
   logout,
   updateUser,
   setError,
   clearError,
+  setMessage,
   clearMessage,
 } = authSlice.actions;
 

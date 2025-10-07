@@ -3,41 +3,32 @@ import { Form } from "react-final-form";
 import { AuthCardLayout } from "../base-component/AuthCardLayout";
 import { OTPInput } from "../base-component/OTPinput";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState, AppDispatch } from "@/redux/store";
 import { Dialog } from "../base-component/Dialog";
+import { setMessage, setError } from "@/redux/slices/authSlice";
+import { authPageConfigs } from "./authPageConfigs";
 
 export default function VerifyCode() {
   const navigate = useNavigate();
-  const [dialog, setDialog] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
+  const { message, error } = useSelector(
+    (state: RootState) => state.auth
+  );
 
-  const savedUser = localStorage.getItem("user");
-  const user = savedUser ? JSON.parse(savedUser) : null;
+  const layout = authPageConfigs.verifyCode;
 
-  const layout = {
-    title: "Verify Code",
-    description:
-      "We’ve sent a 6-digit verification code to your email. Enter it below to continue.",
-    url: { label: "Back to Login", path: "/login" },
-    alert: {
-      title: user ? `Hello ${user.fullname},` : "Hello,",
-      message: "Check your inbox for the verification code!",
-    },
-  };
-
-  const handleVerifyCode = (values: Record<string, string>) => {
-    let otp = "";
-    for (let i = 0; i < 6; i++) {
-      otp += values[`otp-${i}`] || "";
-    }
+  const handleVerifyCode = async (values: Record<string, string>) => {
+    const otp = Array.from(
+      { length: 6 },
+      (_, i) => values[`otp-${i}`] || ""
+    ).join("");
 
     if (otp === "123456") {
-      setDialog({ message: "OTP verified successfully!", type: "success" });
+      dispatch(setMessage("OTP verified successfully!"));
       setTimeout(() => navigate("/reset-password"), 1500);
     } else {
-      setDialog({ message: "Invalid OTP. Please try again.", type: "error" });
+      dispatch(setError("Invalid OTP. Please try again."));
     }
   };
 
@@ -48,11 +39,11 @@ export default function VerifyCode() {
       url={layout.url}
       alert={layout.alert}
     >
-      {dialog && (
+      {(message || error) && (
         <Dialog
-          message={dialog.message}
-          type={dialog.type}
-          onClose={() => setDialog(null)}
+          message={message || error || ""}
+          type={message ? "success" : "error"}
+          duration={3000}
         />
       )}
 

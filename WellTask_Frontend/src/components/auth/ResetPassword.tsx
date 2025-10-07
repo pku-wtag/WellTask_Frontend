@@ -3,41 +3,28 @@ import { Form } from "react-final-form";
 import { Input } from "../fields/Input";
 import { AuthCardLayout } from "../base-component/AuthCardLayout";
 import type { FormField } from "../base-component/FormPanel";
-import { required, passwordStrength, match } from "@/utils/validators";
+import { passwordStrength } from "@/utils/validators";
 import { useDispatch, useSelector } from "react-redux";
-import { updateUser } from "@/redux/slices/authSlice";
+import {
+  resetPassword,
+  type AuthErrorCodeType,
+} from "@/redux/thunks/authThunks";
 import { useNavigate } from "react-router-dom";
-import type { RootState } from "@/redux/store";
-import { useState } from "react";
+import type { RootState, AppDispatch } from "@/redux/store";
 import { Dialog } from "../base-component/Dialog";
+import { setError, setMessage } from "@/redux/slices/authSlice";
+import { authPageConfigs } from "./authPageConfigs";
 
 export default function ResetPassword() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const user = useSelector((state: RootState) => state.auth.user);
-  const [dialog, setDialog] = useState<{
-    message: string;
-    type: "success" | "error";
-  } | null>(null);
+  const { message, error, isLoading } = useSelector(
+    (state: RootState) => state.auth
+  );
 
-  const savedUser = localStorage.getItem("user");
-  const users = savedUser ? JSON.parse(savedUser) : null;
+   const layout = authPageConfigs.resetPassword;
 
-  const layout = {
-    title: "Set New Password",
-    description:
-      "Enter your new password below. Make sure it’s strong and easy to remember.",
-    url: { label: "Back to Login", path: "/login" },
-    alert: {
-      title: users ? `Hello ${users.fullname},` : "Hello,",
-      message: "You are about to reset your password.",
-    },
-  };
-
-  const form: {
-    fields: FormField[];
-    submitText: string;
-  } = {
+  const form: { fields: FormField[]; submitText: string } = {
     fields: [
       {
         id: "password",
@@ -46,7 +33,10 @@ export default function ResetPassword() {
         inputType: "password",
         placeholder: "Enter your new password",
         fieldType: "input",
-        validate: (value) => required(value) || passwordStrength(value),
+        validate: (value) => {
+          if (!value) return "This field is required";
+          return passwordStrength(value);
+        },
       },
       {
         id: "confirmPassword",
@@ -55,26 +45,25 @@ export default function ResetPassword() {
         inputType: "password",
         placeholder: "Confirm your new password",
         fieldType: "input",
-        validate: (value, allValues) =>
-          required(value) ||
-          match(allValues?.password as string | undefined)(value),
+        validate: (value, allValues) => {
+          if (!value) return "This field is required";
+          if (value !== allValues?.password) return "Passwords do not match";
+          return undefined;
+        },
       },
     ],
     submitText: "Update Password",
   };
 
-  const handleSubmit = (values: Record<string, string>) => {
-    if (user) {
-      dispatch(updateUser({ password: values.password }));
-      setDialog({ message: "Password updated successfully!", type: "success" });
-
+  const handleSubmit = async (values: Record<string, string>) => {
+    try {
+      await dispatch(resetPassword({ password: values.password })).unwrap();
+      dispatch(setMessage("Password updated successfully!"));
       setTimeout(() => navigate("/login"), 1500);
-    } else {
-      setDialog({
-        message: "No user found! Please sign up first.",
-        type: "error",
-      });
-      setTimeout(() => navigate("/signup"), 1500);
+    } catch (err) {
+      const payload = err as { code?: AuthErrorCodeType; message: string };
+      const msg = payload?.message || "Something went wrong. Please try again.";
+      dispatch(setError(msg));
     }
   };
 
@@ -85,11 +74,11 @@ export default function ResetPassword() {
       url={layout.url}
       alert={layout.alert}
     >
-      {dialog && (
+      {(message || error) && (
         <Dialog
-          message={dialog.message}
-          type={dialog.type}
-          onClose={() => setDialog(null)}
+          message={message || error || ""}
+          type={message ? "success" : "error"}
+          duration={3000}
         />
       )}
 
@@ -109,7 +98,7 @@ export default function ResetPassword() {
                 validate={field.validate}
               />
             ))}
-            <Button htmlType="submit" fullWidth>
+            <Button htmlType="submit" fullWidth disabled={isLoading}>
               {form.submitText}
             </Button>
           </form>

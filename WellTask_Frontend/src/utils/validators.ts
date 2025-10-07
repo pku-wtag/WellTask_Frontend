@@ -21,22 +21,18 @@ export const maxLength =
   };
 
 export const email = (value: string | undefined | null): string | undefined => {
+  if (!value) return "This field is required";
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return value && regex.test(value) ? undefined : "Invalid email address";
+  return regex.test(value) ? undefined : "Invalid email address";
 };
 
 export const passwordStrength = (
   value: string | undefined | null
 ): string | undefined => {
+  if (!value) return "This field is required";
   const regex =
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-  return value && regex.test(value)
+  return regex.test(value)
     ? undefined
     : "Password must include uppercase, lowercase, number, and symbol";
 };
-
-export const match =
-  (matchValue: string | undefined | null, message = "Values do not match") =>
-  (value: string | undefined | null): string | undefined => {
-    return value === matchValue ? undefined : message;
-  };
