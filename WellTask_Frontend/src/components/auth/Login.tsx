@@ -14,7 +14,7 @@ import { Button } from "@/components/base-component/Button";
 export default function Login() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { isLoading, error, message } = useSelector(
+  const { error, message } = useSelector(
     (state: RootState) => state.auth
   );
 
@@ -94,7 +94,7 @@ export default function Login() {
             <FormPanel
               title={form.title}
               description={form.description}
-              submitText={isLoading ? "Logging in..." : form.submitText}
+              submitText={form.submitText}
               redirectLink={form.redirectLink}
               fields={form.fields}
               onSubmit={handleLogin}

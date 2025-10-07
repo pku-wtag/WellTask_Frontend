@@ -18,7 +18,7 @@ import { authPageConfigs } from "./authPageConfigs";
 export default function ResetPassword() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { message, error, isLoading } = useSelector(
+  const { message, error } = useSelector(
     (state: RootState) => state.auth
   );
 
@@ -98,7 +98,7 @@ export default function ResetPassword() {
                 validate={field.validate}
               />
             ))}
-            <Button htmlType="submit" fullWidth disabled={isLoading}>
+            <Button htmlType="submit" fullWidth>
               {form.submitText}
             </Button>
           </form>

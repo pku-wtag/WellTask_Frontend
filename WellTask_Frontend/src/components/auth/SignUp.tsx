@@ -13,7 +13,7 @@ import { Dialog } from "../base-component/Dialog";
 export default function Signup() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { isLoading, error, message } = useSelector(
+  const {error, message } = useSelector(
     (state: RootState) => state.auth
   );
 
@@ -61,7 +61,7 @@ export default function Signup() {
         id: "password",
         name: "password",
         label: "Password",
-        hint: "Use 8 characters with uppercase, lowercase, symbol, and number.",
+        hint: "Use 8 characters with an uppercase, lowercase, symbol, and number.",
         placeholder: "Enter your password",
         fieldType: "input",
         inputType: "password",
@@ -117,7 +117,7 @@ export default function Signup() {
           <FormPanel
             title={form.title}
             description={form.description}
-            submitText={isLoading ? "Creating..." : form.submitText}
+            submitText={form.submitText}
             redirectLink={form.redirectLink}
             fields={form.fields}
             onSubmit={handleSubmit}
