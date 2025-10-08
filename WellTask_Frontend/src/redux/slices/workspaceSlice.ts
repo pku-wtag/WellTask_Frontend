@@ -3,6 +3,7 @@ import type { Workspace } from "@/types/Workspace";
 
 interface WorkspaceState {
   workspaces: Workspace[];
+  currentWorkspace: Workspace | null;
   isLoading: boolean;
   error: string | null;
   message: string | null;
@@ -10,6 +11,7 @@ interface WorkspaceState {
 
 const initialState: WorkspaceState = {
   workspaces: [],
+  currentWorkspace: null,
   isLoading: false,
   error: null,
   message: null,
@@ -40,10 +42,24 @@ const workspaceSlice = createSlice({
     clearMessage: (state) => {
       state.message = null;
     },
+    setCurrentWorkspace: (state, action: PayloadAction<Workspace>) => {
+      state.currentWorkspace = action.payload;
+    },
+    setWorkspaces: (state, action: PayloadAction<Workspace[]>) => {
+      state.workspaces = action.payload;
+    },
   },
 });
 
-export const { startLoading, setError, setMessage, clearError, clearMessage } =
-  workspaceSlice.actions;
+export const {
+  startLoading,
+  setError,
+  setMessage,
+  clearError,
+  clearMessage,
+  setCurrentWorkspace,
+  setWorkspaces,
+} = workspaceSlice.actions;
 
 export default workspaceSlice.reducer;
+

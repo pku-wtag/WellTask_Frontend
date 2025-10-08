@@ -17,7 +17,7 @@ interface WorkspacePageProps {
   onClose?: () => void;
 }
 
-export default function Workspace({
+export default function WorkSpace({
   isModal = false,
   onClose,
 }: WorkspacePageProps) {
@@ -88,6 +88,7 @@ export default function Workspace({
   };
 
   const handleCreateWorkspace = async (values: Record<string, unknown>) => {
+    // No need to pass userId, thunk handles current user
     await dispatch(
       addWorkspace({
         name: String(values.workspaceName),

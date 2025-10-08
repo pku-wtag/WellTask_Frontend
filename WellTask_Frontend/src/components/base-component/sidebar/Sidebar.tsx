@@ -3,6 +3,11 @@ import classNames from "classnames";
 import { WorkspaceSection } from "./WorkspaceSection";
 import { TeamSection } from "./TeamSection";
 import { NavigationSection } from "./NavigationSection";
+import type { Workspace } from "@/types/Workspace";
+import WorkSpace from "@/components/workspace/Workspace";
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentWorkspace } from "@/redux/slices/workspaceSlice";
+import type { RootState } from "@/redux/store";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -10,13 +15,24 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const dispatch = useDispatch();
+  const currentWorkspace = useSelector(
+    (state: RootState) => state.workspace.currentWorkspace
+  );
+
   const [isWorkspaceOpen, setIsWorkspaceOpen] = useState(false);
   const [isNavOpen, setIsNavBarOpen] = useState(true);
+  const [isWorkspaceModalOpen, setWorkspaceModalOpen] = useState(false);
 
   const sidebarClasses = classNames(
     "fixed inset-y-0 left-0 z-30 h-screen bg-white shadow-lg transform transition-all duration-300 ease-in-out md:relative md:h-full md:inset-y-auto md:left-auto md:shadow-sm overflow-hidden",
     isOpen ? "w-64 translate-x-0" : "w-0 -translate-x-full"
   );
+
+  const handleWorkspaceSelect = (workspace: Workspace) => {
+    dispatch(setCurrentWorkspace(workspace));
+    setIsWorkspaceOpen(false);
+  };
 
   return (
     <>
@@ -36,17 +52,23 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
               isOpen={isWorkspaceOpen}
               onToggle={() => setIsWorkspaceOpen((prev) => !prev)}
               onClose={onClose}
+              onWorkspaceSelect={handleWorkspaceSelect}
+              onAddWorkspace={() => setWorkspaceModalOpen(true)}
             />
 
             <TeamSection
               isOpen={isNavOpen}
               onToggle={() => setIsNavBarOpen((prev) => !prev)}
+              workspaceName={currentWorkspace?.name}
             />
 
             <NavigationSection />
           </div>
         </div>
       </div>
+      {isWorkspaceModalOpen && (
+        <WorkSpace isModal onClose={() => setWorkspaceModalOpen(false)} />
+      )}
     </>
   );
 }

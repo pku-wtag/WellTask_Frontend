@@ -7,6 +7,7 @@ import {
   setMessage,
 } from "@/redux/slices/workspaceSlice";
 import { getWorkspaces, saveWorkspaces } from "@/utils/workspaceStorage";
+import { getCurrentUser, saveUser } from "@/utils/authStorage";
 
 export const addWorkspace = createAsyncThunk<
   Workspace,
@@ -17,6 +18,9 @@ export const addWorkspace = createAsyncThunk<
   async ({ name, type, description }, { dispatch, rejectWithValue }) => {
     try {
       dispatch(startLoading());
+
+      const currentUser = getCurrentUser();
+      if (!currentUser) throw new Error("No user logged in");
 
       const defaultBoards: Board[] = [
         {
@@ -47,19 +51,6 @@ export const addWorkspace = createAsyncThunk<
             } as List,
           ],
         } as Board,
-        {
-          id: uuidv4(),
-          name: "Ideas",
-          lists: [
-            {
-              id: uuidv4(),
-              name: "Ideas backlog",
-              cards: [
-                { id: uuidv4(), name: "Add more boards or lists" } as Card,
-              ],
-            } as List,
-          ],
-        } as Board,
       ];
 
       const newWorkspace: Workspace = {
@@ -68,16 +59,26 @@ export const addWorkspace = createAsyncThunk<
         type,
         description,
         boards: defaultBoards,
+        ownerId: currentUser.id,
+        members: [currentUser.id],
       };
 
+      // Save workspace to localStorage
       const workspaces = getWorkspaces();
       workspaces.push(newWorkspace);
       saveWorkspaces(workspaces);
 
-      dispatch(setMessage("Workspace added successfully with default boards!"));
+      // Update user to include this workspace
+      currentUser.workspaces = [
+        ...(currentUser.workspaces || []),
+        newWorkspace.id,
+      ];
+      saveUser(currentUser);
+
+      dispatch(setMessage("Workspace created successfully!"));
       return newWorkspace;
     } catch (err) {
-      const msg = (err as Error).message || "Failed to add workspace.";
+      const msg = (err as Error).message || "Failed to create workspace.";
       dispatch(setError(msg));
       return rejectWithValue(msg);
     }
