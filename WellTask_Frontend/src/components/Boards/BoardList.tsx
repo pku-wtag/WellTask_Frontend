@@ -1,34 +1,32 @@
 import { useState } from "react";
-import {
-  Plus,
-  MoreHorizontal,
-  ChevronsRightLeft,
-  ChevronsLeftRight,
-} from "lucide-react";
+import { Plus, MoreHorizontal, ChevronsRightLeft, ChevronsLeftRight } from "lucide-react";
 import { BoardCard } from "./BoardCard";
 import { Button } from "../base-component/Button";
-
-type Card = {
-  id: string;
-  title: string;
-};
+import { CreateCard } from "./CreateCard";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/redux/store";
 
 type ListProps = {
+  boardId: string;
+  listId: string; 
   title: string;
-  cards: Card[];
-  onAddCard: () => void;
   onMoreOptions: () => void;
   onCardClick?: (id: string) => void;
 };
 
 export function BoardList({
+  boardId,
+  listId,
   title,
-  cards,
-  onAddCard,
   onMoreOptions,
   onCardClick,
 }: ListProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCreateCardOpen, setCreateCardOpen] = useState(false);
+
+  const cards = useSelector((state: RootState) => state.card.cards[listId] || []);
+
+  const handleAddCard = () => setCreateCardOpen(true);
 
   if (isCollapsed) {
     return (
@@ -46,41 +44,43 @@ export function BoardList({
   }
 
   return (
-    <div className="w-72 bg-gray-50 rounded-lg shadow-sm border border-gray-200 flex flex-col h-fit max-h-[90vh]">
-      <div className="flex items-center justify-between px-3 py-2 shrink-0">
-        <h2 className="text-sm font-semibold text-gray-800 truncate">
-          {title}
-        </h2>
-        <div className="flex items-center gap-1">
-          <MoreHorizontal
-            className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-700"
-            onClick={onMoreOptions}
-          />
-          <ChevronsRightLeft
-            className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-700"
-            onClick={() => setIsCollapsed(true)}
-          />
+    <>
+      <div className="w-72 bg-gray-50 rounded-lg shadow-sm border border-gray-200 flex flex-col h-fit max-h-[90vh]">
+        <div className="flex items-center justify-between px-3 py-2 shrink-0">
+          <h2 className="text-sm font-semibold text-gray-800 truncate">{title}</h2>
+          <div className="flex items-center gap-1">
+            <MoreHorizontal
+              className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-700"
+              onClick={onMoreOptions}
+            />
+            <ChevronsRightLeft
+              className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-700"
+              onClick={() => setIsCollapsed(true)}
+            />
+          </div>
         </div>
+
+        <div className="flex-1 px-3 py-1 space-y-2 overflow-y-auto min-h-0">
+          {cards.map((card) => (
+            <BoardCard key={card.id} id={card.id} title={card.name} onClick={onCardClick} />
+          ))}
+        </div>
+
+        <Button
+          type="custom"
+          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-b-lg shrink-0"
+          onClick={handleAddCard}
+        >
+          <Plus className="w-4 h-4" /> Add a card
+        </Button>
       </div>
 
-      <div className="flex-1 px-3 py-1 space-y-2 overflow-y-auto min-h-0">
-        {cards.map((card) => (
-          <BoardCard
-            key={card.id}
-            id={card.id}
-            title={card.title}
-            onClick={onCardClick}
-          />
-        ))}
-      </div>
-
-      <Button
-        type="custom"
-        className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-b-lg shrink-0"
-        onClick={onAddCard}
-      >
-        <Plus className="w-4 h-4" /> Add a card
-      </Button>
-    </div>
+      <CreateCard
+        boardId={boardId}
+        listId={listId}
+        isOpen={isCreateCardOpen}
+        onClose={() => setCreateCardOpen(false)}
+      />
+    </>
   );
 }

@@ -1,5 +1,5 @@
 import { Input } from "../fields/Input";
-import { useOTP } from "../../hooks/useOTP";
+import { useOTP } from "@/hooks/useOTP";
 
 interface OTPInputProps {
   length?: number;

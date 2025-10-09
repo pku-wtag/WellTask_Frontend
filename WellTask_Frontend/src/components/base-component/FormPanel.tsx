@@ -61,7 +61,6 @@ export function FormPanel({
             validate={field.validate}
           />
         );
-
       case "textarea":
         return (
           <Textarea
@@ -75,7 +74,6 @@ export function FormPanel({
             validate={field.validate}
           />
         );
-
       case "select":
         return (
           <SelectBox
@@ -89,7 +87,6 @@ export function FormPanel({
             validate={field.validate}
           />
         );
-
       case "checkbox":
         return (
           <Checkbox
@@ -100,7 +97,6 @@ export function FormPanel({
             hint={field.hint}
           />
         );
-
       case "radio":
         return (
           <Radio
@@ -111,7 +107,6 @@ export function FormPanel({
             options={field.options ?? []}
           />
         );
-
       default:
         return null;
     }
