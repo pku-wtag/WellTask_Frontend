@@ -1,14 +1,21 @@
 import { useState } from "react";
-import { Plus, MoreHorizontal, ChevronsRightLeft, ChevronsLeftRight } from "lucide-react";
+import {
+  Plus,
+  MoreHorizontal,
+  ChevronsRightLeft,
+  ChevronsLeftRight,
+} from "lucide-react";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/redux/store";
+import type { Card } from "@/types/Workspace";
+
 import { BoardCard } from "./BoardCard";
 import { Button } from "../base-component/Button";
 import { CreateCard } from "./CreateCard";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/redux/store";
 
 type ListProps = {
   boardId: string;
-  listId: string; 
+  listId: string;
   title: string;
   onMoreOptions: () => void;
   onCardClick?: (id: string) => void;
@@ -24,7 +31,10 @@ export function BoardList({
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isCreateCardOpen, setCreateCardOpen] = useState(false);
 
-  const cards = useSelector((state: RootState) => state.card.cards[listId] || []);
+  const cards: Card[] = useSelector(
+    (state: RootState) =>
+      state.list.lists[boardId]?.find((l) => l.id === listId)?.cards || []
+  );
 
   const handleAddCard = () => setCreateCardOpen(true);
 
@@ -47,7 +57,9 @@ export function BoardList({
     <>
       <div className="w-72 bg-gray-50 rounded-lg shadow-sm border border-gray-200 flex flex-col h-fit max-h-[90vh]">
         <div className="flex items-center justify-between px-3 py-2 shrink-0">
-          <h2 className="text-sm font-semibold text-gray-800 truncate">{title}</h2>
+          <h2 className="text-sm font-semibold text-gray-800 truncate">
+            {title}
+          </h2>
           <div className="flex items-center gap-1">
             <MoreHorizontal
               className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-700"
@@ -62,7 +74,12 @@ export function BoardList({
 
         <div className="flex-1 px-3 py-1 space-y-2 overflow-y-auto min-h-0">
           {cards.map((card) => (
-            <BoardCard key={card.id} id={card.id} title={card.name} onClick={onCardClick} />
+            <BoardCard
+              key={card.id}
+              id={card.id}
+              title={card.name}
+              onClick={onCardClick}
+            />
           ))}
         </div>
 

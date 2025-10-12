@@ -1,14 +1,13 @@
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState, AppDispatch } from "@/redux/store";
 import { Button } from "../base-component/Button";
 import { BoardList } from "./BoardList";
 import { BoardNavbar } from "./BoardNavbar";
 import { CreateList } from "./CreateList";
 import type { Board } from "@/types/Workspace";
-import { templateDefaults } from "@/data";
 import { addList } from "@/redux/thunks/listThunks";
-import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import type { RootState, AppDispatch } from "@/redux/store";
 
 export default function Board() {
   const [searchParams] = useSearchParams();
@@ -20,15 +19,9 @@ export default function Board() {
   const boardsState = useSelector((state: RootState) => state.board.boards);
   const listsState = useSelector((state: RootState) => state.list.lists);
 
-  let board: Board | undefined = Object.values(boardsState)
+  const board: Board | undefined = Object.values(boardsState)
     .flat()
     .find((b) => b.id === boardId);
-
-  if (!board) {
-    board = Object.values(templateDefaults)
-      .flat()
-      .find((b) => b.id === boardId);
-  }
 
   if (!board) {
     return (
@@ -38,7 +31,7 @@ export default function Board() {
     );
   }
 
-  const boardLists = listsState[board.id] || board.lists || [];
+  const boardLists = boardId ? listsState[boardId] || [] : [];
 
   const handleAddList = async (name: string) => {
     if (!boardId) return;
@@ -52,17 +45,16 @@ export default function Board() {
 
       <div className="flex-1 overflow-x-auto px-4 py-4">
         <div className="flex items-start gap-4">
-          {boardId &&
-            boardLists.map((list) => (
-              <BoardList
-                key={list.id}
-                boardId={boardId}
-                listId={list.id}
-                title={list.name}
-                onMoreOptions={() => console.log("More options for", list.name)}
-                onCardClick={(cardId) => console.log("Card clicked:", cardId)}
-              />
-            ))}
+          {boardLists.map((list) => (
+            <BoardList
+              key={list.id}
+              boardId={boardId!}
+              listId={list.id}
+              title={list.name}
+              onMoreOptions={() => console.log("More options for", list.name)}
+              onCardClick={(cardId) => console.log("Card clicked:", cardId)}
+            />
+          ))}
 
           <Button
             type="custom"

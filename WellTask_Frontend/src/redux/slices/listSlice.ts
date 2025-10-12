@@ -57,13 +57,6 @@ const listSlice = createSlice({
       const boardLists = state.lists[boardId] || [];
       state.lists[boardId] = [...boardLists, list];
     },
-    addListsToBoard: (
-      state,
-      action: PayloadAction<{ boardId: string; lists: List[] }>
-    ) => {
-      const { boardId, lists } = action.payload;
-      state.lists[boardId] = lists;
-    },
     addCardToList: (
       state,
       action: PayloadAction<{ boardId: string; listId: string; card: Card }>
@@ -87,7 +80,6 @@ export const {
   clearError,
   clearMessage,
   addListToBoard,
-  addListsToBoard,
   addCardToList,
 } = listSlice.actions;
 

@@ -6,6 +6,7 @@ import {
   getCurrentUser,
   clearCurrentUser,
 } from "@/utils/authStorage";
+import type { Board, List } from "@/types/Workspace";
 
 interface AuthState {
   user: User | null;
@@ -57,6 +58,37 @@ const authSlice = createSlice({
       saveUser(state.user);
     },
 
+    addBoardToUserWorkspace: (
+      state,
+      action: PayloadAction<{ workspaceId: string; board: Board }>
+    ) => {
+      if (!state.user?.workspaces) return;
+      const workspace = state.user.workspaces.find(
+        (w) => w.id === action.payload.workspaceId
+      );
+      if (workspace) {
+        workspace.boards.push(action.payload.board);
+        saveUser(state.user);
+      }
+    },
+
+    addListToUserBoard: (
+      state,
+      action: PayloadAction<{ boardId: string; list: List }>
+    ) => {
+      if (!state.user?.workspaces) return;
+
+      for (const ws of state.user.workspaces) {
+        const board = ws.boards.find((b) => b.id === action.payload.boardId);
+        if (board) {
+          board.lists.push(action.payload.list);
+          break;
+        }
+      }
+
+      if (state.user) saveUser(state.user);
+    },
+
     setError: (state, action: PayloadAction<string>) => {
       state.error = action.payload;
       state.message = null;
@@ -102,6 +134,8 @@ export const {
   setForgotEmail,
   setVerified,
   clearForgotPasswordFlow,
+  addBoardToUserWorkspace,
+  addListToUserBoard,
 } = authSlice.actions;
 
 export default authSlice.reducer;
