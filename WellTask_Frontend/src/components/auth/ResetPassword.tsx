@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Button } from "@/components/base-component/Button";
 import { Form } from "react-final-form";
 import { Input } from "../fields/Input";
@@ -10,60 +11,81 @@ import {
   type AuthErrorCodeType,
 } from "@/redux/thunks/authThunks";
 import { useNavigate } from "react-router-dom";
-import type { RootState, AppDispatch } from "@/redux/store";
+import type { AppDispatch, RootState } from "@/redux/store";
 import { Dialog } from "../base-component/Dialog";
-import { setError, setMessage } from "@/redux/slices/authSlice";
+import { useAuthMessage } from "@/hooks/useAuthMessage";
+import type { FormApi } from "final-form";
 import { authPageConfigs } from "./authPageConfigs";
+import { clearForgotPasswordFlow } from "@/redux/slices/authSlice";
 
 export default function ResetPassword() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { message, error } = useSelector(
-    (state: RootState) => state.auth
-  );
+  const { message, error } = useAuthMessage(3000);
 
-   const layout = authPageConfigs.resetPassword;
+  const forgotEmail = useSelector((state: RootState) => state.auth.forgotEmail);
 
-  const form: { fields: FormField[]; submitText: string } = {
-    fields: [
-      {
-        id: "password",
-        name: "password",
-        label: "New Password",
-        inputType: "password",
-        placeholder: "Enter your new password",
-        fieldType: "input",
-        validate: (value) => {
-          if (!value) return "This field is required";
-          return passwordStrength(value);
-        },
+  const layout = authPageConfigs.resetPassword;
+
+  useEffect(() => {
+    if (!forgotEmail && !message) {
+      navigate("/forgot-password");
+    }
+  }, [forgotEmail, message, navigate]);
+
+  const formFields: FormField[] = [
+    {
+      id: "password",
+      name: "password",
+      label: "New Password",
+      placeholder: "Enter your new password",
+      inputType: "password",
+      fieldType: "input",
+      validate: (value) => {
+        if (!value) return "This field is required";
+        return passwordStrength(value);
       },
-      {
-        id: "confirmPassword",
-        name: "confirmPassword",
-        label: "Confirm Password",
-        inputType: "password",
-        placeholder: "Confirm your new password",
-        fieldType: "input",
-        validate: (value, allValues) => {
-          if (!value) return "This field is required";
-          if (value !== allValues?.password) return "Passwords do not match";
-          return undefined;
-        },
+    },
+    {
+      id: "confirmPassword",
+      name: "confirmPassword",
+      label: "Confirm Password",
+      placeholder: "Confirm your new password",
+      inputType: "password",
+      fieldType: "input",
+      validate: (value, allValues) => {
+        if (!value) return "This field is required";
+        if (value !== allValues?.password) return "Passwords do not match";
+        return undefined;
       },
-    ],
-    submitText: "Update Password",
-  };
+    },
+  ];
 
-  const handleSubmit = async (values: Record<string, string>) => {
+  const handleSubmit = async (
+    values: Record<string, string>,
+    form: FormApi<Record<string, string>>
+  ) => {
     try {
       await dispatch(resetPassword({ password: values.password })).unwrap();
-      dispatch(setMessage("Password updated successfully!"));
-      setTimeout(() => navigate("/login"), 1500);
+      form.reset();
+      formFields.forEach((f) => form.resetFieldState(f.name));
+      setTimeout(() => {
+        navigate("/login");
+        dispatch(clearForgotPasswordFlow());
+      }, 1000);
     } catch (err) {
       const payload = err as { code?: AuthErrorCodeType; message: string };
-      const msg = payload?.message || "Something went wrong. Please try again.";
-      dispatch(setError(msg));
+
+      formFields.forEach((f) => form.resetFieldState(f.name));
+
+      if (payload.code === "NO_ACCOUNT") {
+        setTimeout(() => navigate("/signup"), 1500);
+        return;
+      }
+
+      throw new Error(
+        payload?.message || "Something went wrong. Please try again."
+      );
     }
   };
 
@@ -84,9 +106,19 @@ export default function ResetPassword() {
 
       <Form
         onSubmit={handleSubmit}
-        render={({ handleSubmit }) => (
-          <form onSubmit={handleSubmit} className="space-y-5 text-left">
-            {form.fields.map((field) => (
+        render={({ handleSubmit, form, submitting }) => (
+          <form
+            onSubmit={async (event) => {
+              const result = await handleSubmit(event);
+
+              form.reset();
+              formFields.forEach((f) => form.resetFieldState(f.name));
+
+              return result;
+            }}
+            className="space-y-5 text-left"
+          >
+            {formFields.map((field) => (
               <Input
                 key={field.id}
                 id={field.id}
@@ -98,8 +130,9 @@ export default function ResetPassword() {
                 validate={field.validate}
               />
             ))}
-            <Button htmlType="submit" fullWidth>
-              {form.submitText}
+
+            <Button htmlType="submit" fullWidth disabled={submitting}>
+              Update Password
             </Button>
           </form>
         )}

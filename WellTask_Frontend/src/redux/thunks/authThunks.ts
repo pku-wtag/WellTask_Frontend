@@ -1,17 +1,23 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import type { User } from "@/types/User";
-import { startLoading, setAuthUser, updateUser, setError } from "@/redux/slices/authSlice";
+import {
+  updateUser,
+  setError,
+  setMessage,
+  setForgotEmail,
+  clearForgotPasswordFlow,
+} from "@/redux/slices/authSlice";
 import { getAllUsers, getUserByEmail, saveAllUsers } from "@/utils/authStorage";
 
 export const AuthErrorCode = {
   EMAIL_EXISTS: "EMAIL_EXISTS",
   NO_ACCOUNT: "NO_ACCOUNT",
   INVALID_CREDENTIALS: "INVALID_CREDENTIALS",
-  EMAIL_NOT_FOUND: "EMAIL_NOT_FOUND",
   UNKNOWN: "UNKNOWN",
 } as const;
 
-export type AuthErrorCodeType = (typeof AuthErrorCode)[keyof typeof AuthErrorCode];
+export type AuthErrorCodeType =
+  (typeof AuthErrorCode)[keyof typeof AuthErrorCode];
 
 // ---------------- SIGNUP ----------------
 export const signupUser = createAsyncThunk<
@@ -22,13 +28,14 @@ export const signupUser = createAsyncThunk<
   "auth/signupUser",
   async ({ fullname, email, password }, { dispatch, rejectWithValue }) => {
     try {
-      dispatch(startLoading());
-
       const existingUser = getUserByEmail(email);
       if (existingUser) {
         const msg = "An account with this email already exists.";
         dispatch(setError(msg));
-        return rejectWithValue({ code: AuthErrorCode.EMAIL_EXISTS, message: msg });
+        return rejectWithValue({
+          code: AuthErrorCode.EMAIL_EXISTS,
+          message: msg,
+        });
       }
 
       const newUser: User = {
@@ -37,13 +44,12 @@ export const signupUser = createAsyncThunk<
         email,
         password,
         token: "dummy-token",
+        workspaces: [],
       };
 
-      const users = getAllUsers();
-      users.push(newUser);
-      saveAllUsers(users);
+      saveAllUsers([...getAllUsers(), newUser]);
+      dispatch(setMessage("Signup successful! Please log in."));
 
-      dispatch(setAuthUser({ user: newUser, message: "Signup successful!" }));
       return newUser;
     } catch (err) {
       const msg = (err as Error).message || "Signup failed.";
@@ -62,22 +68,25 @@ export const loginUser = createAsyncThunk<
   "auth/loginUser",
   async ({ email, password }, { dispatch, rejectWithValue }) => {
     try {
-      dispatch(startLoading());
-
       const user = getUserByEmail(email);
       if (!user) {
         const msg = "No account found. Please sign up.";
         dispatch(setError(msg));
-        return rejectWithValue({ code: AuthErrorCode.NO_ACCOUNT, message: msg });
+        return rejectWithValue({
+          code: AuthErrorCode.NO_ACCOUNT,
+          message: msg,
+        });
       }
 
       if (user.password !== password) {
         const msg = "Invalid email or password.";
         dispatch(setError(msg));
-        return rejectWithValue({ code: AuthErrorCode.INVALID_CREDENTIALS, message: msg });
+        return rejectWithValue({
+          code: AuthErrorCode.INVALID_CREDENTIALS,
+          message: msg,
+        });
       }
-
-      dispatch(setAuthUser({ user, message: "Login successful!" }));
+      dispatch(setMessage("Login successful!"));
       return user;
     } catch (err) {
       const msg = (err as Error).message || "Login failed.";
@@ -92,57 +101,66 @@ export const sendRecoveryLink = createAsyncThunk<
   string,
   string,
   { rejectValue: { code: AuthErrorCodeType; message: string } }
->(
-  "auth/sendRecoveryLink",
-  async (email, { dispatch, rejectWithValue }) => {
-    try {
-      dispatch(startLoading());
-
-      const user = getUserByEmail(email);
-      if (!user) {
-        const msg = "No account found. Please sign up.";
-        dispatch(setError(msg));
-        return rejectWithValue({ code: AuthErrorCode.NO_ACCOUNT, message: msg });
-      }
-
-      const msg = `Recovery link sent to ${email}`;
-      dispatch(setAuthUser({ user, message: msg }));
-      return msg;
-    } catch (err) {
-      const msg = (err as Error).message || "Failed to send recovery link.";
+>("auth/sendRecoveryLink", async (email, { dispatch, rejectWithValue }) => {
+  try {
+    const user = getUserByEmail(email);
+    if (!user) {
+      const msg = "No account found. Please sign up.";
       dispatch(setError(msg));
-      return rejectWithValue({ code: AuthErrorCode.UNKNOWN, message: msg });
+      return rejectWithValue({ code: AuthErrorCode.NO_ACCOUNT, message: msg });
     }
+
+    dispatch(setForgotEmail(email));
+    dispatch(setMessage(`Recovery link sent to ${email}`));
+
+    return `Recovery link sent to ${email}`;
+  } catch (err) {
+    const msg = (err as Error).message || "Failed to send recovery link.";
+    dispatch(setError(msg));
+    return rejectWithValue({ code: AuthErrorCode.UNKNOWN, message: msg });
   }
-);
+});
 
 // ---------------- RESET PASSWORD ----------------
 export const resetPassword = createAsyncThunk<
   User,
   { password: string },
-  { rejectValue: { code: AuthErrorCodeType; message: string }; state: { auth: { user: User | null } } }
+  {
+    rejectValue: { code: AuthErrorCodeType; message: string };
+    state: { auth: { user: User | null; forgotEmail: string | null } };
+  }
 >(
   "auth/resetPassword",
   async ({ password }, { dispatch, rejectWithValue, getState }) => {
     try {
-      dispatch(startLoading());
-      const state = getState();
-      const user = state.auth.user;
-
-      if (!user) {
-        const msg = "No account found. Please sign up.";
+      const email = getState().auth.forgotEmail;
+      if (!email) {
+        const msg = "Email not found. Please start the password recovery flow.";
         dispatch(setError(msg));
-        return rejectWithValue({ code: AuthErrorCode.NO_ACCOUNT, message: msg });
+        return rejectWithValue({
+          code: AuthErrorCode.NO_ACCOUNT,
+          message: msg,
+        });
       }
 
-      const users = getAllUsers();
-      const updatedUsers = users.map((existingUser: User) =>
-        existingUser.email === user.email ? { ...user, password } : existingUser
+      const user = getUserByEmail(email);
+      if (!user) {
+        const msg = "No account found for this email.";
+        dispatch(setError(msg));
+        return rejectWithValue({
+          code: AuthErrorCode.NO_ACCOUNT,
+          message: msg,
+        });
+      }
+
+      const updatedUsers = getAllUsers().map((u) =>
+        u.email === email ? { ...user, password } : u
       );
-
       saveAllUsers(updatedUsers);
-
       dispatch(updateUser({ password }));
+      dispatch(setMessage("Password updated successfully!"));
+      dispatch(clearForgotPasswordFlow());
+
       return { ...user, password };
     } catch (err) {
       const msg = (err as Error).message || "Password reset failed.";

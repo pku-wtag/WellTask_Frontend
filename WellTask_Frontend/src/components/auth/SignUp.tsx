@@ -4,18 +4,17 @@ import {
 } from "@/components/base-component/FormPanel";
 import { SidePanel } from "@/components/base-component/SidePanel";
 import { required, email, passwordStrength } from "@/utils/validators";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import type { RootState, AppDispatch } from "@/redux/store";
+import type { AppDispatch } from "@/redux/store";
 import { signupUser } from "@/redux/thunks/authThunks";
 import { Dialog } from "../base-component/Dialog";
+import { useAuthMessage } from "@/hooks/useAuthMessage";
 
 export default function Signup() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const {error, message } = useSelector(
-    (state: RootState) => state.auth
-  );
+  const { message, error } = useAuthMessage(3000);
 
   const panel = {
     title: "Take your productivity to the next level.",
@@ -85,15 +84,19 @@ export default function Signup() {
   };
 
   const handleSubmit = async (values: Record<string, unknown>) => {
-    await dispatch(
-      signupUser({
-        fullname: String(values.fullname),
-        email: String(values.email),
-        password: String(values.password),
-      })
-    ).unwrap();
-    setTimeout(() => navigate("/login"), 1500);
-  };
+  const result = await dispatch(
+    signupUser({
+      fullname: String(values.fullname),
+      email: String(values.email),
+      password: String(values.password),
+    })
+  );
+
+  if (signupUser.fulfilled.match(result)) {
+    setTimeout(() => navigate("/login"), 1000);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
@@ -101,7 +104,6 @@ export default function Signup() {
         <Dialog
           message={message || error || ""}
           type={message ? "success" : "error"}
-          duration={3000}
         />
       )}
 
@@ -113,7 +115,7 @@ export default function Signup() {
           showAppButtons={panel.showAppButtons}
           isVisible={panel.isVisible}
         />
-        <div className="flex-1 p-6 flex flex-col justify-center">
+        <div className="flex-1 flex flex-col justify-center">
           <FormPanel
             title={form.title}
             description={form.description}
