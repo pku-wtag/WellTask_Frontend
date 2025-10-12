@@ -8,18 +8,25 @@ import { useNavigate } from "react-router-dom";
 import type { AppDispatch, RootState } from "@/redux/store";
 import { Dialog } from "@/components/base-component/Dialog";
 import { Modal } from "../base-component/modal";
-import { clearMessage, clearError } from "@/redux/slices/workspaceSlice";
+import {
+  clearMessage,
+  clearError,
+  setWorkspaces,
+} from "@/redux/slices/workspaceSlice";
 import { addWorkspace } from "@/redux/thunks/workspaceThunks";
 import { required } from "@/utils/validators";
+import { getWorkspaces } from "@/utils/workspaceStorage";
 
 interface WorkspacePageProps {
   isModal?: boolean;
   onClose?: () => void;
+  onCreate?: (workspaceName: string) => Promise<void>;
 }
 
 export default function WorkSpace({
   isModal = false,
   onClose,
+  onCreate,
 }: WorkspacePageProps) {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -88,19 +95,29 @@ export default function WorkSpace({
   };
 
   const handleCreateWorkspace = async (values: Record<string, unknown>) => {
-    // No need to pass userId, thunk handles current user
-    await dispatch(
-      addWorkspace({
-        name: String(values.workspaceName),
-        type: String(values.workspaceType),
-        description: String(values.workspaceDescription),
-      })
-    ).unwrap();
+    try {
+      const newWorkspace = await dispatch(
+        addWorkspace({
+          name: String(values.workspaceName),
+          type: String(values.workspaceType),
+          description: String(values.workspaceDescription),
+        })
+      ).unwrap();
+      const allWorkspaces = getWorkspaces();
+      dispatch(setWorkspaces(allWorkspaces));
+      setTimeout(async () => {
+        if (onCreate) {
+          await onCreate(newWorkspace.name);
+          if (onClose) onClose();
+          return;
+        }
 
-    setTimeout(() => {
-      if (!isModal) navigate("/dashboard");
-      if (onClose) onClose();
-    }, 1000);
+        if (!isModal) navigate("/dashboard");
+        if (onClose) onClose();
+      }, 1000);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const content = (

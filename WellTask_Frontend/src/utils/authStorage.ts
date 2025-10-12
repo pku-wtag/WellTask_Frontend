@@ -61,19 +61,3 @@ export const getCurrentUser = (): User | null => {
 export const clearCurrentUser = () => {
   localStorage.removeItem(CURRENT_USER_KEY);
 };
-
-export const setCurrentUser = (userId: string) => {
-  localStorage.setItem(CURRENT_USER_KEY, userId);
-};
-
-export const getCurrentUser = (): User | null => {
-  const userId = localStorage.getItem(CURRENT_USER_KEY);
-  if (!userId) return null;
-
-  const users = getAllUsers();
-  return users.find((u) => u.id === userId) || null;
-};
-
-export const clearCurrentUser = () => {
-  localStorage.removeItem(CURRENT_USER_KEY);
-};

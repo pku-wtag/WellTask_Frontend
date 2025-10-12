@@ -1,9 +1,8 @@
 import { Plus, X } from "lucide-react";
 import { Button } from "../Button";
-import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import type { Workspace } from "@/types/Workspace";
-import { getWorkspaces } from "@/utils/workspaceStorage";
-import { getCurrentUser } from "@/utils/authStorage";
+import type { RootState } from "@/redux/store";
 
 interface WorkspaceSectionProps {
   isOpen: boolean;
@@ -20,18 +19,10 @@ export function WorkspaceSection({
   onWorkspaceSelect,
   onAddWorkspace,
 }: WorkspaceSectionProps) {
-  const [userWorkspaces, setUserWorkspaces] = useState<Workspace[]>([]);
 
-  useEffect(() => {
-    const user = getCurrentUser();
-    if (user) {
-      const allWorkspaces = getWorkspaces();
-      const myWorkspaces = allWorkspaces.filter((w) =>
-        user.workspaces?.includes(w.id)
-      );
-      setUserWorkspaces(myWorkspaces);
-    }
-  }, []);
+  const userWorkspaces = useSelector(
+    (state: RootState) => state.workspace.workspaces
+  );
 
   return (
     <div>

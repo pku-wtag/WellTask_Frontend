@@ -1,28 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { TemplateCard } from "./TemplateCard";
 import { WorkspaceCard } from "./WorkspaceCard";
 import { Plus } from "lucide-react";
 import Workspace from "@/components/workspace/Workspace";
 import type { Workspace as WorkspaceType } from "@/types/Workspace";
-import { getWorkspaces } from "@/utils/workspaceStorage";
-import { getCurrentUser } from "@/utils/authStorage";
 
 const templates = ["Kanban", "Project Plan", "Marketing", "Product Launch"];
 
 export function QuickStart() {
   const [isWorkspaceModalOpen, setWorkspaceModalOpen] = useState(false);
   const [userWorkspaces, setUserWorkspaces] = useState<WorkspaceType[]>([]);
-
-  useEffect(() => {
-    const user = getCurrentUser();
-    if (user) {
-      const allWorkspaces = getWorkspaces();
-      const myWorkspaces = allWorkspaces.filter((w) =>
-        user.workspaces?.includes(w.id)
-      );
-      setUserWorkspaces(myWorkspaces);
-    }
-  }, [isWorkspaceModalOpen]);
 
   return (
     <div className="p-6 flex flex-col gap-6">

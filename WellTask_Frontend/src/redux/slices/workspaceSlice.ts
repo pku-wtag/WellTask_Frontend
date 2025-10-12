@@ -33,8 +33,8 @@ const workspaceSlice = createSlice({
     },
     setMessage: (state, action: PayloadAction<string>) => {
       state.isLoading = false;
-      state.error = null;
       state.message = action.payload;
+      state.error = null;
     },
     clearError: (state) => {
       state.error = null;
@@ -62,4 +62,3 @@ export const {
 } = workspaceSlice.actions;
 
 export default workspaceSlice.reducer;
-

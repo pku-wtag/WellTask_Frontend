@@ -63,16 +63,15 @@ export const addWorkspace = createAsyncThunk<
         members: [currentUser.id],
       };
 
-      // Save workspace to localStorage
       const workspaces = getWorkspaces();
       workspaces.push(newWorkspace);
       saveWorkspaces(workspaces);
 
-      // Update user to include this workspace
       currentUser.workspaces = [
         ...(currentUser.workspaces || []),
-        newWorkspace.id,
+        newWorkspace,
       ];
+
       saveUser(currentUser);
 
       dispatch(setMessage("Workspace created successfully!"));
