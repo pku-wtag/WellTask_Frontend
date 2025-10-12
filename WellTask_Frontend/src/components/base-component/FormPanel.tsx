@@ -6,6 +6,7 @@ import { SelectBox } from "../fields/Select";
 import { Checkbox } from "../fields/Checkbox";
 import { Radio } from "../fields/Radio";
 import { Link } from "react-router-dom";
+import type { FormApi } from "final-form";
 
 export type Option = { value: string; label: string };
 
@@ -18,7 +19,10 @@ export interface FormField<T = string> {
   placeholder?: string;
   options?: Option[];
   fieldType: "input" | "textarea" | "select" | "checkbox" | "radio";
-  validate?: (value: T, allValues?: Record<string, unknown>) => string | undefined;
+  validate?: (
+    value: T,
+    allValues?: Record<string, unknown>
+  ) => string | undefined;
 }
 
 interface FormProps {
@@ -27,7 +31,10 @@ interface FormProps {
   submitText: string;
   redirectLink?: { text: string; path: string };
   fields: FormField[];
-  onSubmit?: (values: Record<string, unknown>) => void;
+  onSubmit?: (
+    values: Record<string, unknown>,
+    form: FormApi<Record<string, unknown>>
+  ) => void | Promise<void>;
 }
 
 export function FormPanel({
@@ -112,12 +119,24 @@ export function FormPanel({
     <div className="flex-1 p-10 flex items-center justify-center bg-white">
       <div className="w-full max-w-md">
         <h2 className="text-2xl font-bold text-gray-800 mb-1">{title}</h2>
-        {description && <p className="text-sm text-gray-500 mb-8">{description}</p>}
+        {description && (
+          <p className="text-sm text-gray-500 mb-8">{description}</p>
+        )}
 
         <Form
           onSubmit={onSubmit || (() => {})}
-          render={({ handleSubmit, submitting }) => (
-            <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          render={({ handleSubmit, form, submitting }) => (
+            <form
+              onSubmit={async (event) => {
+                await handleSubmit(event);
+                form
+                  .getRegisteredFields()
+                  .forEach((f) => form.resetFieldState(f));
+                form.reset();
+              }}
+              className="space-y-5"
+              noValidate
+            >
               {fields.map(renderField)}
               <Button htmlType="submit" fullWidth disabled={submitting}>
                 {submitText}

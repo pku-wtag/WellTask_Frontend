@@ -10,6 +10,7 @@ import type { AppDispatch } from "@/redux/store";
 import { signupUser } from "@/redux/thunks/authThunks";
 import { Dialog } from "../base-component/Dialog";
 import { useAuthMessage } from "@/hooks/useAuthMessage";
+import type { FormApi } from "final-form";
 
 export default function Signup() {
   const dispatch = useDispatch<AppDispatch>();
@@ -83,20 +84,25 @@ export default function Signup() {
     ],
   };
 
-  const handleSubmit = async (values: Record<string, unknown>) => {
-  const result = await dispatch(
-    signupUser({
-      fullname: String(values.fullname),
-      email: String(values.email),
-      password: String(values.password),
-    })
-  );
+  const handleSubmit = async (
+    values: Record<string, unknown>,
+    formApi: FormApi<Record<string, unknown>>
+  ) => {
+    const result = await dispatch(
+      signupUser({
+        fullname: String(values.fullname),
+        email: String(values.email),
+        password: String(values.password),
+      })
+    );
 
-  if (signupUser.fulfilled.match(result)) {
-    setTimeout(() => navigate("/login"), 1000);
-  }
-};
+    if (signupUser.fulfilled.match(result)) {
+      formApi.reset();
+      formApi.getRegisteredFields().forEach((f) => formApi.resetFieldState(f));
 
+      setTimeout(() => navigate("/login"), 1000);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">

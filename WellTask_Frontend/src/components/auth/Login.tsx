@@ -12,6 +12,7 @@ import { Dialog } from "../base-component/Dialog";
 import { Button } from "@/components/base-component/Button";
 import { useAuthMessage } from "@/hooks/useAuthMessage";
 import { setAuthUser } from "@/redux/slices/authSlice";
+import type { FormApi } from "final-form";
 
 export default function Login() {
   const dispatch = useDispatch<AppDispatch>();
@@ -61,7 +62,10 @@ export default function Login() {
     ],
   };
 
-  const handleLogin = async (values: Record<string, unknown>) => {
+  const handleLogin = async (
+    values: Record<string, unknown>,
+    form: FormApi<Record<string, unknown>>
+  ) => {
     try {
       const user = await dispatch(
         loginUser({
@@ -70,14 +74,16 @@ export default function Login() {
         })
       ).unwrap();
 
-      setTimeout(() => {
-        dispatch(setAuthUser({ user }));
-        navigate("/dashboard");
-      }, 1000);
+      dispatch(setAuthUser({ user }));
+      form.reset();
+      form.getRegisteredFields().forEach((f) => form.resetFieldState(f));
+
+      navigate("/dashboard");
     } catch (err) {
       const payload = err as { code?: string; message: string };
-      if (payload.code === "NO_ACCOUNT") {
-        navigate("/signup");
+
+      if (payload?.code === "NO_ACCOUNT") {
+        setTimeout(() => navigate("/signup"), 1000);
       }
     }
   };
@@ -88,6 +94,7 @@ export default function Login() {
         <Dialog
           message={message || error || ""}
           type={message ? "success" : "error"}
+          duration={3000}
         />
       )}
 
