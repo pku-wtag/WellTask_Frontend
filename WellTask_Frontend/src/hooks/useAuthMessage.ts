@@ -8,17 +8,30 @@ export function useAuthMessage(duration = 3000) {
   const { message, error } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
-    if (!message && !error) return;
+    if (!message && !error) {
+      return;
+    }
 
     const timer = setTimeout(() => {
-      if (message) dispatch(clearMessage());
-      if (error) dispatch(clearError());
+      if (message) {
+        dispatch(clearMessage());
+      }
+
+      if (error) {
+        dispatch(clearError());
+      }
     }, duration);
 
     return () => {
       clearTimeout(timer);
-      dispatch(clearMessage());
-      dispatch(clearError());
+
+      if (message) {
+        dispatch(clearMessage());
+      }
+
+      if (error) {
+        dispatch(clearError());
+      }
     };
   }, [message, error, dispatch, duration]);
 

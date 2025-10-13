@@ -7,17 +7,30 @@ import { email } from "@/utils/validators";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { AppDispatch } from "@/redux/store";
-import { sendRecoveryLink } from "@/redux/thunks/authThunks";
 import { Dialog } from "../base-component/Dialog";
 import { useAuthMessage } from "@/hooks/useAuthMessage";
 import type { FormApi } from "final-form";
 import { authPageConfigs } from "./authPageConfigs";
 import { setForgotEmail } from "@/redux/slices/authSlice";
+import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
+import { generateOTP } from "@/utils/otpService";
+import { getUserByEmail } from "@/utils/authStorage";
+
+export const isAuthError = (
+  error: unknown
+): error is { code?: string; message: string } => {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof error.message === "string"
+  );
+};
 
 export default function ForgotPassword() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { message, error } = useAuthMessage(3000);
+  const { message, error } = useAuthMessage(MESSAGE_DURATION_MS);
 
   const layout = authPageConfigs.forgotPassword;
 
@@ -35,25 +48,56 @@ export default function ForgotPassword() {
   ];
 
   const handleForgotPassword = async (
-    values: Record<string, unknown>,
-    form: FormApi<Record<string, unknown>>
-  ) => {
+    values: Record<string, unknown>
+  ): Promise<void> => {
     const emailValue = String(values.email);
 
-    try {
-      dispatch(setForgotEmail(emailValue));
-      await dispatch(sendRecoveryLink(emailValue)).unwrap();
-      form.reset();
-      formFields.forEach((f) => form.resetFieldState(f.name));
+    const user = getUserByEmail(emailValue);
 
-      setTimeout(() => navigate("/verify-code"), 1000);
-    } catch (err) {
-      const payload = err as { code?: string; message: string };
-      if (payload?.code === "NO_ACCOUNT") {
-        setTimeout(() => navigate("/signup"), 1000);
-      }
+    if (!user) {
+      dispatch({
+        type: "auth/setError",
+        payload: "No account found. Please sign up.",
+      });
+
+      setTimeout(() => {
+        navigate("/signup");
+      }, NAVIGATION_DELAY_MS);
+
+      return;
     }
+
+    dispatch(setForgotEmail(emailValue));
+    generateOTP();
+
+    dispatch({
+      type: "auth/setMessage",
+      payload: "OTP generated! Check console.",
+    });
+
+    setTimeout(() => {
+      navigate("/verify-code");
+    }, NAVIGATION_DELAY_MS);
   };
+
+  const handleFormSubmit =
+    (
+      handleSubmit: (
+        event?: SubmitEvent
+      ) => Promise<Record<string, unknown> | undefined> | undefined,
+      form: FormApi<Record<string, unknown>>
+    ) =>
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      const result = await handleSubmit(event.nativeEvent as SubmitEvent);
+
+      form.reset();
+
+      formFields.forEach((f) => {
+        form.resetFieldState(f.name);
+      });
+
+      return result;
+    };
 
   return (
     <AuthCardLayout
@@ -66,7 +110,7 @@ export default function ForgotPassword() {
         <Dialog
           message={message || error || ""}
           type={message ? "success" : "error"}
-          duration={3000}
+          duration={MESSAGE_DURATION_MS}
         />
       )}
 
@@ -74,14 +118,7 @@ export default function ForgotPassword() {
         onSubmit={handleForgotPassword}
         render={({ handleSubmit, form, submitting }) => (
           <form
-            onSubmit={async (event) => {
-              const result = await handleSubmit(event);
-
-              form.reset();
-              formFields.forEach((f) => form.resetFieldState(f.name));
-
-              return result;
-            }}
+            onSubmit={handleFormSubmit(handleSubmit, form)}
             className="space-y-5 text-left"
           >
             {formFields.map((field) => (

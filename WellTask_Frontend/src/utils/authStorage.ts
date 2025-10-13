@@ -5,12 +5,21 @@ const CURRENT_USER_KEY = "currentUserId";
 
 export const getAllUsers = (): User[] => {
   const users = localStorage.getItem(USERS_KEY);
-  return users ? (JSON.parse(users) as User[]) : [];
+  if (users) {
+    return JSON.parse(users) as User[];
+  } else {
+    return [];
+  }
 };
 
 export const getUserByEmail = (email: string): User | null => {
   const users: User[] = getAllUsers();
-  return users.find((user: User) => user.email === email) || null;
+  const foundUser = users.find((user: User) => user.email === email);
+  if (foundUser) {
+    return foundUser;
+  } else {
+    return null;
+  }
 };
 
 export const saveUser = (user: User) => {
@@ -36,10 +45,17 @@ export const setCurrentUser = (userId: string) => {
 
 export const getCurrentUser = (): User | null => {
   const userId = localStorage.getItem(CURRENT_USER_KEY);
-  if (!userId) return null;
-
-  const users = getAllUsers();
-  return users.find((u) => u.id === userId) || null;
+  if (userId) {
+    const users = getAllUsers();
+    const foundUser = users.find((u) => u.id === userId);
+    if (foundUser) {
+      return foundUser;
+    } else {
+      return null;
+    }
+  } else {
+    return null;
+  }
 };
 
 export const clearCurrentUser = () => {

@@ -115,6 +115,22 @@ export function FormPanel({
     }
   };
 
+  const handleFormSubmit =
+    (
+      handleSubmit: (
+        event?: SubmitEvent
+      ) => Promise<Record<string, unknown> | undefined> | undefined,
+      form: FormApi<Record<string, unknown>>
+    ) =>
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      const result = await handleSubmit(event.nativeEvent as SubmitEvent);
+
+      form.reset();
+      fields.forEach((f) => form.resetFieldState(f.name));
+
+      return result;
+    };
+
   return (
     <div className="flex-1 p-10 flex items-center justify-center bg-white">
       <div className="w-full max-w-md">
@@ -127,13 +143,7 @@ export function FormPanel({
           onSubmit={onSubmit || (() => {})}
           render={({ handleSubmit, form, submitting }) => (
             <form
-              onSubmit={async (event) => {
-                await handleSubmit(event);
-                form
-                  .getRegisteredFields()
-                  .forEach((f) => form.resetFieldState(f));
-                form.reset();
-              }}
+              onSubmit={handleFormSubmit(handleSubmit, form)}
               className="space-y-5"
               noValidate
             >

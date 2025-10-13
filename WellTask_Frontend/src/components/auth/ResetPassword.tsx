@@ -6,10 +6,7 @@ import { AuthCardLayout } from "../base-component/AuthCardLayout";
 import type { FormField } from "../base-component/FormPanel";
 import { passwordStrength } from "@/utils/validators";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  resetPassword,
-  type AuthErrorCodeType,
-} from "@/redux/thunks/authThunks";
+import { resetPassword } from "@/redux/thunks/authThunks";
 import { useNavigate } from "react-router-dom";
 import type { AppDispatch, RootState } from "@/redux/store";
 import { Dialog } from "../base-component/Dialog";
@@ -17,11 +14,13 @@ import { useAuthMessage } from "@/hooks/useAuthMessage";
 import type { FormApi } from "final-form";
 import { authPageConfigs } from "./authPageConfigs";
 import { clearForgotPasswordFlow } from "@/redux/slices/authSlice";
+import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
+import { isAuthError } from "./ForgotPassword";
 
 export default function ResetPassword() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { message, error } = useAuthMessage(3000);
+  const { message, error } = useAuthMessage(MESSAGE_DURATION_MS);
 
   const forgotEmail = useSelector((state: RootState) => state.auth.forgotEmail);
 
@@ -42,7 +41,10 @@ export default function ResetPassword() {
       inputType: "password",
       fieldType: "input",
       validate: (value) => {
-        if (!value) return "This field is required";
+        if (!value) {
+          return "This field is required";
+        }
+
         return passwordStrength(value);
       },
     },
@@ -54,40 +56,58 @@ export default function ResetPassword() {
       inputType: "password",
       fieldType: "input",
       validate: (value, allValues) => {
-        if (!value) return "This field is required";
-        if (value !== allValues?.password) return "Passwords do not match";
-        return undefined;
+        if (!value) {
+          return "This field is required";
+        }
+
+        if (value !== allValues?.password) {
+          return "Passwords do not match";
+        }
       },
     },
   ];
 
-  const handleSubmit = async (
-    values: Record<string, string>,
-    form: FormApi<Record<string, string>>
-  ) => {
+  const handleResetPassword = async (
+    values: Record<string, string>
+  ): Promise<void> => {
     try {
       await dispatch(resetPassword({ password: values.password })).unwrap();
-      form.reset();
-      formFields.forEach((f) => form.resetFieldState(f.name));
+
       setTimeout(() => {
         navigate("/login");
         dispatch(clearForgotPasswordFlow());
-      }, 1000);
-    } catch (err) {
-      const payload = err as { code?: AuthErrorCodeType; message: string };
+      }, NAVIGATION_DELAY_MS);
 
-      formFields.forEach((f) => form.resetFieldState(f.name));
+      return;
+    } catch (err: unknown) {
+      if (isAuthError(err) && err.code === "NO_ACCOUNT") {
+        setTimeout(() => {
+          navigate("/signup");
+        }, NAVIGATION_DELAY_MS);
 
-      if (payload.code === "NO_ACCOUNT") {
-        setTimeout(() => navigate("/signup"), 1500);
         return;
       }
-
-      throw new Error(
-        payload?.message || "Something went wrong. Please try again."
-      );
     }
   };
+
+  const handleFormSubmit =
+    (
+      handleSubmit: (
+        event?: SubmitEvent
+      ) => Promise<Record<string, string> | undefined> | undefined,
+      form: FormApi<Record<string, string>>
+    ) =>
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      const result = await handleSubmit(event.nativeEvent as SubmitEvent);
+
+      form.reset();
+
+      formFields.forEach((f) => {
+        form.resetFieldState(f.name);
+      });
+
+      return result;
+    };
 
   return (
     <AuthCardLayout
@@ -100,22 +120,15 @@ export default function ResetPassword() {
         <Dialog
           message={message || error || ""}
           type={message ? "success" : "error"}
-          duration={3000}
+          duration={MESSAGE_DURATION_MS}
         />
       )}
 
       <Form
-        onSubmit={handleSubmit}
+        onSubmit={handleResetPassword}
         render={({ handleSubmit, form, submitting }) => (
           <form
-            onSubmit={async (event) => {
-              const result = await handleSubmit(event);
-
-              form.reset();
-              formFields.forEach((f) => form.resetFieldState(f.name));
-
-              return result;
-            }}
+            onSubmit={handleFormSubmit(handleSubmit, form)}
             className="space-y-5 text-left"
           >
             {formFields.map((field) => (

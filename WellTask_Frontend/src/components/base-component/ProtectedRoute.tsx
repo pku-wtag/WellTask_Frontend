@@ -31,9 +31,14 @@ export function ProtectedRoute({
   }, [isAuthenticated, navigate]);
 
   useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   useEffect(() => {
@@ -51,8 +56,14 @@ export function ProtectedRoute({
     <div className="flex flex-col h-screen bg-gray-100 p-2 gap-1">
       {showNavbar && (
         <Navbar
-          onMenuClick={() => setIsSidebarOpen((prev) => !prev)}
-          onLogout={handleLogout}
+          onMenuClick={() => {
+            setIsSidebarOpen((prev) => {
+              return !prev;
+            });
+          }}
+          onLogout={() => {
+            handleLogout();
+          }}
         />
       )}
 
@@ -64,7 +75,9 @@ export function ProtectedRoute({
         {showSidebar && (
           <Sidebar
             isOpen={isSidebarOpen}
-            onClose={() => setIsSidebarOpen(false)}
+            onClose={() => {
+              setIsSidebarOpen(false);
+            }}
           />
         )}
 

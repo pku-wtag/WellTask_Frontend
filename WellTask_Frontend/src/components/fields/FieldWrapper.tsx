@@ -32,27 +32,31 @@ export function FieldWrapper<T = string>({
       name={name}
       validate={
         validate
-          ? (value, allValues) =>
-              validate(value, allValues as Record<string, T>)
+          ? (value, allValues) => {
+              return validate(value, allValues as Record<string, T>);
+            }
           : undefined
       }
     >
-      {({ input, meta }) => (
-        <div className="mb-4">
-          {label && (
-            <label htmlFor={id} className="block mb-1 text-sm font-medium">
-              {label}
-            </label>
-          )}
+      {({ input, meta }) => {
+        return (
+          <div className="mb-4">
+            {label && (
+              <label htmlFor={id} className="block mb-1 text-sm font-medium">
+                {label}
+              </label>
+            )}
 
-          {children(input, meta)}
+            {children(input, meta)}
 
-          {hint && <div className="text-xs text-gray-500 mt-1">{hint}</div>}
-          {meta.touched && meta.error && (
-            <div className="text-xs text-red-500 mt-1">{meta.error}</div>
-          )}
-        </div>
-      )}
+            {hint && <div className="text-xs text-gray-500 mt-1">{hint}</div>}
+
+            {meta.touched && meta.error && (
+              <div className="text-xs text-red-500 mt-1">{meta.error}</div>
+            )}
+          </div>
+        );
+      }}
     </Field>
   );
 }

@@ -12,12 +12,12 @@ import { Dialog } from "../base-component/Dialog";
 import { Button } from "@/components/base-component/Button";
 import { useAuthMessage } from "@/hooks/useAuthMessage";
 import { setAuthUser } from "@/redux/slices/authSlice";
-import type { FormApi } from "final-form";
+import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
 
 export default function Login() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { message, error } = useAuthMessage(3000);
+  const { message, error } = useAuthMessage(MESSAGE_DURATION_MS);
 
   const panel = {
     title: "Welcome Back!",
@@ -27,64 +27,46 @@ export default function Login() {
     isVisible: true,
   };
 
-  const form: {
-    title: string;
-    description: string;
-    submitText: string;
-    redirectLink: { text: string; path: string };
-    fields: FormField[];
-  } = {
-    title: "Log in to Your Account",
-    description: "Enter your credentials to continue",
-    submitText: "Log In",
-    redirectLink: { text: "Don't have an account?", path: "/signup" },
-    fields: [
-      {
-        id: "email",
-        name: "email",
-        label: "Email Address",
-        hint: "Example: name@gmail.com",
-        placeholder: "Enter your email",
-        fieldType: "input",
-        inputType: "email",
-        validate: email,
-      },
-      {
-        id: "password",
-        name: "password",
-        label: "Password",
-        hint: "Enter your password",
-        placeholder: "Enter your password",
-        fieldType: "input",
-        inputType: "password",
-        validate: passwordStrength,
-      },
-    ],
-  };
+  const formFields: FormField[] = [
+    {
+      id: "email",
+      name: "email",
+      label: "Email Address",
+      hint: "Example: name@gmail.com",
+      placeholder: "Enter your email",
+      fieldType: "input",
+      inputType: "email",
+      validate: email,
+    },
+    {
+      id: "password",
+      name: "password",
+      label: "Password",
+      hint: "Enter your password",
+      placeholder: "Enter your password",
+      fieldType: "input",
+      inputType: "password",
+      validate: passwordStrength,
+    },
+  ];
 
   const handleLogin = async (
-    values: Record<string, unknown>,
-    form: FormApi<Record<string, unknown>>
-  ) => {
-    try {
-      const user = await dispatch(
-        loginUser({
-          email: String(values.email),
-          password: String(values.password),
-        })
-      ).unwrap();
+    values: Record<string, unknown>
+  ): Promise<void> => {
+    const result = await dispatch(
+      loginUser({
+        email: String(values.email),
+        password: String(values.password),
+      })
+    );
 
-      dispatch(setAuthUser({ user }));
-      form.reset();
-      form.getRegisteredFields().forEach((f) => form.resetFieldState(f));
+    if (loginUser.fulfilled.match(result)) {
+      const user = result.payload;
 
-      navigate("/dashboard");
-    } catch (err) {
-      const payload = err as { code?: string; message: string };
-
-      if (payload?.code === "NO_ACCOUNT") {
-        setTimeout(() => navigate("/signup"), 1000);
-      }
+      setTimeout(() => {
+        dispatch(setAuthUser({ user }));
+        navigate("/dashboard");
+      }, NAVIGATION_DELAY_MS);
     }
   };
 
@@ -94,7 +76,7 @@ export default function Login() {
         <Dialog
           message={message || error || ""}
           type={message ? "success" : "error"}
-          duration={3000}
+          duration={MESSAGE_DURATION_MS}
         />
       )}
 
@@ -102,18 +84,20 @@ export default function Login() {
         <div className="flex-1 flex items-center justify-center bg-white p-10">
           <div className="w-full max-w-md">
             <FormPanel
-              title={form.title}
-              description={form.description}
-              submitText={form.submitText}
-              redirectLink={form.redirectLink}
-              fields={form.fields}
+              title="Log in to Your Account"
+              description="Enter your credentials to continue"
+              submitText="Log In"
+              redirectLink={{ text: "Don't have an account?", path: "/signup" }}
+              fields={formFields}
               onSubmit={handleLogin}
             />
 
             <div className="text-right mt-4 mr-10">
               <Button
                 type="outline"
-                onClick={() => navigate("/forgot-password")}
+                onClick={() => {
+                  navigate("/forgot-password");
+                }}
               >
                 Forgot Password?
               </Button>

@@ -13,8 +13,10 @@ export function useOTP({ length, namePrefix }: UseOTPProps) {
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
       const { value } = e.target;
-      if (value && index < length - 1) {
-        inputRefs.current[index + 1]?.focus();
+      if (value) {
+        if (index < length - 1) {
+          inputRefs.current[index + 1]?.focus();
+        }
       }
     },
     [length]
@@ -22,8 +24,12 @@ export function useOTP({ length, namePrefix }: UseOTPProps) {
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-      if (e.key === "Backspace" && !e.currentTarget.value && index > 0) {
-        inputRefs.current[index - 1]?.focus();
+      if (e.key === "Backspace") {
+        if (!e.currentTarget.value) {
+          if (index > 0) {
+            inputRefs.current[index - 1]?.focus();
+          }
+        }
       }
     },
     []
@@ -39,7 +45,9 @@ export function useOTP({ length, namePrefix }: UseOTPProps) {
       });
 
       const focusIndex = Math.min(pastedData.length, length - 1);
-      inputRefs.current[focusIndex]?.focus();
+      if (inputRefs.current[focusIndex]) {
+        inputRefs.current[focusIndex]?.focus();
+      }
     },
     [length, namePrefix, form]
   );

@@ -5,13 +5,14 @@ import { OTPInput } from "../base-component/OTPinput";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
-import { sendRecoveryLink } from "@/redux/thunks/authThunks";
 import { setVerified } from "@/redux/slices/authSlice";
 import { useAuthMessage } from "@/hooks/useAuthMessage";
 import type { FormApi } from "final-form";
 import { authPageConfigs } from "./authPageConfigs";
 import { useEffect } from "react";
 import { Dialog } from "../base-component/Dialog";
+import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
+import { generateOTP, verifyOTP } from "@/utils/otpService";
 
 export default function VerifyCode() {
   const navigate = useNavigate();
@@ -19,14 +20,21 @@ export default function VerifyCode() {
   const { forgotEmail } = useSelector((state: RootState) => state.auth);
 
   const layout = authPageConfigs.verifyCode;
-
-  const { message, error } = useAuthMessage(3000);
+  const { message, error } = useAuthMessage(MESSAGE_DURATION_MS);
 
   useEffect(() => {
     if (!forgotEmail) {
       navigate("/forgot-password");
     }
   }, [forgotEmail, navigate]);
+
+  const resetOTPFields = (form: FormApi<Record<string, unknown>>) => {
+    form.reset();
+
+    Array.from({ length: 6 }).forEach((_, i) => {
+      form.resetFieldState(`otp-${i}`);
+    });
+  };
 
   const handleVerifyCode = async (
     values: Record<string, unknown>,
@@ -37,45 +45,61 @@ export default function VerifyCode() {
       (_, i) => values[`otp-${i}`] || ""
     ).join("");
 
-    if (otp === "123456") {
+    if (verifyOTP(otp)) {
       dispatch(setVerified());
+
       dispatch({
         type: "auth/setMessage",
         payload: "OTP verified successfully!",
       });
 
-      form.reset();
-      Array.from({ length: 6 }).forEach((_, i) =>
-        form.resetFieldState(`otp-${i}`)
-      );
-      setTimeout(() => navigate("/reset-password"), 500);
-    } else {
-      dispatch({
-        type: "auth/setError",
-        payload: "Invalid OTP. Please try again.",
-      });
+      resetOTPFields(form);
+
+      setTimeout(() => navigate("/reset-password"), NAVIGATION_DELAY_MS);
+
+      return;
     }
+
+    dispatch({
+      type: "auth/setError",
+      payload: "Invalid OTP. Please try again.",
+    });
   };
 
-  const handleResendOTP = async () => {
+  const handleResendOTP = () => {
     if (!forgotEmail) {
       dispatch({
         type: "auth/setError",
         payload: "Email not found. Please go back and enter your email.",
       });
-      setTimeout(() => navigate("/forgot-password"), 500);
+
+      setTimeout(() => navigate("/forgot-password"), NAVIGATION_DELAY_MS);
+
       return;
     }
 
-    try {
-      await dispatch(sendRecoveryLink(forgotEmail)).unwrap();
-    } catch {
-      dispatch({
-        type: "auth/setError",
-        payload: "Failed to resend OTP. Please try again.",
-      });
-    }
+    generateOTP();
+
+    dispatch({
+      type: "auth/setMessage",
+      payload: "OTP resent! Check console for code.",
+    });
   };
+
+  const handleFormSubmit =
+    (
+      handleSubmit: (
+        event?: SubmitEvent
+      ) => Promise<Record<string, unknown> | undefined> | undefined,
+      form: FormApi<Record<string, unknown>>
+    ) =>
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      const result = await handleSubmit(event.nativeEvent as SubmitEvent);
+
+      resetOTPFields(form);
+
+      return result;
+    };
 
   return (
     <AuthCardLayout
@@ -88,7 +112,7 @@ export default function VerifyCode() {
         <Dialog
           message={message || error || ""}
           type={message ? "success" : "error"}
-          duration={3000}
+          duration={MESSAGE_DURATION_MS}
         />
       )}
 
@@ -97,15 +121,7 @@ export default function VerifyCode() {
         render={({ handleSubmit, form, submitting }) => (
           <>
             <form
-              onSubmit={async (event) => {
-                const result = await handleSubmit(event);
-                form.reset();
-                Array.from({ length: 6 }).forEach((_, i) =>
-                  form.resetFieldState(`otp-${i}`)
-                );
-
-                return result;
-              }}
+              onSubmit={handleFormSubmit(handleSubmit, form)}
               className="space-y-6 text-left"
             >
               <OTPInput length={6} namePrefix="otp" />
@@ -125,6 +141,7 @@ export default function VerifyCode() {
               >
                 Resend OTP
               </Button>
+
               <Button
                 type="outline"
                 onClick={(e) => {

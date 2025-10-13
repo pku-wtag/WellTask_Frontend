@@ -31,16 +31,11 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setAuthUser: (
-      state,
-      action: PayloadAction<{ user: User; message?: string }>
-    ) => {
-      const { user, message } = action.payload;
+    setAuthUser: (state, action: PayloadAction<{ user: User }>) => {
+      const { user } = action.payload;
       state.user = user;
       state.isAuthenticated = true;
       state.error = null;
-      state.message = message || null;
-
       saveUser(user);
       setCurrentUser(user.id);
     },

@@ -63,6 +63,28 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             }
           };
 
+          if (onKeyDown) {
+            const handleKeyDown = (
+              e: React.KeyboardEvent<HTMLInputElement>
+            ) => {
+              onKeyDown(e);
+            };
+            return (
+              <input
+                {...input}
+                ref={ref}
+                id={id}
+                type={inputType}
+                placeholder={placeholder}
+                className={inputClass}
+                maxLength={maxLength}
+                onChange={handleChange}
+                onKeyDown={handleKeyDown}
+                onPaste={onPaste}
+              />
+            );
+          }
+
           return (
             <input
               {...input}

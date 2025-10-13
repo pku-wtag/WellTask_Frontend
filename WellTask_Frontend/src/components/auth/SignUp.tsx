@@ -10,12 +10,12 @@ import type { AppDispatch } from "@/redux/store";
 import { signupUser } from "@/redux/thunks/authThunks";
 import { Dialog } from "../base-component/Dialog";
 import { useAuthMessage } from "@/hooks/useAuthMessage";
-import type { FormApi } from "final-form";
+import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
 
 export default function Signup() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { message, error } = useAuthMessage(3000);
+  const { message, error } = useAuthMessage(MESSAGE_DURATION_MS);
 
   const panel = {
     title: "Take your productivity to the next level.",
@@ -25,69 +25,59 @@ export default function Signup() {
     isVisible: true,
   };
 
-  const form: {
-    title: string;
-    description: string;
-    submitText: string;
-    redirectLink: { text: string; path: string };
-    fields: FormField[];
-  } = {
-    title: "Create an Account",
-    description: "It's Simple and Easy!",
-    submitText: "Create Account",
-    redirectLink: { text: "Already have an account?", path: "/login" },
-    fields: [
-      {
-        id: "fullname",
-        name: "fullname",
-        label: "Fullname",
-        hint: "Information about the input",
-        placeholder: "Enter your full name",
-        fieldType: "input",
-        inputType: "text",
-        validate: required,
+  const formFields: FormField[] = [
+    {
+      id: "fullname",
+      name: "fullname",
+      label: "Fullname",
+      hint: "Information about the input",
+      placeholder: "Enter your full name",
+      fieldType: "input",
+      inputType: "text",
+      validate: required,
+    },
+    {
+      id: "email",
+      name: "email",
+      label: "Email Address",
+      hint: "Example: name@gmail.com",
+      placeholder: "Enter your email",
+      fieldType: "input",
+      inputType: "email",
+      validate: email,
+    },
+    {
+      id: "password",
+      name: "password",
+      label: "Password",
+      hint: "Use 8 characters with an uppercase, lowercase, symbol, and number.",
+      placeholder: "Enter your password",
+      fieldType: "input",
+      inputType: "password",
+      validate: passwordStrength,
+    },
+    {
+      id: "confirmPassword",
+      name: "confirmPassword",
+      label: "Confirm Password",
+      hint: "Re-enter your password",
+      placeholder: "Confirm your password",
+      fieldType: "input",
+      inputType: "password",
+      validate: (value, allValues) => {
+        if (!value) {
+          return "This field is required";
+        }
+        if (allValues?.password !== value) {
+          return "Passwords do not match";
+        }
       },
-      {
-        id: "email",
-        name: "email",
-        label: "Email Address",
-        hint: "Example: name@gmail.com",
-        placeholder: "Enter your email",
-        fieldType: "input",
-        inputType: "email",
-        validate: email,
-      },
-      {
-        id: "password",
-        name: "password",
-        label: "Password",
-        hint: "Use 8 characters with an uppercase, lowercase, symbol, and number.",
-        placeholder: "Enter your password",
-        fieldType: "input",
-        inputType: "password",
-        validate: passwordStrength,
-      },
-      {
-        id: "confirmPassword",
-        name: "confirmPassword",
-        label: "Confirm Password",
-        hint: "Re-enter your password",
-        placeholder: "Confirm your password",
-        fieldType: "input",
-        inputType: "password",
-        validate: (value, allValues) => {
-          if (!value) return "This field is required";
-          if (allValues?.password !== value) return "Passwords do not match";
-          return undefined;
-        },
-      },
-    ],
-  };
+    },
+  ];
 
-  const handleSubmit = async (
-    values: Record<string, unknown>,
-    formApi: FormApi<Record<string, unknown>>
-  ) => {
+  const handleSignup = async (
+    values: Record<string, unknown>
+  ): Promise<void> => {
     const result = await dispatch(
       signupUser({
         fullname: String(values.fullname),
@@ -97,10 +87,9 @@ export default function Signup() {
     );
 
     if (signupUser.fulfilled.match(result)) {
-      formApi.reset();
-      formApi.getRegisteredFields().forEach((f) => formApi.resetFieldState(f));
-
-      setTimeout(() => navigate("/login"), 1000);
+      setTimeout(() => {
+        navigate("/login");
+      }, NAVIGATION_DELAY_MS);
     }
   };
 
@@ -110,6 +99,7 @@ export default function Signup() {
         <Dialog
           message={message || error || ""}
           type={message ? "success" : "error"}
+          duration={MESSAGE_DURATION_MS}
         />
       )}
 
@@ -121,14 +111,14 @@ export default function Signup() {
           showAppButtons={panel.showAppButtons}
           isVisible={panel.isVisible}
         />
-        <div className="flex-1 flex flex-col justify-center">
+        <div className="flex-1 flex flex-col justify-center p-10">
           <FormPanel
-            title={form.title}
-            description={form.description}
-            submitText={form.submitText}
-            redirectLink={form.redirectLink}
-            fields={form.fields}
-            onSubmit={handleSubmit}
+            title="Create an Account"
+            description="It's Simple and Easy!"
+            submitText="Create Account"
+            redirectLink={{ text: "Already have an account?", path: "/login" }}
+            fields={formFields}
+            onSubmit={handleSignup}
           />
         </div>
       </div>
