@@ -8,6 +8,7 @@ import { BoardNavbar } from "./BoardNavbar";
 import { CreateList } from "./CreateList";
 import type { Board } from "@/types/Workspace";
 import { addList } from "@/redux/thunks/listThunks";
+import { useHorizontalScroll } from "@/utils/useHorizontalScroll";
 
 export default function Board() {
   const [searchParams] = useSearchParams();
@@ -33,6 +34,8 @@ export default function Board() {
 
   const boardLists = boardId ? listsState[boardId] || [] : [];
 
+  const scrollRef = useHorizontalScroll();
+
   const handleAddList = async (name: string) => {
     if (!boardId) {
       return;
@@ -46,21 +49,24 @@ export default function Board() {
     <div className="flex flex-col h-full">
       <BoardNavbar name={board.name} />
 
-      <div className="flex-1 overflow-x-auto px-4 py-4">
-        <div className="flex items-start gap-4">
-          {boardLists.map((list) => (
-            <BoardList
-              key={list.id}
-              boardId={boardId!}
-              listId={list.id}
-              title={list.name}
-              onCardClick={(cardId) => console.log("Card clicked:", cardId)}
-            />
-          ))}
+      <div
+        ref={scrollRef}
+        className="flex-1 flex items-start gap-4 py-4 overflow-x-auto overflow-y-hidden"
+      >
+        {boardLists.map((list) => (
+          <BoardList
+            key={list.id}
+            boardId={boardId!}
+            listId={list.id}
+            title={list.name}
+            onCardClick={(cardId) => console.log("Card clicked:", cardId)}
+          />
+        ))}
 
+        <div className="shrink-0 w-72">
           <Button
             type="custom"
-            className="w-72 flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg"
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-lg"
             onClick={() => setListModalOpen(true)}
           >
             + Add another list
