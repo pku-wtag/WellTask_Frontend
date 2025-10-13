@@ -5,31 +5,30 @@ import {
   ChevronsRightLeft,
   ChevronsLeftRight,
 } from "lucide-react";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/redux/store";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState, AppDispatch } from "@/redux/store";
 import type { Card } from "@/types/Workspace";
 
 import { BoardCard } from "./BoardCard";
 import { Button } from "../base-component/Button";
 import { CreateCard } from "./CreateCard";
+import { Modal } from "../base-component/modal";
+import { Form, Field } from "react-final-form";
+import { FieldWrapper } from "@/components/fields/FieldWrapper";
+import { editList, deleteList } from "@/redux/thunks/listThunks";
 
 type ListProps = {
   boardId: string;
   listId: string;
   title: string;
-  onMoreOptions: () => void;
   onCardClick?: (id: string) => void;
 };
 
-export function BoardList({
-  boardId,
-  listId,
-  title,
-  onMoreOptions,
-  onCardClick,
-}: ListProps) {
+export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
+  const dispatch = useDispatch<AppDispatch>();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isCreateCardOpen, setCreateCardOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const cards: Card[] = useSelector(
     (state: RootState) =>
@@ -37,6 +36,34 @@ export function BoardList({
   );
 
   const handleAddCard = () => setCreateCardOpen(true);
+
+  const handleSaveList = async (values: { name: string }) => {
+    if (!values.name.trim()) return alert("List name cannot be empty");
+    try {
+      await dispatch(
+        editList({ boardId, listId, updates: { name: values.name } })
+      ).unwrap();
+      setModalOpen(false);
+    } catch (err) {
+      console.error("Failed to update list", err);
+      alert("Failed to update list");
+    }
+  };
+
+  const handleDeleteList = async () => {
+    const confirmed = confirm(
+      `Delete list "${title}"? This action is permanent.`
+    );
+    if (!confirmed) return;
+
+    try {
+      await dispatch(deleteList({ boardId, listId })).unwrap();
+      setModalOpen(false);
+    } catch (err) {
+      console.error("Failed to delete list", err);
+      alert("Failed to delete list");
+    }
+  };
 
   if (isCollapsed) {
     return (
@@ -63,7 +90,7 @@ export function BoardList({
           <div className="flex items-center gap-1">
             <MoreHorizontal
               className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-700"
-              onClick={onMoreOptions}
+              onClick={() => setModalOpen(true)}
             />
             <ChevronsRightLeft
               className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-700"
@@ -78,6 +105,8 @@ export function BoardList({
               key={card.id}
               id={card.id}
               title={card.name}
+              boardId={boardId} 
+              listId={listId} 
               onClick={onCardClick}
             />
           ))}
@@ -98,6 +127,58 @@ export function BoardList({
         isOpen={isCreateCardOpen}
         onClose={() => setCreateCardOpen(false)}
       />
+
+      {modalOpen && (
+        <Modal isOpen={true} onClose={() => setModalOpen(false)}>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            {title} Settings
+          </h2>
+
+          <Form
+            onSubmit={handleSaveList}
+            initialValues={{ name: title }}
+            render={({ handleSubmit }) => (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <Field name="name">
+                  {({ input }) => (
+                    <FieldWrapper
+                      id="listName"
+                      name="listName"
+                      label="List Name"
+                    >
+                      {() => (
+                        <input
+                          {...input}
+                          placeholder="List Name"
+                          className="mt-1 w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
+                        />
+                      )}
+                    </FieldWrapper>
+                  )}
+                </Field>
+
+                <div className="flex justify-between items-center mt-6">
+                  <Button
+                    htmlType="submit"
+                    type="custom"
+                    className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-lg"
+                  >
+                    Save Changes
+                  </Button>
+
+                  <Button
+                    type="custom"
+                    className="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-2 rounded-lg"
+                    onClick={handleDeleteList}
+                  >
+                    Delete List
+                  </Button>
+                </div>
+              </form>
+            )}
+          />
+        </Modal>
+      )}
     </>
   );
 }

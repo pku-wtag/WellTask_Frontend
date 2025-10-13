@@ -51,7 +51,6 @@ export default function Board() {
               boardId={boardId!}
               listId={list.id}
               title={list.name}
-              onMoreOptions={() => console.log("More options for", list.name)}
               onCardClick={(cardId) => console.log("Card clicked:", cardId)}
             />
           ))}

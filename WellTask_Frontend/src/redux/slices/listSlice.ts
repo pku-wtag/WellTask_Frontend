@@ -70,6 +70,24 @@ const listSlice = createSlice({
         targetList.cards = [...(targetList.cards || []), card];
       }
     },
+    updateListInBoard: (
+      state,
+      action: PayloadAction<{ boardId: string; list: List }>
+    ) => {
+      const { boardId, list } = action.payload;
+      const boardLists = state.lists[boardId];
+      if (!boardLists) return;
+      state.lists[boardId] = boardLists.map((l) => (l.id === list.id ? list : l));
+    },
+    removeListFromBoard: (
+      state,
+      action: PayloadAction<{ boardId: string; listId: string }>
+    ) => {
+      const { boardId, listId } = action.payload;
+      const boardLists = state.lists[boardId];
+      if (!boardLists) return;
+      state.lists[boardId] = boardLists.filter((l) => l.id !== listId);
+    },
   },
 });
 
@@ -81,6 +99,8 @@ export const {
   clearMessage,
   addListToBoard,
   addCardToList,
+  updateListInBoard,
+  removeListFromBoard,
 } = listSlice.actions;
 
 export default listSlice.reducer;

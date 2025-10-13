@@ -66,6 +66,26 @@ const cardSlice = createSlice({
       state.cards[listId] = [...listCards, card];
     },
 
+    updateCardInListState: (
+      state,
+      action: PayloadAction<{ listId: string; card: Card }>
+    ) => {
+      const { listId, card } = action.payload;
+      const listCards = state.cards[listId];
+      if (!listCards) return;
+      state.cards[listId] = listCards.map((c) => (c.id === card.id ? card : c));
+    },
+
+    removeCardFromListState: (
+      state,
+      action: PayloadAction<{ listId: string; cardId: string }>
+    ) => {
+      const { listId, cardId } = action.payload;
+      const listCards = state.cards[listId];
+      if (!listCards) return;
+      state.cards[listId] = listCards.filter((c) => c.id !== cardId);
+    },
+
     addCardsToList: (
       state,
       action: PayloadAction<{ listId: string; cards: Card[] }>
@@ -83,6 +103,8 @@ export const {
   clearError,
   clearMessage,
   addCardToListState,
+  updateCardInListState,
+  removeCardFromListState,
   addCardsToList,
 } = cardSlice.actions;
 
