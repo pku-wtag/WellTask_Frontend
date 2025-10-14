@@ -61,6 +61,7 @@ export default function VerifyCode() {
       resetOTPFields(form);
 
       setTimeout(() => navigate("/reset-password"), NAVIGATION_DELAY_MS);
+
       return;
     }
 
@@ -72,12 +73,14 @@ export default function VerifyCode() {
       dispatch(
         setError("Email not found. Please go back and enter your email.")
       );
+
       setTimeout(() => navigate("/forgot-password"), NAVIGATION_DELAY_MS);
 
       return;
     }
 
     generateOTP();
+    
     dispatch(setMessage("OTP resent! Check console for code."));
   };
 
