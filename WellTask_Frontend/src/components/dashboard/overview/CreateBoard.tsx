@@ -21,9 +21,18 @@ export function CreateBoard({
 
   const handleCreateBoard = async (values: { boardName: string }) => {
     const name = values.boardName?.trim();
-    if (!name) return;
-    await dispatch(addBoard({ workspaceId, name }));
-    onClose();
+
+    if (!name) {
+      return;
+    }
+
+    try {
+      await dispatch(addBoard({ workspaceId, name })).unwrap();
+      onClose();
+    } catch (err) {
+      console.error("Failed to create board", err);
+      alert("Failed to create board");
+    }
   };
 
   return (
@@ -39,10 +48,15 @@ export function CreateBoard({
               name="boardName"
               placeholder="Enter board name"
               fullWidth
-              validate={(value) =>
-                !value ? "Board name is required" : undefined
-              }
+              validate={(value) => {
+                if (!value) {
+                  return "Board name is required";
+                } else {
+                  return undefined;
+                }
+              }}
             />
+
             <div className="flex justify-end gap-2">
               <Button
                 type="custom"
@@ -51,12 +65,13 @@ export function CreateBoard({
               >
                 Cancel
               </Button>
+
               <Button
                 type="custom"
                 className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600"
                 htmlType="submit"
               >
-                {"Create"}
+                Create
               </Button>
             </div>
           </form>
