@@ -9,13 +9,19 @@ import { useNavigate } from "react-router-dom";
 import type { AppDispatch } from "@/redux/store";
 import { signupUser } from "@/redux/thunks/authThunks";
 import { Dialog } from "../base-component/Dialog";
-import { useAuthMessage } from "@/hooks/useAuthMessage";
+import { useMessage } from "@/hooks/useMessage";
 import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
+import { clearMessage, clearError } from "@/redux/slices/authSlice";
 
 export default function Signup() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { message, error } = useAuthMessage(MESSAGE_DURATION_MS);
+  const { message, error } = useMessage({
+    selectSlice: (state) => state.auth,
+    duration: MESSAGE_DURATION_MS,
+    clearMessage,
+    clearError,
+  });
 
   const panel = {
     title: "Take your productivity to the next level.",

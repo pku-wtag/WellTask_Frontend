@@ -6,31 +6,32 @@ import type { FormField } from "../base-component/FormPanel";
 import { email } from "@/utils/validators";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import type { AppDispatch } from "@/redux/store";
+import type { AppDispatch, RootState } from "@/redux/store";
 import { Dialog } from "../base-component/Dialog";
-import { useAuthMessage } from "@/hooks/useAuthMessage";
 import type { FormApi } from "final-form";
 import { authPageConfigs } from "./authPageConfigs";
-import { setForgotEmail } from "@/redux/slices/authSlice";
+import {
+  setForgotEmail,
+  setMessage,
+  setError,
+  clearMessage,
+  clearError,
+} from "@/redux/slices/authSlice";
+import { useMessage } from "@/hooks/useMessage";
 import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
 import { generateOTP } from "@/utils/otpService";
 import { getUserByEmail } from "@/utils/authStorage";
 
-export const isAuthError = (
-  error: unknown
-): error is { code?: string; message: string } => {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "message" in error &&
-    typeof error.message === "string"
-  );
-};
-
 export default function ForgotPassword() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { message, error } = useAuthMessage(MESSAGE_DURATION_MS);
+
+  const { message, error } = useMessage({
+    selectSlice: (state: RootState) => state.auth,
+    duration: MESSAGE_DURATION_MS,
+    clearMessage,
+    clearError,
+  });
 
   const layout = authPageConfigs.forgotPassword;
 
@@ -47,18 +48,12 @@ export default function ForgotPassword() {
     },
   ];
 
-  const handleForgotPassword = async (
-    values: Record<string, unknown>
-  ): Promise<void> => {
+  const handleForgotPassword = async (values: Record<string, unknown>) => {
     const emailValue = String(values.email);
-
     const user = getUserByEmail(emailValue);
 
     if (!user) {
-      dispatch({
-        type: "auth/setError",
-        payload: "No account found. Please sign up.",
-      });
+      dispatch(setError("No account found. Please sign up."));
 
       setTimeout(() => {
         navigate("/signup");
@@ -70,10 +65,7 @@ export default function ForgotPassword() {
     dispatch(setForgotEmail(emailValue));
     generateOTP();
 
-    dispatch({
-      type: "auth/setMessage",
-      payload: "OTP generated! Check console.",
-    });
+    dispatch(setMessage("OTP generated! Check console."));
 
     setTimeout(() => {
       navigate("/verify-code");
@@ -92,9 +84,7 @@ export default function ForgotPassword() {
 
       form.reset();
 
-      formFields.forEach((f) => {
-        form.resetFieldState(f.name);
-      });
+      formFields.forEach((f) => form.resetFieldState(f.name));
 
       return result;
     };

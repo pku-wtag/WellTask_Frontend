@@ -10,17 +10,28 @@ import { resetPassword } from "@/redux/thunks/authThunks";
 import { useNavigate } from "react-router-dom";
 import type { AppDispatch, RootState } from "@/redux/store";
 import { Dialog } from "../base-component/Dialog";
-import { useAuthMessage } from "@/hooks/useAuthMessage";
 import type { FormApi } from "final-form";
 import { authPageConfigs } from "./authPageConfigs";
-import { clearForgotPasswordFlow } from "@/redux/slices/authSlice";
+import {
+  setError,
+  setMessage,
+  clearMessage,
+  clearError,
+  clearForgotPasswordFlow,
+} from "@/redux/slices/authSlice";
 import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
-import { isAuthError } from "./ForgotPassword";
+import { useMessage } from "@/hooks/useMessage";
 
 export default function ResetPassword() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { message, error } = useAuthMessage(MESSAGE_DURATION_MS);
+
+  const { message, error } = useMessage({
+    selectSlice: (state) => state.auth,
+    duration: MESSAGE_DURATION_MS,
+    clearMessage,
+    clearError,
+  });
 
   const forgotEmail = useSelector((state: RootState) => state.auth.forgotEmail);
 
@@ -67,26 +78,21 @@ export default function ResetPassword() {
     },
   ];
 
-  const handleResetPassword = async (
-    values: Record<string, string>
-  ): Promise<void> => {
+  const handleResetPassword = async (values: Record<string, string>) => {
     try {
       await dispatch(resetPassword({ password: values.password })).unwrap();
+
+      dispatch(setMessage("Password updated successfully!"));
 
       setTimeout(() => {
         navigate("/login");
         dispatch(clearForgotPasswordFlow());
       }, NAVIGATION_DELAY_MS);
-
-      return;
-    } catch (err: unknown) {
-      if (isAuthError(err) && err.code === "NO_ACCOUNT") {
-        setTimeout(() => {
-          navigate("/signup");
-        }, NAVIGATION_DELAY_MS);
-
-        return;
-      }
+    } catch (err) {
+      dispatch(setError("No account found. Please sign up."));
+      setTimeout(() => {
+        navigate("/signup");
+      }, NAVIGATION_DELAY_MS);
     }
   };
 

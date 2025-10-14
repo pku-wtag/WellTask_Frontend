@@ -10,14 +10,25 @@ import type { AppDispatch } from "@/redux/store";
 import { loginUser } from "@/redux/thunks/authThunks";
 import { Dialog } from "../base-component/Dialog";
 import { Button } from "@/components/base-component/Button";
-import { useAuthMessage } from "@/hooks/useAuthMessage";
-import { setAuthUser } from "@/redux/slices/authSlice";
+import {
+  setAuthUser,
+  setError,
+  clearMessage,
+  clearError,
+} from "@/redux/slices/authSlice";
 import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
+import { useMessage } from "@/hooks/useMessage";
 
 export default function Login() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { message, error } = useAuthMessage(MESSAGE_DURATION_MS);
+
+  const { message, error } = useMessage({
+    selectSlice: (state) => state.auth,
+    duration: MESSAGE_DURATION_MS,
+    clearMessage,
+    clearError,
+  });
 
   const panel = {
     title: "Welcome Back!",
@@ -50,9 +61,7 @@ export default function Login() {
     },
   ];
 
-  const handleLogin = async (
-    values: Record<string, unknown>
-  ): Promise<void> => {
+  const handleLogin = async (values: Record<string, unknown>) => {
     const result = await dispatch(
       loginUser({
         email: String(values.email),
@@ -66,6 +75,12 @@ export default function Login() {
       setTimeout(() => {
         dispatch(setAuthUser({ user }));
         navigate("/dashboard");
+      }, NAVIGATION_DELAY_MS);
+    } else if (loginUser.rejected.match(result)) {
+      dispatch(setError("No account found. Please sign up."));
+
+      setTimeout(() => {
+        navigate("/signup");
       }, NAVIGATION_DELAY_MS);
     }
   };
@@ -95,9 +110,7 @@ export default function Login() {
             <div className="text-right mt-4 mr-10">
               <Button
                 type="outline"
-                onClick={() => {
-                  navigate("/forgot-password");
-                }}
+                onClick={() => navigate("/forgot-password")}
               >
                 Forgot Password?
               </Button>

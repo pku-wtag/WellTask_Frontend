@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Button } from "@/components/base-component/Button";
 import { Form } from "react-final-form";
 import { AuthCardLayout } from "../base-component/AuthCardLayout";
@@ -5,14 +6,19 @@ import { OTPInput } from "../base-component/OTPinput";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
-import { setVerified } from "@/redux/slices/authSlice";
-import { useAuthMessage } from "@/hooks/useAuthMessage";
+import {
+  setVerified,
+  setMessage,
+  setError,
+  clearMessage,
+  clearError,
+} from "@/redux/slices/authSlice";
 import type { FormApi } from "final-form";
 import { authPageConfigs } from "./authPageConfigs";
-import { useEffect } from "react";
-import { Dialog } from "../base-component/Dialog";
 import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
 import { generateOTP, verifyOTP } from "@/utils/otpService";
+import { useMessage } from "@/hooks/useMessage";
+import { Dialog } from "../base-component/Dialog";
 
 export default function VerifyCode() {
   const navigate = useNavigate();
@@ -20,7 +26,12 @@ export default function VerifyCode() {
   const { forgotEmail } = useSelector((state: RootState) => state.auth);
 
   const layout = authPageConfigs.verifyCode;
-  const { message, error } = useAuthMessage(MESSAGE_DURATION_MS);
+  const { message, error } = useMessage({
+    selectSlice: (state) => state.auth,
+    duration: MESSAGE_DURATION_MS,
+    clearMessage,
+    clearError,
+  });
 
   useEffect(() => {
     if (!forgotEmail) {
@@ -30,10 +41,9 @@ export default function VerifyCode() {
 
   const resetOTPFields = (form: FormApi<Record<string, unknown>>) => {
     form.reset();
-
-    Array.from({ length: 6 }).forEach((_, i) => {
-      form.resetFieldState(`otp-${i}`);
-    });
+    Array.from({ length: 6 }).forEach((_, i) =>
+      form.resetFieldState(`otp-${i}`)
+    );
   };
 
   const handleVerifyCode = async (
@@ -47,43 +57,28 @@ export default function VerifyCode() {
 
     if (verifyOTP(otp)) {
       dispatch(setVerified());
-
-      dispatch({
-        type: "auth/setMessage",
-        payload: "OTP verified successfully!",
-      });
-
+      dispatch(setMessage("OTP verified successfully!"));
       resetOTPFields(form);
 
       setTimeout(() => navigate("/reset-password"), NAVIGATION_DELAY_MS);
-
       return;
     }
 
-    dispatch({
-      type: "auth/setError",
-      payload: "Invalid OTP. Please try again.",
-    });
+    dispatch(setError("Invalid OTP. Please try again."));
   };
 
   const handleResendOTP = () => {
     if (!forgotEmail) {
-      dispatch({
-        type: "auth/setError",
-        payload: "Email not found. Please go back and enter your email.",
-      });
-
+      dispatch(
+        setError("Email not found. Please go back and enter your email.")
+      );
       setTimeout(() => navigate("/forgot-password"), NAVIGATION_DELAY_MS);
 
       return;
     }
 
     generateOTP();
-
-    dispatch({
-      type: "auth/setMessage",
-      payload: "OTP resent! Check console for code.",
-    });
+    dispatch(setMessage("OTP resent! Check console for code."));
   };
 
   const handleFormSubmit =
