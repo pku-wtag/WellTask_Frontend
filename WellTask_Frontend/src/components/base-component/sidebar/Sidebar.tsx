@@ -5,9 +5,11 @@ import { TeamSection } from "./TeamSection";
 import { NavigationSection } from "./NavigationSection";
 import type { Workspace } from "@/types/Workspace";
 import WorkSpace from "@/components/workspace/Workspace";
+
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentWorkspace } from "@/redux/slices/workspaceSlice";
 import type { RootState } from "@/redux/store";
+import { WorkspaceSettings } from "@/components/dashboard/overview/WorkspaceSettings";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -59,15 +61,24 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             <TeamSection
               isOpen={isNavOpen}
               onToggle={() => setIsNavBarOpen((prev) => !prev)}
-              workspaceName={currentWorkspace?.name}
+              workspace={currentWorkspace}
+              onOpenSettings={() => setWorkspaceModalOpen(true)}
             />
 
             <NavigationSection />
           </div>
         </div>
       </div>
-      {isWorkspaceModalOpen && (
+
+      {isWorkspaceModalOpen && !currentWorkspace && (
         <WorkSpace isModal onClose={() => setWorkspaceModalOpen(false)} />
+      )}
+
+      {isWorkspaceModalOpen && currentWorkspace && (
+        <WorkspaceSettings
+          workspace={currentWorkspace}
+          onClose={() => setWorkspaceModalOpen(false)}
+        />
       )}
     </>
   );

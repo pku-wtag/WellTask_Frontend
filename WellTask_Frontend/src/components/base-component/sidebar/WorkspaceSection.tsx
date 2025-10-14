@@ -1,6 +1,7 @@
 import { Plus, X } from "lucide-react";
 import { Button } from "../Button";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import type { Workspace } from "@/types/Workspace";
 import type { RootState } from "@/redux/store";
 
@@ -19,10 +20,16 @@ export function WorkspaceSection({
   onWorkspaceSelect,
   onAddWorkspace,
 }: WorkspaceSectionProps) {
-
   const userWorkspaces = useSelector(
-    (state: RootState) => state.workspace.workspaces
+    (state: RootState) => state.auth.user?.workspaces || []
   );
+
+  const navigate = useNavigate();
+
+  const handleSelect = (workspace: Workspace) => {
+    onWorkspaceSelect(workspace);
+    navigate("/dashboard");
+  };
 
   return (
     <div>
@@ -54,11 +61,17 @@ export function WorkspaceSection({
 
       {isOpen && (
         <div className="w-full bg-blue-50 rounded-lg shadow-sm p-2 flex flex-col gap-1 transition-all duration-300">
+          {userWorkspaces.length === 0 && (
+            <span className="px-3 py-2 text-sm text-gray-500">
+              No workspaces yet.
+            </span>
+          )}
+
           {userWorkspaces.map((workspace) => (
             <Button
               key={workspace.id}
               type="custom"
-              onClick={() => onWorkspaceSelect(workspace)}
+              onClick={() => handleSelect(workspace)}
               className="w-full text-left px-3 py-2 text-sm rounded hover:bg-blue-100 font-semibold"
             >
               {workspace.name}

@@ -3,19 +3,23 @@ import {
   type FormField,
 } from "@/components/base-component/FormPanel";
 import { SidePanel } from "@/components/base-component/SidePanel";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import type { AppDispatch, RootState } from "@/redux/store";
+import type { AppDispatch } from "@/redux/store";
 import { Dialog } from "@/components/base-component/Dialog";
 import { Modal } from "../base-component/modal";
 import {
+  setWorkspaces,
+  setMessage,
+  setError,
   clearMessage,
   clearError,
-  setWorkspaces,
 } from "@/redux/slices/workspaceSlice";
 import { addWorkspace } from "@/redux/thunks/workspaceThunks";
 import { required } from "@/utils/validators";
 import { getWorkspaces } from "@/utils/workspaceStorage";
+import { useMessage } from "@/hooks/useMessage";
+import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
 
 interface WorkspacePageProps {
   isModal?: boolean;
@@ -31,7 +35,12 @@ export default function WorkSpace({
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
-  const { message, error } = useSelector((state: RootState) => state.workspace);
+  const { message, error } = useMessage({
+    selectSlice: (state) => state.workspace,
+    duration: MESSAGE_DURATION_MS,
+    clearMessage,
+    clearError,
+  });
 
   const panel = {
     title: "Create Your Workspace",
@@ -103,19 +112,26 @@ export default function WorkSpace({
           description: String(values.workspaceDescription),
         })
       ).unwrap();
+
       const allWorkspaces = getWorkspaces();
       dispatch(setWorkspaces(allWorkspaces));
+      dispatch(setMessage("Workspace created successfully!"));
+
       setTimeout(async () => {
         if (onCreate) {
           await onCreate(newWorkspace.name);
-          if (onClose) onClose();
+          onClose?.();
           return;
         }
 
-        if (!isModal) navigate("/dashboard");
-        if (onClose) onClose();
-      }, 1000);
-    } catch (err) {
+        if (!isModal) {
+          navigate("/dashboard");
+        }
+
+        onClose?.();
+      }, NAVIGATION_DELAY_MS);
+    } catch (err: unknown) {
+      dispatch(setError("Failed to create workspace. Please try again."));
       console.error(err);
     }
   };
@@ -126,11 +142,7 @@ export default function WorkSpace({
         <Dialog
           message={message || error || ""}
           type={message ? "success" : "error"}
-          duration={1000}
-          onClose={() => {
-            if (message) dispatch(clearMessage());
-            if (error) dispatch(clearError());
-          }}
+          duration={MESSAGE_DURATION_MS}
         />
       )}
 
