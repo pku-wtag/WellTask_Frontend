@@ -7,7 +7,7 @@ import { email, passwordStrength } from "@/utils/validators";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { AppDispatch } from "@/redux/store";
-import { loginUser } from "@/redux/thunks/authThunks";
+import { loginUser, AuthErrorCode } from "@/redux/thunks/authThunks";
 import { Dialog } from "../base-component/Dialog";
 import { Button } from "@/components/base-component/Button";
 import {
@@ -71,17 +71,21 @@ export default function Login() {
 
     if (loginUser.fulfilled.match(result)) {
       const user = result.payload;
-
       setTimeout(() => {
         dispatch(setAuthUser({ user }));
         navigate("/dashboard");
       }, NAVIGATION_DELAY_MS);
     } else if (loginUser.rejected.match(result)) {
-      dispatch(setError("No account found. Please sign up."));
+      const code = result.payload?.code;
+      const msg = result.payload?.message || "Login failed.";
 
-      setTimeout(() => {
-        navigate("/signup");
-      }, NAVIGATION_DELAY_MS);
+      dispatch(setError(msg));
+
+      if (code === AuthErrorCode.NO_ACCOUNT) {
+        setTimeout(() => {
+          navigate("/signup");
+        }, NAVIGATION_DELAY_MS);
+      }
     }
   };
 
