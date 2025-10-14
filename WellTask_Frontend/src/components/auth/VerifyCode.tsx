@@ -7,7 +7,6 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
 import {
-  setVerified,
   setMessage,
   setError,
   clearMessage,
@@ -16,9 +15,9 @@ import {
 import type { FormApi } from "final-form";
 import { authPageConfigs } from "./authPageConfigs";
 import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
-import { generateOTP, verifyOTP } from "@/utils/otpService";
 import { useMessage } from "@/hooks/useMessage";
 import { Dialog } from "../base-component/Dialog";
+import { verifyOTPThunk, forgotPassword } from "@/redux/thunks/authThunks";
 
 export default function VerifyCode() {
   const navigate = useNavigate();
@@ -26,6 +25,7 @@ export default function VerifyCode() {
   const { forgotEmail } = useSelector((state: RootState) => state.auth);
 
   const layout = authPageConfigs.verifyCode;
+
   const { message, error } = useMessage({
     selectSlice: (state) => state.auth,
     duration: MESSAGE_DURATION_MS,
@@ -41,6 +41,7 @@ export default function VerifyCode() {
 
   const resetOTPFields = (form: FormApi<Record<string, unknown>>) => {
     form.reset();
+
     Array.from({ length: 6 }).forEach((_, i) =>
       form.resetFieldState(`otp-${i}`)
     );
@@ -55,20 +56,28 @@ export default function VerifyCode() {
       (_, i) => values[`otp-${i}`] || ""
     ).join("");
 
-    if (verifyOTP(otp)) {
-      dispatch(setVerified());
-      dispatch(setMessage("OTP verified successfully!"));
+    const result = await dispatch(verifyOTPThunk({ otp }));
+
+    if (verifyOTPThunk.fulfilled.match(result)) {
       resetOTPFields(form);
 
-      setTimeout(() => navigate("/reset-password"), NAVIGATION_DELAY_MS);
+      setTimeout(() => {
+        navigate("/reset-password");
+      }, NAVIGATION_DELAY_MS);
 
       return;
     }
 
-    dispatch(setError("Invalid OTP. Please try again."));
+    if (verifyOTPThunk.rejected.match(result)) {
+      resetOTPFields(form);
+
+      if (result.payload?.code === "INVALID_CREDENTIALS") {
+        return;
+      }
+    }
   };
 
-  const handleResendOTP = () => {
+  const handleResendOTP = async () => {
     if (!forgotEmail) {
       dispatch(
         setError("Email not found. Please go back and enter your email.")
@@ -79,9 +88,11 @@ export default function VerifyCode() {
       return;
     }
 
-    generateOTP();
-    
-    dispatch(setMessage("OTP resent! Check console for code."));
+    const result = await dispatch(forgotPassword(forgotEmail));
+
+    if (forgotPassword.fulfilled.match(result)) {
+      dispatch(setMessage("OTP resent! Check console for code."));
+    }
   };
 
   const handleFormSubmit =

@@ -16,6 +16,7 @@ import { clearMessage, clearError } from "@/redux/slices/authSlice";
 export default function Signup() {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+
   const { message, error } = useMessage({
     selectSlice: (state) => state.auth,
     duration: MESSAGE_DURATION_MS,
@@ -74,6 +75,7 @@ export default function Signup() {
         if (!value) {
           return "This field is required";
         }
+
         if (allValues?.password !== value) {
           return "Passwords do not match";
         }
@@ -81,9 +83,7 @@ export default function Signup() {
     },
   ];
 
-  const handleSignup = async (
-    values: Record<string, unknown>
-  ): Promise<void> => {
+  const handleSignup = async (values: Record<string, unknown>) => {
     const result = await dispatch(
       signupUser({
         fullname: String(values.fullname),
@@ -96,6 +96,8 @@ export default function Signup() {
       setTimeout(() => {
         navigate("/login");
       }, NAVIGATION_DELAY_MS);
+
+      return;
     }
   };
 
@@ -117,6 +119,7 @@ export default function Signup() {
           showAppButtons={panel.showAppButtons}
           isVisible={panel.isVisible}
         />
+
         <div className="flex-1 flex flex-col justify-center p-10">
           <FormPanel
             title="Create an Account"

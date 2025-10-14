@@ -13,8 +13,6 @@ import { Dialog } from "../base-component/Dialog";
 import type { FormApi } from "final-form";
 import { authPageConfigs } from "./authPageConfigs";
 import {
-  setError,
-  setMessage,
   clearMessage,
   clearError,
   clearForgotPasswordFlow,
@@ -79,20 +77,21 @@ export default function ResetPassword() {
   ];
 
   const handleResetPassword = async (values: Record<string, string>) => {
-    try {
-      await dispatch(resetPassword({ password: values.password })).unwrap();
+    const result = await dispatch(resetPassword({ password: values.password }));
 
-      dispatch(setMessage("Password updated successfully!"));
-
+    if (resetPassword.fulfilled.match(result)) {
       setTimeout(() => {
         navigate("/login");
         dispatch(clearForgotPasswordFlow());
       }, NAVIGATION_DELAY_MS);
-    } catch (err) {
-      dispatch(setError("No account found. Please sign up."));
-      setTimeout(() => {
-        navigate("/signup");
-      }, NAVIGATION_DELAY_MS);
+
+      return;
+    }
+
+    if (resetPassword.rejected.match(result)) {
+      if (result.payload?.code === "NO_ACCOUNT") {
+        setTimeout(() => navigate("/signup"), NAVIGATION_DELAY_MS);
+      }
     }
   };
 

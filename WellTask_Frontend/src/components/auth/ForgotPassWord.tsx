@@ -10,17 +10,10 @@ import type { AppDispatch, RootState } from "@/redux/store";
 import { Dialog } from "../base-component/Dialog";
 import type { FormApi } from "final-form";
 import { authPageConfigs } from "./authPageConfigs";
-import {
-  setForgotEmail,
-  setMessage,
-  setError,
-  clearMessage,
-  clearError,
-} from "@/redux/slices/authSlice";
+import { clearMessage, clearError } from "@/redux/slices/authSlice";
 import { useMessage } from "@/hooks/useMessage";
 import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
-import { generateOTP } from "@/utils/otpService";
-import { getUserByEmail } from "@/utils/authStorage";
+import { forgotPassword } from "@/redux/thunks/authThunks";
 
 export default function ForgotPassword() {
   const dispatch = useDispatch<AppDispatch>();
@@ -50,26 +43,26 @@ export default function ForgotPassword() {
 
   const handleForgotPassword = async (values: Record<string, unknown>) => {
     const emailValue = String(values.email);
-    const user = getUserByEmail(emailValue);
 
-    if (!user) {
-      dispatch(setError("No account found. Please sign up."));
+    const result = await dispatch(forgotPassword(emailValue));
 
+    if (forgotPassword.fulfilled.match(result)) {
       setTimeout(() => {
-        navigate("/signup");
+        navigate("/verify-code");
       }, NAVIGATION_DELAY_MS);
 
       return;
     }
 
-    dispatch(setForgotEmail(emailValue));
-    generateOTP();
+    if (forgotPassword.rejected.match(result)) {
+      if (result.payload?.code === "NO_ACCOUNT") {
+        setTimeout(() => {
+          navigate("/signup");
+        }, NAVIGATION_DELAY_MS);
+      }
 
-    dispatch(setMessage("OTP generated! Check console."));
-
-    setTimeout(() => {
-      navigate("/verify-code");
-    }, NAVIGATION_DELAY_MS);
+      return;
+    }
   };
 
   const handleFormSubmit =

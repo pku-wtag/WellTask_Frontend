@@ -71,11 +71,16 @@ export default function Login() {
 
     if (loginUser.fulfilled.match(result)) {
       const user = result.payload;
+
       setTimeout(() => {
         dispatch(setAuthUser({ user }));
         navigate("/dashboard");
       }, NAVIGATION_DELAY_MS);
-    } else if (loginUser.rejected.match(result)) {
+
+      return;
+    }
+
+    if (loginUser.rejected.match(result)) {
       const code = result.payload?.code;
       const msg = result.payload?.message || "Login failed.";
 
@@ -86,6 +91,8 @@ export default function Login() {
           navigate("/signup");
         }, NAVIGATION_DELAY_MS);
       }
+
+      return;
     }
   };
 
