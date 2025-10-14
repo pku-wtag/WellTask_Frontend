@@ -5,6 +5,7 @@ import { Input } from "@/components/fields/Input";
 import { Button } from "@/components/base-component/Button";
 import type { AppDispatch } from "@/redux/store";
 import { addCard } from "@/redux/thunks/cardThunks";
+import { required } from "@/utils/validators";
 
 interface CreateCardModalProps {
   boardId: string;
@@ -23,7 +24,10 @@ export function CreateCard({
 
   const handleCreateCard = async (values: { cardName: string }) => {
     const name = values.cardName?.trim();
-    if (!name) return;
+
+    if (!name) {
+      return;
+    }
 
     const result = await dispatch(addCard({ boardId, listId, name }));
 
@@ -34,7 +38,9 @@ export function CreateCard({
     }
   };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -49,18 +55,20 @@ export function CreateCard({
               name="cardName"
               placeholder="Enter card name"
               fullWidth
-              validate={(value) =>
-                !value ? "Card name is required" : undefined
-              }
+              validate={required}
             />
+
             <div className="flex justify-end gap-2">
               <Button
                 type="custom"
                 className="px-4 py-2 border border-gray-300 text-gray-600 hover:bg-gray-100"
-                onClick={onClose}
+                onClick={() => {
+                  onClose();
+                }}
               >
                 Cancel
               </Button>
+
               <Button
                 type="custom"
                 className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600"

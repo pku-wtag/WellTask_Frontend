@@ -4,13 +4,12 @@ import { getWorkspaces } from "@/utils/workspaceStorage";
 
 interface ListState {
   lists: Record<string, List[]>;
-  isLoading: boolean;
   error: string | null;
   message: string | null;
 }
 
 const initialLists: Record<string, List[]> = {};
-const workspaces = getWorkspaces();
+const workspaces = getWorkspaces() ?? [];
 workspaces.forEach((ws) => {
   ws.boards.forEach((board) => {
     initialLists[board.id] = board.lists || [];
@@ -19,7 +18,6 @@ workspaces.forEach((ws) => {
 
 const initialState: ListState = {
   lists: initialLists,
-  isLoading: false,
   error: null,
   message: null,
 };
@@ -28,35 +26,42 @@ const listSlice = createSlice({
   name: "list",
   initialState,
   reducers: {
-    startLoading: (state) => {
-      state.isLoading = true;
-      state.error = null;
-      state.message = null;
-    },
     setError: (state, action: PayloadAction<string>) => {
-      state.isLoading = false;
       state.error = action.payload;
       state.message = null;
     },
+
     setMessage: (state, action: PayloadAction<string>) => {
-      state.isLoading = false;
       state.message = action.payload;
       state.error = null;
     },
+
     clearError: (state) => {
       state.error = null;
     },
+
     clearMessage: (state) => {
       state.message = null;
     },
+
+    setListsForBoard: (
+      state,
+      action: PayloadAction<{ boardId: string; lists: List[] }>
+    ) => {
+      state.lists[action.payload.boardId] = action.payload.lists;
+    },
+
     addListToBoard: (
       state,
       action: PayloadAction<{ boardId: string; list: List }>
     ) => {
       const { boardId, list } = action.payload;
-      const boardLists = state.lists[boardId] || [];
-      state.lists[boardId] = [...boardLists, list];
+      if (!state.lists[boardId]) {
+        state.lists[boardId] = [];
+      }
+      state.lists[boardId].push(list);
     },
+
     addCardToList: (
       state,
       action: PayloadAction<{ boardId: string; listId: string; card: Card }>
@@ -67,9 +72,11 @@ const listSlice = createSlice({
 
       const targetList = boardLists.find((l) => l.id === listId);
       if (targetList) {
-        targetList.cards = [...(targetList.cards || []), card];
+        if (!targetList.cards) targetList.cards = [];
+        targetList.cards.push(card);
       }
     },
+
     updateListInBoard: (
       state,
       action: PayloadAction<{ boardId: string; list: List }>
@@ -77,8 +84,12 @@ const listSlice = createSlice({
       const { boardId, list } = action.payload;
       const boardLists = state.lists[boardId];
       if (!boardLists) return;
-      state.lists[boardId] = boardLists.map((l) => (l.id === list.id ? list : l));
+
+      state.lists[boardId] = boardLists.map((l) =>
+        l.id === list.id ? list : l
+      );
     },
+
     removeListFromBoard: (
       state,
       action: PayloadAction<{ boardId: string; listId: string }>
@@ -86,17 +97,18 @@ const listSlice = createSlice({
       const { boardId, listId } = action.payload;
       const boardLists = state.lists[boardId];
       if (!boardLists) return;
+
       state.lists[boardId] = boardLists.filter((l) => l.id !== listId);
     },
   },
 });
 
 export const {
-  startLoading,
   setError,
   setMessage,
   clearError,
   clearMessage,
+  setListsForBoard,
   addListToBoard,
   addCardToList,
   updateListInBoard,

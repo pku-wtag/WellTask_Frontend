@@ -27,7 +27,10 @@ export function BoardCard({
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleSaveCard = async (values: { name: string }) => {
-    if (!values.name.trim()) return alert("Card name cannot be empty");
+    if (!values.name.trim()) {
+      alert("Card name cannot be empty");
+      return;
+    }
 
     try {
       await dispatch(
@@ -38,6 +41,7 @@ export function BoardCard({
           updates: { name: values.name },
         })
       ).unwrap();
+
       setModalOpen(false);
     } catch (err) {
       console.error("Failed to update card", err);
@@ -49,7 +53,10 @@ export function BoardCard({
     const confirmed = confirm(
       `Delete card "${title}"? This action is permanent.`
     );
-    if (!confirmed) return;
+
+    if (!confirmed) {
+      return;
+    }
 
     try {
       await dispatch(deleteCard({ boardId, listId, cardId: id })).unwrap();
@@ -64,9 +71,14 @@ export function BoardCard({
     <>
       <div
         className="relative p-2 text-sm bg-white rounded-md shadow-sm border border-gray-200 hover:bg-gray-50 cursor-pointer flex justify-between items-center"
-        onClick={() => onClick?.(id)}
+        onClick={() => {
+          if (onClick) {
+            onClick(id);
+          }
+        }}
       >
         <span className="truncate">{title}</span>
+
         <MoreVertical
           className="w-4 h-4 text-gray-400 hover:text-gray-700"
           onClick={(e) => {

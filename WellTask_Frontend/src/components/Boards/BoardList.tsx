@@ -30,19 +30,30 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
   const [isCreateCardOpen, setCreateCardOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const cards: Card[] = useSelector(
-    (state: RootState) =>
-      state.list.lists[boardId]?.find((l) => l.id === listId)?.cards || []
-  );
+  const cards: Card[] = useSelector((state: RootState) => {
+    const list = state.list.lists[boardId]?.find((l) => l.id === listId);
+    if (list) {
+      return list.cards;
+    } else {
+      return [];
+    }
+  });
 
-  const handleAddCard = () => setCreateCardOpen(true);
+  const handleAddCard = () => {
+    setCreateCardOpen(true);
+  };
 
   const handleSaveList = async (values: { name: string }) => {
-    if (!values.name.trim()) return alert("List name cannot be empty");
+    if (!values.name.trim()) {
+      alert("List name cannot be empty");
+      return;
+    }
+
     try {
       await dispatch(
         editList({ boardId, listId, updates: { name: values.name } })
       ).unwrap();
+
       setModalOpen(false);
     } catch (err) {
       console.error("Failed to update list", err);
@@ -54,7 +65,10 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
     const confirmed = confirm(
       `Delete list "${title}"? This action is permanent.`
     );
-    if (!confirmed) return;
+
+    if (!confirmed) {
+      return;
+    }
 
     try {
       await dispatch(deleteList({ boardId, listId })).unwrap();
@@ -68,7 +82,9 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
   if (isCollapsed) {
     return (
       <div
-        onClick={() => setIsCollapsed(false)}
+        onClick={() => {
+          setIsCollapsed(false);
+        }}
         className="w-14 h-full bg-gray-50 rounded-lg shadow-sm border border-gray-200 py-4 px-2 cursor-pointer flex flex-col items-center justify-start hover:bg-gray-100 transition-colors"
         style={{ minHeight: "10rem" }}
       >
@@ -90,11 +106,15 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
           <div className="flex items-center gap-1">
             <MoreHorizontal
               className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-700"
-              onClick={() => setModalOpen(true)}
+              onClick={() => {
+                setModalOpen(true);
+              }}
             />
             <ChevronsRightLeft
               className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-700"
-              onClick={() => setIsCollapsed(true)}
+              onClick={() => {
+                setIsCollapsed(true);
+              }}
             />
           </div>
         </div>
@@ -105,8 +125,8 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
               key={card.id}
               id={card.id}
               title={card.name}
-              boardId={boardId} 
-              listId={listId} 
+              boardId={boardId}
+              listId={listId}
               onClick={onCardClick}
             />
           ))}
@@ -125,7 +145,9 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
         boardId={boardId}
         listId={listId}
         isOpen={isCreateCardOpen}
-        onClose={() => setCreateCardOpen(false)}
+        onClose={() => {
+          setCreateCardOpen(false);
+        }}
       />
 
       {modalOpen && (

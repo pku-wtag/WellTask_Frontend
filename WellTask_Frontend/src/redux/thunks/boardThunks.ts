@@ -9,7 +9,7 @@ import {
   removeBoard,
 } from "../slices/boardSlice";
 import { updateUser } from "../slices/authSlice";
-import { setError, setMessage } from "../slices/workspaceSlice";
+import { setError, setMessage } from "../slices/boardSlice";
 
 // ---------------- ADD BOARD ----------------
 export const addBoard = createAsyncThunk<
