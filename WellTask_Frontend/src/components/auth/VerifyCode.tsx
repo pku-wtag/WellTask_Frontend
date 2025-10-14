@@ -84,7 +84,6 @@ export default function VerifyCode() {
       );
 
       setTimeout(() => navigate("/forgot-password"), NAVIGATION_DELAY_MS);
-
       return;
     }
 
@@ -104,9 +103,7 @@ export default function VerifyCode() {
     ) =>
     async (event: React.FormEvent<HTMLFormElement>) => {
       const result = await handleSubmit(event.nativeEvent as SubmitEvent);
-
       resetOTPFields(form);
-
       return result;
     };
 
