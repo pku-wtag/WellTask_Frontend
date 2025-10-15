@@ -1,5 +1,5 @@
 import React, { type ReactNode } from "react";
-import { X } from "lucide-react";
+import { X as XIcon } from "lucide-react";
 import { Button } from "./Button";
 
 interface ModalProps {
@@ -30,7 +30,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
             className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 z-10"
             onClick={onClose}
           >
-            <X className="w-5 h-5 text-gray-600" />
+            <XIcon className="w-5 h-5 text-gray-600" />
           </Button>
         )}
 

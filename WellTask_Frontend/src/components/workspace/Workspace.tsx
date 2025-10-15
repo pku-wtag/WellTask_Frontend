@@ -121,6 +121,7 @@ export default function WorkSpace({
         if (onCreate) {
           await onCreate(newWorkspace.name);
           onClose?.();
+          
           return;
         }
 

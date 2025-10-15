@@ -3,7 +3,12 @@ import type { Workspace, Board } from "@/types/Workspace";
 import { v4 as uuidv4 } from "uuid";
 import { getWorkspaces, saveWorkspaces } from "@/utils/workspaceStorage";
 import { getCurrentUser, saveUser } from "@/utils/authStorage";
-import { updateWorkspace, removeWorkspace, setError, setMessage } from "@/redux/slices/workspaceSlice";
+import {
+  updateWorkspace,
+  removeWorkspace,
+  setError,
+  setMessage,
+} from "@/redux/slices/workspaceSlice";
 import { updateUser } from "@/redux/slices/authSlice";
 
 // ---------------- ADD WORKSPACE ----------------
@@ -106,8 +111,10 @@ export const editWorkspace = createAsyncThunk<
       saveWorkspaces(workspaces);
 
       const user = getCurrentUser();
+
       if (user) {
-        user.workspaces = user.workspaces?.map((w) => (w.id === id ? updated : w)) || [];
+        user.workspaces =
+          user.workspaces?.map((w) => (w.id === id ? updated : w)) || [];
         saveUser(user);
         dispatch(updateUser({ workspaces: user.workspaces }));
       }
@@ -139,8 +146,10 @@ export const deleteWorkspace = createAsyncThunk<
       saveWorkspaces(workspaces);
 
       const user = getCurrentUser();
+
       if (user) {
-        user.workspaces = user.workspaces?.filter((w) => w.id !== workspaceId) || [];
+        user.workspaces =
+          user.workspaces?.filter((w) => w.id !== workspaceId) || [];
         saveUser(user);
         dispatch(updateUser({ workspaces: user.workspaces }));
       }

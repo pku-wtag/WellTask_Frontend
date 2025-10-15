@@ -19,7 +19,10 @@ export function TeamSection({
   const navigate = useNavigate();
 
   const handleBoardsClick = () => {
-    if (!workspace) return;
+    if (!workspace) {
+      return;
+    }
+
     navigate(`/dashboard/workspace/${workspace.id}/boards`);
   };
 
@@ -33,6 +36,7 @@ export function TeamSection({
         <span className="font-semibold text-gray-800">
           {workspace?.name || "Select Workspace"}
         </span>
+
         <ChevronDown
           className={`w-5 h-5 text-gray-600 transition-transform ${
             isOpen ? "rotate-180" : ""
