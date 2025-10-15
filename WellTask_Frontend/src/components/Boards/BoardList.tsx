@@ -33,12 +33,18 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
   const [isCreateCardOpen, setCreateCardOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const cards: Card[] = useSelector(
-    (state: RootState) =>
-      state.list.lists[boardId]?.find((l) => l.id === listId)?.cards || []
-  );
+  const cards: Card[] = useSelector((state: RootState) => {
+    const list = state.list.lists[boardId]?.find((l) => l.id === listId);
+    if (list) {
+      return list.cards || [];
+    } else {
+      return [];
+    }
+  });
 
-  const handleAddCard = () => setCreateCardOpen(true);
+  const handleAddCard = () => {
+    setCreateCardOpen(true);
+  };
 
   const handleSaveList = async (values: { name: string }) => {
     if (!values.name.trim()) {
@@ -62,7 +68,9 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
     const confirmed = await confirm(
       `Delete list "${title}"? This action is permanent.`
     );
-    if (!confirmed) return;
+    if (!confirmed) {
+      return;
+    }
 
     try {
       await dispatch(deleteList({ boardId, listId })).unwrap();
@@ -103,11 +111,15 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
               <div className="flex items-center gap-1">
                 <MoreHorizontal
                   className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-700"
-                  onClick={() => setModalOpen(true)}
+                  onClick={() => {
+                    setModalOpen(true);
+                  }}
                 />
                 <ChevronsRightLeft
                   className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-700"
-                  onClick={() => setIsCollapsed(true)}
+                  onClick={() => {
+                    setIsCollapsed(true);
+                  }}
                 />
               </div>
             </div>
@@ -116,22 +128,26 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
               className="px-3 py-1 space-y-2 overflow-y-auto"
               style={{ maxHeight: "calc(100vh - 300px)" }}
             >
-              {cards.map((card) => (
-                <BoardCard
-                  key={card.id}
-                  id={card.id}
-                  title={card.name}
-                  boardId={boardId}
-                  listId={listId}
-                  onClick={onCardClick}
-                />
-              ))}
+              {cards.map((card) => {
+                return (
+                  <BoardCard
+                    key={card.id}
+                    id={card.id}
+                    title={card.name}
+                    boardId={boardId}
+                    listId={listId}
+                    onClick={onCardClick}
+                  />
+                );
+              })}
             </div>
 
             <Button
               type="custom"
               className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-b-lg shrink-0"
-              onClick={handleAddCard}
+              onClick={() => {
+                handleAddCard();
+              }}
             >
               <Plus className="w-4 h-4" /> Add a card
             </Button>
@@ -143,7 +159,9 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
         boardId={boardId}
         listId={listId}
         isOpen={isCreateCardOpen}
-        onClose={() => setCreateCardOpen(false)}
+        onClose={() => {
+          setCreateCardOpen(false);
+        }}
       />
 
       {modalOpen && (
@@ -164,21 +182,25 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
                 className="space-y-4"
               >
                 <Field name="name">
-                  {({ input }) => (
-                    <FieldWrapper
-                      id="listName"
-                      name="listName"
-                      label="List Name"
-                    >
-                      {() => (
-                        <input
-                          {...input}
-                          placeholder="List Name"
-                          className="mt-1 w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
-                        />
-                      )}
-                    </FieldWrapper>
-                  )}
+                  {({ input }) => {
+                    return (
+                      <FieldWrapper
+                        id="listName"
+                        name="listName"
+                        label="List Name"
+                      >
+                        {() => {
+                          return (
+                            <input
+                              {...input}
+                              placeholder="List Name"
+                              className="mt-1 w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
+                            />
+                          );
+                        }}
+                      </FieldWrapper>
+                    );
+                  }}
                 </Field>
 
                 <div className="flex justify-between items-center mt-6">
@@ -193,7 +215,9 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
                   <Button
                     type="custom"
                     className="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-2 rounded-lg"
-                    onClick={handleDeleteList}
+                    onClick={() => {
+                      handleDeleteList();
+                    }}
                   >
                     Delete List
                   </Button>
