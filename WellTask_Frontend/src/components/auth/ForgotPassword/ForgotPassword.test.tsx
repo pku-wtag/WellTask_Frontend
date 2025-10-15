@@ -4,6 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { vi } from "vitest";
 
 import { useMessage } from "@/hooks/useMessage";
+import { forgotPassword } from "@/redux/thunks/authThunks";
 import ForgotPassword from "./ForgotPassWord";
 
 const mockNavigate = vi.fn();
@@ -34,7 +35,9 @@ vi.mock("@/components/base-component/Dialog/Dialog", () => ({
 }));
 
 vi.mock("@/components/base-component/AuthCardLayout", () => ({
-  AuthCardLayout: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  AuthCardLayout: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
 }));
 
 vi.mock("../../fields/Input", () => ({
@@ -43,7 +46,6 @@ vi.mock("../../fields/Input", () => ({
   ),
 }));
 
-// Fully typed FakeForm interface
 interface FakeForm {
   reset: () => void;
   resetFieldState: (field: string) => void;
@@ -51,21 +53,26 @@ interface FakeForm {
 
 vi.mock("react-final-form", async (importOriginal) => {
   const actual = await importOriginal<typeof import("react-final-form")>();
-  const fakeForm: FakeForm = {
-    reset: vi.fn(),
-    resetFieldState: vi.fn(),
-  };
-
   return {
     ...actual,
     Form: ({
+      onSubmit,
       render,
     }: {
-      render: (props: { handleSubmit: React.FormEventHandler; form: FakeForm; submitting: boolean }) => React.ReactNode;
+      onSubmit: (values: Record<string, unknown>) => Promise<any>;
+      render: (props: {
+        handleSubmit: React.FormEventHandler;
+        form: FakeForm;
+        submitting: boolean;
+      }) => React.ReactNode;
     }) => {
       const handleSubmit: React.FormEventHandler = async (event) => {
         event?.preventDefault?.();
-        await mockDispatch();
+        await onSubmit({ email: "test@example.com" });
+      };
+      const fakeForm: FakeForm = {
+        reset: vi.fn(),
+        resetFieldState: vi.fn(),
       };
       return render({ handleSubmit, form: fakeForm, submitting: false });
     },
@@ -81,6 +88,8 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+const mockUseMessage = vi.mocked(useMessage);
+
 describe("ForgotPassword Page", () => {
   it("renders input field and Next button", () => {
     render(
@@ -94,7 +103,7 @@ describe("ForgotPassword Page", () => {
   });
 
   it("displays success message from useMessage", () => {
-    vi.mocked(useMessage).mockReturnValue({ message: "Success!", error: "" });
+    mockUseMessage.mockReturnValue({ message: "Success!", error: "" });
 
     render(
       <MemoryRouter>
@@ -109,7 +118,7 @@ describe("ForgotPassword Page", () => {
   });
 
   it("displays error message from useMessage", () => {
-    vi.mocked(useMessage).mockReturnValue({ message: "", error: "Error!" });
+    mockUseMessage.mockReturnValue({ message: "", error: "Error!" });
 
     render(
       <MemoryRouter>
@@ -124,7 +133,7 @@ describe("ForgotPassword Page", () => {
   });
 
   it("does not display dialog when no message or error", () => {
-    vi.mocked(useMessage).mockReturnValue({ message: "", error: "" });
+    mockUseMessage.mockReturnValue({ message: "", error: "" });
 
     render(
       <MemoryRouter>
@@ -135,10 +144,10 @@ describe("ForgotPassword Page", () => {
     expect(screen.queryByTestId("dialog")).not.toBeInTheDocument();
   });
 
-  it("sets error but does not navigate for other failures", async () => {
+  it("navigates to /verify-code on successful forgotPassword", async () => {
     mockDispatch.mockResolvedValue({
-      type: "auth/forgotPassword/rejected",
-      payload: { code: "UNKNOWN_ERROR", message: "Some error" },
+      type: forgotPassword.fulfilled.type,
+      payload: {},
     });
 
     render(
@@ -151,7 +160,53 @@ describe("ForgotPassword Page", () => {
 
     await act(async () => {
       nextButton.click();
-      await vi.advanceTimersByTimeAsync(1500);
+      await vi.runAllTimersAsync();
+    });
+
+    expect(mockDispatch).toHaveBeenCalled();
+    expect(mockNavigate).toHaveBeenCalledWith("/verify-code");
+  });
+
+  it("navigates to /signup on NO_ACCOUNT error", async () => {
+    mockDispatch.mockResolvedValue({
+      type: forgotPassword.rejected.type,
+      payload: { code: "NO_ACCOUNT" },
+    });
+
+    render(
+      <MemoryRouter>
+        <ForgotPassword />
+      </MemoryRouter>
+    );
+
+    const nextButton = screen.getByText("Next");
+
+    await act(async () => {
+      nextButton.click();
+      await vi.runAllTimersAsync();
+    });
+
+    expect(mockDispatch).toHaveBeenCalled();
+    expect(mockNavigate).toHaveBeenCalledWith("/signup");
+  });
+
+  it("sets error but does not navigate for other failures", async () => {
+    mockDispatch.mockResolvedValue({
+      type: forgotPassword.rejected.type,
+      payload: { code: "UNKNOWN_ERROR" },
+    });
+
+    render(
+      <MemoryRouter>
+        <ForgotPassword />
+      </MemoryRouter>
+    );
+
+    const nextButton = screen.getByText("Next");
+
+    await act(async () => {
+      nextButton.click();
+      await vi.runAllTimersAsync();
     });
 
     expect(mockDispatch).toHaveBeenCalled();

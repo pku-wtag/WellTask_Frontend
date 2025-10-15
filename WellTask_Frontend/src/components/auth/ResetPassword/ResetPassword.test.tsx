@@ -6,13 +6,17 @@ import { vi } from "vitest";
 import { useMessage } from "@/hooks/useMessage";
 import { resetPassword } from "@/redux/thunks/authThunks";
 import ResetPassword from "./ResetPassword";
+import type { RootState } from "@/redux/store";
 
 const mockNavigate = vi.fn();
 const mockDispatch = vi.fn();
+const mockUseSelector =
+  vi.fn<(selector: (state: RootState) => unknown) => unknown>();
 
 vi.mock("react-redux", () => ({
   useDispatch: () => mockDispatch,
-  useSelector: vi.fn(() => "test@example.com"),
+  useSelector: (selector: (state: RootState) => unknown) =>
+    mockUseSelector(selector),
 }));
 
 vi.mock("react-router-dom", async (importOriginal) => {
@@ -35,7 +39,7 @@ vi.mock("@/components/base-component/Dialog/Dialog", () => ({
   ),
 }));
 
-vi.mock("../base-component/AuthCardLayout", () => ({
+vi.mock("@/components/base-component/AuthCardLayout", () => ({
   AuthCardLayout: ({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>
   ),
@@ -43,80 +47,58 @@ vi.mock("../base-component/AuthCardLayout", () => ({
 
 vi.mock("../../fields/Input", () => ({
   Input: ({ id, label }: { id: string; label: string }) => (
-    <input data-testid={`input-${id}`} aria-label={label} />
+    <div data-testid={`input-${id}`}>{label}</div>
   ),
 }));
 
-vi.mock("@/components/base-component/Button", () => ({
-  Button: ({
-    children,
-    onClick,
-    disabled,
-    htmlType,
-  }: {
-    children: React.ReactNode;
-    onClick?: React.MouseEventHandler<HTMLButtonElement>;
-    disabled?: boolean;
-    htmlType?: "button" | "submit" | "reset";
-  }) => (
-    <button onClick={onClick} disabled={disabled} type={htmlType}>
-      {children}
-    </button>
-  ),
-}));
-
-// Fully typed form interface
 interface FakeForm {
   reset: () => void;
   resetFieldState: (field: string) => void;
-  getRegisteredFields: () => string[];
 }
 
-vi.mock("react-final-form", () => ({
-  Form: ({
-    onSubmit,
-    render,
-  }: {
-    onSubmit: (values: Record<string, string>) => void | Promise<void>;
-    render: (props: {
-      handleSubmit: React.FormEventHandler;
-      form: FakeForm;
-      submitting: boolean;
-    }) => React.ReactNode;
-  }) => {
-    const fakeForm: FakeForm = {
-      reset: vi.fn(),
-      resetFieldState: vi.fn(),
-      getRegisteredFields: () => ["password", "confirmPassword"],
-    };
+vi.mock("react-final-form", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("react-final-form")>();
+  return {
+    ...actual,
+    Form: ({
+      onSubmit,
+      render,
+    }: {
+      onSubmit: (values: Record<string, string>) => Promise<void>;
+      render: (props: {
+        handleSubmit: React.FormEventHandler;
+        form: FakeForm;
+        submitting: boolean;
+      }) => React.ReactNode;
+    }) => {
+      const handleSubmit: React.FormEventHandler = async (event) => {
+        event?.preventDefault?.();
+        await onSubmit({
+          password: "Password123!",
+          confirmPassword: "Password123!",
+        });
+      };
+      const fakeForm: FakeForm = { reset: vi.fn(), resetFieldState: vi.fn() };
+      return render({ handleSubmit, form: fakeForm, submitting: false });
+    },
+  };
+});
 
-    const handleSubmit: React.FormEventHandler = async (event) => {
-      event?.preventDefault?.();
-      return onSubmit({ password: "test1234", confirmPassword: "test1234" });
-    };
+beforeEach(() => {
+  vi.clearAllMocks();
+  vi.useFakeTimers();
+});
 
-    return <>{render({ handleSubmit, form: fakeForm, submitting: false })}</>;
-  },
-}));
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+const mockUseMessage = vi.mocked(useMessage);
 
 describe("ResetPassword Page", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    vi.useFakeTimers();
+  it("renders input fields and Update Password button", () => {
+    mockUseSelector.mockReturnValue("test@example.com"); // normal case
 
-    // @ts-ignore
-    resetPassword.fulfilled.match = (action) => action.type === "auth/resetPassword/fulfilled";
-    // @ts-ignore
-    resetPassword.rejected.match = (action) => action.type === "auth/resetPassword/rejected";
-
-    vi.mocked(useMessage).mockReturnValue({ message: "", error: "" });
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it("renders form fields and button", () => {
     render(
       <MemoryRouter>
         <ResetPassword />
@@ -125,13 +107,12 @@ describe("ResetPassword Page", () => {
 
     expect(screen.getByTestId("input-password")).toBeInTheDocument();
     expect(screen.getByTestId("input-confirmPassword")).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Update Password" })
-    ).toBeInTheDocument();
+    expect(screen.getByText("Update Password")).toBeInTheDocument();
   });
 
   it("displays success message from useMessage", () => {
-    vi.mocked(useMessage).mockReturnValue({ message: "Success!", error: "" });
+    mockUseMessage.mockReturnValue({ message: "Success!", error: "" });
+    mockUseSelector.mockReturnValue("test@example.com");
 
     render(
       <MemoryRouter>
@@ -140,12 +121,14 @@ describe("ResetPassword Page", () => {
     );
 
     const dialog = screen.getByTestId("dialog");
+    expect(dialog).toBeInTheDocument();
     expect(dialog).toHaveTextContent("Success!");
     expect(dialog).toHaveAttribute("data-type", "success");
   });
 
   it("displays error message from useMessage", () => {
-    vi.mocked(useMessage).mockReturnValue({ message: "", error: "Error!" });
+    mockUseMessage.mockReturnValue({ message: "", error: "Error!" });
+    mockUseSelector.mockReturnValue("test@example.com");
 
     render(
       <MemoryRouter>
@@ -154,13 +137,14 @@ describe("ResetPassword Page", () => {
     );
 
     const dialog = screen.getByTestId("dialog");
+    expect(dialog).toBeInTheDocument();
     expect(dialog).toHaveTextContent("Error!");
     expect(dialog).toHaveAttribute("data-type", "error");
   });
 
-  it("navigates to login on successful reset", async () => {
-    const mockResult = { type: "auth/resetPassword/fulfilled" };
-    mockDispatch.mockResolvedValue(mockResult);
+  it("does not display dialog when no message or error", () => {
+    mockUseMessage.mockReturnValue({ message: "", error: "" });
+    mockUseSelector.mockReturnValue("test@example.com");
 
     render(
       <MemoryRouter>
@@ -168,25 +152,39 @@ describe("ResetPassword Page", () => {
       </MemoryRouter>
     );
 
-    const submitButton = screen.getByRole("button", {
-      name: "Update Password",
+    expect(screen.queryByTestId("dialog")).not.toBeInTheDocument();
+  });
+
+  it("navigates to /login on successful resetPassword", async () => {
+    mockUseSelector.mockReturnValue("test@example.com");
+    mockDispatch.mockResolvedValue({
+      type: resetPassword.fulfilled.type,
+      payload: {},
     });
 
+    render(
+      <MemoryRouter>
+        <ResetPassword />
+      </MemoryRouter>
+    );
+
+    const button = screen.getByText("Update Password");
+
     await act(async () => {
-      submitButton.click();
-      await vi.advanceTimersByTimeAsync(1500);
+      button.click();
+      await vi.runAllTimersAsync();
     });
 
     expect(mockDispatch).toHaveBeenCalled();
     expect(mockNavigate).toHaveBeenCalledWith("/login");
   });
 
-  it("navigates to signup when NO_ACCOUNT error occurs", async () => {
-    const mockResult = {
-      type: "auth/resetPassword/rejected",
+  it("navigates to /signup on NO_ACCOUNT error", async () => {
+    mockUseSelector.mockReturnValue("test@example.com");
+    mockDispatch.mockResolvedValue({
+      type: resetPassword.rejected.type,
       payload: { code: "NO_ACCOUNT" },
-    };
-    mockDispatch.mockResolvedValue(mockResult);
+    });
 
     render(
       <MemoryRouter>
@@ -194,15 +192,50 @@ describe("ResetPassword Page", () => {
       </MemoryRouter>
     );
 
-    const submitButton = screen.getByRole("button", {
-      name: "Update Password",
-    });
+    const button = screen.getByText("Update Password");
 
     await act(async () => {
-      submitButton.click();
-      await vi.advanceTimersByTimeAsync(1500);
+      button.click();
+      await vi.runAllTimersAsync();
     });
 
+    expect(mockDispatch).toHaveBeenCalled();
     expect(mockNavigate).toHaveBeenCalledWith("/signup");
+  });
+
+  it("sets error but does not navigate for other failures", async () => {
+    mockUseSelector.mockReturnValue("test@example.com");
+    mockDispatch.mockResolvedValue({
+      type: resetPassword.rejected.type,
+      payload: { code: "UNKNOWN_ERROR" },
+    });
+
+    render(
+      <MemoryRouter>
+        <ResetPassword />
+      </MemoryRouter>
+    );
+
+    const button = screen.getByText("Update Password");
+
+    await act(async () => {
+      button.click();
+      await vi.runAllTimersAsync();
+    });
+
+    expect(mockDispatch).toHaveBeenCalled();
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  it("redirects to /forgot-password if forgotEmail is missing", () => {
+    mockUseSelector.mockReturnValueOnce("");
+
+    render(
+      <MemoryRouter>
+        <ResetPassword />
+      </MemoryRouter>
+    );
+
+    expect(mockNavigate).toHaveBeenCalledWith("/forgot-password");
   });
 });

@@ -1,4 +1,4 @@
-import { render, screen, act } from "@testing-library/react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { vi } from "vitest";
 
@@ -41,41 +41,7 @@ vi.mock("@/components/base-component/SidePanel/SidePanel", () => ({
   ),
 }));
 
-interface FormPanelProps {
-  title: string;
-  description: string;
-  submitText: string;
-  redirectLink?: {
-    path: string;
-    text: string;
-  };
-  onSubmit?: (values: {
-    fullname: string;
-    email: string;
-    password: string;
-  }) => void;
-}
-
-vi.mock("@/components/base-component/FormPanel/FormPanel", () => ({
-  FormPanel: ({
-    title,
-    description,
-    submitText,
-    redirectLink,
-    onSubmit,
-  }: FormPanelProps) => (
-    <div>
-      <h2>{title}</h2>
-      <p>{description}</p>
-      <button
-        onClick={() => onSubmit?.({ fullname: "a", email: "b", password: "c" })}
-      >
-        {submitText}
-      </button>
-      {redirectLink && <a href={redirectLink.path}>{redirectLink.text}</a>}
-    </div>
-  ),
-}));
+// ✅ Remove FormPanel mock so real FormPanel is used
 
 describe("Signup Page", () => {
   beforeEach(() => {
@@ -178,10 +144,23 @@ describe("Signup Page", () => {
       </MemoryRouter>
     );
 
+    const fullnameInput = screen.getByPlaceholderText("Enter your full name");
+    const emailInput = screen.getByPlaceholderText("Enter your email");
+    const passwordInput = screen.getByPlaceholderText("Enter your password");
+    const confirmPasswordInput = screen.getByPlaceholderText(
+      "Confirm your password"
+    );
     const submitButton = screen.getByText("Create Account");
 
+    // Fill inputs
     await act(async () => {
-      submitButton.click();
+      fireEvent.change(fullnameInput, { target: { value: "John Doe" } });
+      fireEvent.change(emailInput, { target: { value: "john@example.com" } });
+      fireEvent.change(passwordInput, { target: { value: "Password123!" } });
+      fireEvent.change(confirmPasswordInput, {
+        target: { value: "Password123!" },
+      });
+      fireEvent.click(submitButton);
       await vi.advanceTimersByTimeAsync(1500);
     });
 
@@ -200,14 +179,28 @@ describe("Signup Page", () => {
       </MemoryRouter>
     );
 
+    const fullnameInput = screen.getByPlaceholderText("Enter your full name");
+    const emailInput = screen.getByPlaceholderText("Enter your email");
+    const passwordInput = screen.getByPlaceholderText("Enter your password");
+    const confirmPasswordInput = screen.getByPlaceholderText(
+      "Confirm your password"
+    );
     const submitButton = screen.getByText("Create Account");
 
+    // Fill inputs
     await act(async () => {
-      submitButton.click();
+      fireEvent.change(fullnameInput, { target: { value: "John Doe" } });
+      fireEvent.change(emailInput, { target: { value: "john@example.com" } });
+      fireEvent.change(passwordInput, { target: { value: "Password123!" } });
+      fireEvent.change(confirmPasswordInput, {
+        target: { value: "Password123!" },
+      });
+      fireEvent.click(submitButton);
       await vi.advanceTimersByTimeAsync(1500);
     });
 
     expect(mockDispatch).toHaveBeenCalled();
     expect(mockNavigate).not.toHaveBeenCalled();
   });
+
 });
