@@ -1,14 +1,14 @@
-import { SidePanel } from "@/components/base-component/SidePanel";
+import { SidePanel } from "@/components/base-component/SidePanel/SidePanel";
 import {
   FormPanel,
   type FormField,
-} from "@/components/base-component/FormPanel";
+} from "@/components/base-component/FormPanel/FormPanel";
 import { email, passwordStrength } from "@/utils/validators";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { AppDispatch } from "@/redux/store";
 import { loginUser, AuthErrorCode } from "@/redux/thunks/authThunks";
-import { Dialog } from "../base-component/Dialog";
+import { Dialog } from "../../base-component/Dialog/Dialog";
 import { Button } from "@/components/base-component/Button";
 import {
   setAuthUser,

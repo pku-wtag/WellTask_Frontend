@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { Button } from "@/components/base-component/Button";
 import { Form } from "react-final-form";
-import { AuthCardLayout } from "../base-component/AuthCardLayout";
-import { OTPInput } from "../base-component/OTPinput";
+import { AuthCardLayout } from "../../base-component/AuthCardLayout";
+import { OTPInput } from "../../base-component/OTPinput";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
@@ -13,10 +13,10 @@ import {
   clearError,
 } from "@/redux/slices/authSlice";
 import type { FormApi } from "final-form";
-import { authPageConfigs } from "./authPageConfigs";
+import { authPageConfigs } from "../authPageConfigs";
 import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
 import { useMessage } from "@/hooks/useMessage";
-import { Dialog } from "../base-component/Dialog";
+import { Dialog } from "../../base-component/Dialog/Dialog";
 import { verifyOTPThunk, forgotPassword } from "@/redux/thunks/authThunks";
 
 export default function VerifyCode() {

@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { Button } from "./Button";
+import { Button } from "../Button";
 
 interface SidePanelProps {
   title: string;
@@ -31,7 +31,7 @@ export function SidePanel({
   });
 
   return (
-    <div className={containerClass}>
+    <div className={containerClass} data-testid="sidepanel-container">
       <div
         className={bgClass}
         style={{ backgroundImage: "url('/image.png')" }}

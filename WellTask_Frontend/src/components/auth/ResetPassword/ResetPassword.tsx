@@ -1,17 +1,17 @@
 import { useEffect } from "react";
 import { Button } from "@/components/base-component/Button";
 import { Form } from "react-final-form";
-import { Input } from "../fields/Input";
-import { AuthCardLayout } from "../base-component/AuthCardLayout";
-import type { FormField } from "../base-component/FormPanel";
+import { Input } from "../../fields/Input";
+import { AuthCardLayout } from "../../base-component/AuthCardLayout";
+import type { FormField } from "../../base-component/FormPanel/FormPanel";
 import { passwordStrength } from "@/utils/validators";
 import { useDispatch, useSelector } from "react-redux";
 import { resetPassword } from "@/redux/thunks/authThunks";
 import { useNavigate } from "react-router-dom";
 import type { AppDispatch, RootState } from "@/redux/store";
-import { Dialog } from "../base-component/Dialog";
+
 import type { FormApi } from "final-form";
-import { authPageConfigs } from "./authPageConfigs";
+
 import {
   clearMessage,
   clearError,
@@ -19,6 +19,8 @@ import {
 } from "@/redux/slices/authSlice";
 import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
 import { useMessage } from "@/hooks/useMessage";
+import { authPageConfigs } from "../authPageConfigs";
+import { Dialog } from "@/components/base-component/Dialog/Dialog";
 
 export default function ResetPassword() {
   const dispatch = useDispatch<AppDispatch>();

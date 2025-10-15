@@ -1,10 +1,8 @@
 import { Form } from "react-final-form";
 import { Button } from "@/components/base-component/Button";
-import { Input } from "../fields/Input";
-import { Textarea } from "../fields/Textarea";
-import { SelectBox } from "../fields/Select";
-import { Checkbox } from "../fields/Checkbox";
-import { Radio } from "../fields/Radio";
+import { Input } from "../../fields/Input";
+import { Textarea } from "../../fields/Textarea";
+import { SelectBox } from "../../fields/Select";
 import { Link } from "react-router-dom";
 import type { FormApi } from "final-form";
 
@@ -18,7 +16,7 @@ export interface FormField<T = string> {
   hint?: string;
   placeholder?: string;
   options?: Option[];
-  fieldType: "input" | "textarea" | "select" | "checkbox" | "radio";
+  fieldType: "input" | "textarea" | "select" ;
   validate?: (
     value: T,
     allValues?: Record<string, unknown>
@@ -87,26 +85,6 @@ export function FormPanel({
             validate={field.validate}
           />
         );
-      case "checkbox":
-        return (
-          <Checkbox
-            key={field.id}
-            id={field.id}
-            name={field.name}
-            label={field.label}
-            hint={field.hint}
-          />
-        );
-      case "radio":
-        return (
-          <Radio
-            key={field.id}
-            name={field.name}
-            label={field.label}
-            hint={field.hint}
-            options={field.options ?? []}
-          />
-        );
       default:
         return null;
     }
@@ -143,6 +121,7 @@ export function FormPanel({
               onSubmit={handleFormSubmit(handleSubmit, form)}
               className="space-y-5"
               noValidate
+              data-testid="form-panel"
             >
               {fields.map(renderField)}
               <Button htmlType="submit" fullWidth disabled={submitting}>
