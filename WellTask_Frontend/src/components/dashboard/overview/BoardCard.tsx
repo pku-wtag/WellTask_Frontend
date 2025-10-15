@@ -9,6 +9,7 @@ import { Button } from "@/components/base-component/Button";
 import { Form, Field } from "react-final-form";
 import { FieldWrapper } from "@/components/fields/FieldWrapper";
 import { editBoard, deleteBoard } from "@/redux/thunks/boardThunks";
+import { useToaster } from "@/components/base-component/toaster";
 
 interface BoardCardProps {
   id: string;
@@ -29,11 +30,14 @@ export function BoardCard({
     (state: RootState) => state.auth.user?.workspaces || []
   );
 
+  const { toast, confirm } = useToaster();
+
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleClick = () => {
     if (workspaceId) {
       const workspace = workspaces.find((w) => w.id === workspaceId);
+
       if (workspace) {
         dispatch(setCurrentWorkspace(workspace));
       }
@@ -50,7 +54,7 @@ export function BoardCard({
     }
 
     if (!values.name.trim()) {
-      alert("Board name cannot be empty");
+      toast("Board name cannot be empty", "error");
       return;
     }
 
@@ -59,10 +63,11 @@ export function BoardCard({
         editBoard({ workspaceId, boardId: id, updates: { name: values.name } })
       ).unwrap();
 
+      toast("Board updated successfully", "success");
       setModalOpen(false);
     } catch (err) {
       console.error("Failed to update board", err);
-      alert("Failed to update board");
+      toast("Failed to update board", "error");
     }
   };
 
@@ -71,7 +76,7 @@ export function BoardCard({
       return;
     }
 
-    const confirmed = confirm(
+    const confirmed = await confirm(
       `Delete board "${name}"? This action is permanent.`
     );
 
@@ -81,10 +86,11 @@ export function BoardCard({
 
     try {
       await dispatch(deleteBoard({ workspaceId, boardId: id })).unwrap();
+      toast("Board deleted successfully", "success");
       setModalOpen(false);
     } catch (err) {
       console.error("Failed to delete board", err);
-      alert("Failed to delete board");
+      toast("Failed to delete board", "error");
     }
   };
 

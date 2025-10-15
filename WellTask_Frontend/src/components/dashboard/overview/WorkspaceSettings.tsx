@@ -6,6 +6,7 @@ import { FieldWrapper } from "@/components/fields/FieldWrapper";
 import { deleteWorkspace, editWorkspace } from "@/redux/thunks/workspaceThunks";
 import { Form, Field } from "react-final-form";
 import { Modal } from "@/components/base-component/modal";
+import { useToaster } from "@/components/base-component/toaster";
 
 interface WorkspaceSettingsModalProps {
   workspace: Workspace;
@@ -35,27 +36,49 @@ export function WorkspaceSettings({
   onClose,
 }: WorkspaceSettingsModalProps) {
   const dispatch = useDispatch<AppDispatch>();
+  const { toast, confirm } = useToaster();
 
-  const handleDelete = () => {
-    if (
-      confirm(`Delete workspace "${workspace.name}"? This action is permanent.`)
-    ) {
-      dispatch(deleteWorkspace(workspace.id));
+  const handleDelete = async () => {
+    const confirmed = await confirm(
+      `Delete workspace "${workspace.name}"? This action is permanent.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await dispatch(deleteWorkspace(workspace.id)).unwrap();
+      toast("Workspace deleted successfully", "success");
+
       if (onClose) {
         onClose();
       }
+    } catch (err) {
+      console.error("Failed to delete workspace", err);
+      toast("Failed to delete workspace", "error");
     }
   };
 
   const handleSave = async (values: WorkspaceFormValues) => {
     if (!values.name.trim()) {
-      alert("Workspace name cannot be empty");
+      toast("Workspace name cannot be empty", "error");
+      
       return;
     }
 
-    dispatch(editWorkspace({ id: workspace.id, updates: values }));
-    if (onClose) {
-      onClose();
+    try {
+      await dispatch(
+        editWorkspace({ id: workspace.id, updates: values })
+      ).unwrap();
+      toast("Workspace updated successfully", "success");
+
+      if (onClose) {
+        onClose();
+      }
+    } catch (err) {
+      console.error("Failed to update workspace", err);
+      toast("Failed to update workspace", "error");
     }
   };
 
@@ -82,56 +105,60 @@ export function WorkspaceSettings({
           >
             <Field name="name">
               {({ input }) => (
-                <FieldWrapper id="workspaceName" name="workspaceName" label="Workspace Name">
-                  {() => {
-                    return (
-                      <input
-                        {...input}
-                        placeholder="Workspace Name"
-                        className="mt-1 w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
-                      />
-                    );
-                  }}
+                <FieldWrapper
+                  id="workspaceName"
+                  name="workspaceName"
+                  label="Workspace Name"
+                >
+                  {() => (
+                    <input
+                      {...input}
+                      placeholder="Workspace Name"
+                      className="mt-1 w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    />
+                  )}
                 </FieldWrapper>
               )}
             </Field>
 
             <Field name="type">
               {({ input }) => (
-                <FieldWrapper id="workspaceType" name="workspaceType" label="Workspace Type">
-                  {() => {
-                    return (
-                      <select
-                        {...input}
-                        className="mt-1 w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
-                      >
-                        {workspaceTypes.map((option) => {
-                          return (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    );
-                  }}
+                <FieldWrapper
+                  id="workspaceType"
+                  name="workspaceType"
+                  label="Workspace Type"
+                >
+                  {() => (
+                    <select
+                      {...input}
+                      className="mt-1 w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
+                    >
+                      {workspaceTypes.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </FieldWrapper>
               )}
             </Field>
 
             <Field name="description">
               {({ input }) => (
-                <FieldWrapper id="workspaceDescription" name="workspaceDescription" label="Description">
-                  {() => {
-                    return (
-                      <textarea
-                        {...input}
-                        placeholder="Description (optional)"
-                        className="mt-1 w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
-                        rows={3}
-                      />
-                    );
-                  }}
+                <FieldWrapper
+                  id="workspaceDescription"
+                  name="workspaceDescription"
+                  label="Description"
+                >
+                  {() => (
+                    <textarea
+                      {...input}
+                      placeholder="Description (optional)"
+                      className="mt-1 w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
+                      rows={3}
+                    />
+                  )}
                 </FieldWrapper>
               )}
             </Field>
@@ -148,9 +175,7 @@ export function WorkspaceSettings({
               <Button
                 type="custom"
                 className="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-2 rounded-lg"
-                onClick={() => {
-                  handleDelete();
-                }}
+                onClick={handleDelete}
               >
                 Delete Workspace
               </Button>

@@ -10,13 +10,16 @@ export function WorkspaceBoards() {
   );
 
   const workspace = userWorkspaces.find((w) => w.id === workspaceId);
-  if (!workspace)
+
+  if (!workspace) {
     return <div className="p-6 text-gray-500">Workspace not found.</div>;
+  }
 
   return (
     <div className="flex flex-col h-full min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm p-6">
         <h1 className="text-3xl font-bold text-gray-800">{workspace.name}</h1>
+
         {workspace.description && (
           <p className="text-gray-500 mt-1">{workspace.description}</p>
         )}

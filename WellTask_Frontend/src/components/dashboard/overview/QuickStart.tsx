@@ -16,7 +16,6 @@ export function QuickStart() {
   const dispatch = useDispatch();
 
   const currentUser = useSelector((state: RootState) => state.auth.user);
-
   const userWorkspaces: WorkspaceType[] = currentUser?.workspaces || [];
 
   const handleTemplateClick = (
@@ -24,6 +23,7 @@ export function QuickStart() {
     workspace?: WorkspaceType
   ) => {
     const board: Board | undefined = templateDefaults[templateName];
+
     if (!board) {
       return;
     }
@@ -41,11 +41,13 @@ export function QuickStart() {
     <div className="p-6 flex flex-col gap-6">
       <section className="flex flex-col gap-3">
         <h3 className="text-lg font-semibold text-gray-800">Templates</h3>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {Object.keys(templateDefaults).map((template) => {
             if (!templateDefaults[template]) {
               return null;
             }
+
             return (
               <TemplateCard
                 key={template}
@@ -57,17 +59,13 @@ export function QuickStart() {
         </div>
       </section>
 
-      <div className="flex flex-col gap-3">
+      <section className="flex flex-col gap-3">
         <h3 className="text-lg font-semibold text-gray-800">Your Workspaces</h3>
 
-        {(() => {
-          if (userWorkspaces.length === 0) {
-            return (
-              <p className="text-gray-500">No workspaces yet. Create one!</p>
-            );
-          }
-
-          return userWorkspaces.map((workspace) => {
+        {userWorkspaces.length === 0 ? (
+          <p className="text-gray-500">No workspaces yet. Create one!</p>
+        ) : (
+          userWorkspaces.map((workspace) => {
             if (!workspace || !workspace.boards) {
               return null;
             }
@@ -87,8 +85,8 @@ export function QuickStart() {
                 }
               />
             );
-          });
-        })()}
+          })
+        )}
 
         <div
           className="flex items-center justify-center p-4 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 text-gray-600 font-medium"
@@ -96,8 +94,9 @@ export function QuickStart() {
         >
           <Plus className="w-5 h-5 mr-2" /> Create Workspace
         </div>
-      </div>
+      </section>
 
+      {/* Workspace Modal */}
       {isWorkspaceModalOpen && (
         <Workspace
           isModal={true}

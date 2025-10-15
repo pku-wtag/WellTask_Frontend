@@ -1,12 +1,15 @@
 import React from "react";
 import { BrowserRouter as Router } from "react-router-dom";
 import RoutesComponent from "@/RoutesComponent";
+import { ToasterProvider } from "./components/base-component/toaster";
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <RoutesComponent />
-    </Router>
+    <ToasterProvider>
+      <Router>
+        <RoutesComponent />
+      </Router>
+    </ToasterProvider>
   );
 };
 

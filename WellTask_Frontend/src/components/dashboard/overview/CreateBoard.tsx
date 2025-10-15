@@ -5,6 +5,8 @@ import { Form } from "react-final-form";
 import type { AppDispatch } from "@/redux/store";
 import { addBoard } from "@/redux/thunks/boardThunks";
 import { useDispatch } from "react-redux";
+import { useToaster } from "@/components/base-component/toaster";
+import { required } from "@/utils/validators";
 
 interface CreateBoardModalProps {
   workspaceId: string;
@@ -18,20 +20,23 @@ export function CreateBoard({
   onClose,
 }: CreateBoardModalProps) {
   const dispatch = useDispatch<AppDispatch>();
+  const { toast } = useToaster();
 
   const handleCreateBoard = async (values: { boardName: string }) => {
     const name = values.boardName?.trim();
 
     if (!name) {
+      toast("Board name is required", "error");
       return;
     }
 
     try {
       await dispatch(addBoard({ workspaceId, name })).unwrap();
+      toast(`Board "${name}" created successfully`, "success");
       onClose();
     } catch (err) {
       console.error("Failed to create board", err);
-      alert("Failed to create board");
+      toast("Failed to create board", "error");
     }
   };
 
@@ -48,13 +53,7 @@ export function CreateBoard({
               name="boardName"
               placeholder="Enter board name"
               fullWidth
-              validate={(value) => {
-                if (!value) {
-                  return "Board name is required";
-                } else {
-                  return undefined;
-                }
-              }}
+              validate={required}
             />
 
             <div className="flex justify-end gap-2">
