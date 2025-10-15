@@ -2,7 +2,7 @@ import { useState } from "react";
 import { MoreVertical } from "lucide-react";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "@/redux/store";
-import { Modal } from "../base-component/modal";
+import { Modal } from "../base-component/Modal/modal";
 import { Button } from "../base-component/Button";
 import { Form, Field } from "react-final-form";
 import { FieldWrapper } from "@/components/fields/FieldWrapper";

@@ -7,7 +7,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { AppDispatch } from "@/redux/store";
 import { Dialog } from "@/components/base-component/Dialog/Dialog";
-import { Modal } from "../base-component/modal";
+
 import {
   setWorkspaces,
   setMessage,
@@ -20,6 +20,7 @@ import { required } from "@/utils/validators";
 import { getWorkspaces } from "@/utils/workspaceStorage";
 import { useMessage } from "@/hooks/useMessage";
 import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
+import { Modal } from "../base-component/Modal/modal";
 
 interface WorkspacePageProps {
   isModal?: boolean;

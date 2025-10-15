@@ -1,4 +1,4 @@
-import { Modal } from "@/components/base-component/modal";
+import { Modal } from "@/components/base-component/Modal/modal";
 import { Input } from "@/components/fields/Input";
 import { Form } from "react-final-form";
 import { required } from "@/utils/validators";

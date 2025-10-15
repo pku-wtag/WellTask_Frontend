@@ -1,7 +1,7 @@
 import { Button } from "@/components/base-component/Button";
 import { Form } from "react-final-form";
 import { Input } from "../../fields/Input";
-import { AuthCardLayout } from "../../base-component/AuthCardLayout";
+import { AuthCardLayout } from "../../base-component/AuthCardLayout/AuthCardLayout";
 import type { FormField } from "../../base-component/FormPanel/FormPanel";
 import { email } from "@/utils/validators";
 import { useDispatch } from "react-redux";

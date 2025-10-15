@@ -5,7 +5,7 @@ import { Button } from "@/components/base-component/Button";
 import { FieldWrapper } from "@/components/fields/FieldWrapper";
 import { deleteWorkspace, editWorkspace } from "@/redux/thunks/workspaceThunks";
 import { Form, Field } from "react-final-form";
-import { Modal } from "@/components/base-component/modal";
+import { Modal } from "@/components/base-component/Modal/modal";
 import { useToaster } from "@/components/base-component/toaster";
 
 interface WorkspaceSettingsModalProps {

@@ -1,6 +1,6 @@
 import { useDispatch } from "react-redux";
 import { Form } from "react-final-form";
-import { Modal } from "@/components/base-component/modal";
+import { Modal } from "@/components/base-component/Modal/modal";
 import { Input } from "@/components/fields/Input";
 import { Button } from "@/components/base-component/Button";
 import type { AppDispatch } from "@/redux/store";

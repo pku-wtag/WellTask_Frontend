@@ -12,7 +12,7 @@ import type { Card } from "@/types/Workspace";
 import { BoardCard } from "./BoardCard";
 import { Button } from "../base-component/Button";
 import { CreateCard } from "./CreateCard";
-import { Modal } from "../base-component/modal";
+import { Modal } from "../base-component/Modal/modal";
 import { Form, Field } from "react-final-form";
 import { FieldWrapper } from "@/components/fields/FieldWrapper";
 import { editList, deleteList } from "@/redux/thunks/listThunks";

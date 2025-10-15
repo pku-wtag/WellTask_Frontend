@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Button } from "@/components/base-component/Button";
 import { Form } from "react-final-form";
 import { Input } from "../../fields/Input";
-import { AuthCardLayout } from "../../base-component/AuthCardLayout";
+import { AuthCardLayout } from "../../base-component/AuthCardLayout/AuthCardLayout";
 import type { FormField } from "../../base-component/FormPanel/FormPanel";
 import { passwordStrength } from "@/utils/validators";
 import { useDispatch, useSelector } from "react-redux";
