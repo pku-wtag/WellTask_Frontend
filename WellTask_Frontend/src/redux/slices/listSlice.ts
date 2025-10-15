@@ -10,6 +10,7 @@ interface ListState {
 
 const initialLists: Record<string, List[]> = {};
 const workspaces = getWorkspaces() ?? [];
+
 workspaces.forEach((ws) => {
   ws.boards.forEach((board) => {
     initialLists[board.id] = board.lists || [];
@@ -56,9 +57,11 @@ const listSlice = createSlice({
       action: PayloadAction<{ boardId: string; list: List }>
     ) => {
       const { boardId, list } = action.payload;
+
       if (!state.lists[boardId]) {
         state.lists[boardId] = [];
       }
+
       state.lists[boardId].push(list);
     },
 
@@ -68,11 +71,18 @@ const listSlice = createSlice({
     ) => {
       const { boardId, listId, card } = action.payload;
       const boardLists = state.lists[boardId];
-      if (!boardLists) return;
+
+      if (!boardLists) {
+        return;
+      }
 
       const targetList = boardLists.find((l) => l.id === listId);
+
       if (targetList) {
-        if (!targetList.cards) targetList.cards = [];
+        if (!targetList.cards) {
+          targetList.cards = [];
+        }
+
         targetList.cards.push(card);
       }
     },
@@ -83,7 +93,10 @@ const listSlice = createSlice({
     ) => {
       const { boardId, list } = action.payload;
       const boardLists = state.lists[boardId];
-      if (!boardLists) return;
+
+      if (!boardLists) {
+        return;
+      }
 
       state.lists[boardId] = boardLists.map((l) =>
         l.id === list.id ? list : l
@@ -96,7 +109,10 @@ const listSlice = createSlice({
     ) => {
       const { boardId, listId } = action.payload;
       const boardLists = state.lists[boardId];
-      if (!boardLists) return;
+
+      if (!boardLists) {
+        return;
+      }
 
       state.lists[boardId] = boardLists.filter((l) => l.id !== listId);
     },

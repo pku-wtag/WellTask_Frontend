@@ -34,7 +34,10 @@ export default function Board() {
   const boardLists = boardId ? listsState[boardId] || [] : [];
 
   const handleAddList = async (name: string) => {
-    if (!boardId) return;
+    if (!boardId) {
+      return;
+    }
+
     await dispatch(addList({ boardId, name }));
     setListModalOpen(false);
   };

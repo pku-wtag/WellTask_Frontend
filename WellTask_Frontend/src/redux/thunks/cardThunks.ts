@@ -3,10 +3,15 @@ import type { Card } from "@/types/Workspace";
 import { v4 as uuidv4 } from "uuid";
 import { getWorkspaces, saveWorkspaces } from "@/utils/workspaceStorage";
 import { getCurrentUser, saveUser } from "@/utils/authStorage";
-import { addCardToList, updateCardInList, removeCardFromList } from "../slices/cardSlice";
+import {
+  addCardToList,
+  updateCardInList,
+  removeCardFromList,
+  setError,
+  setMessage,
+} from "../slices/cardSlice";
 import { updateListInBoard } from "../slices/listSlice";
 import { updateUser } from "../slices/authSlice";
-import { setError, setMessage } from "../slices/cardSlice";
 
 // ---------------- ADD CARD ----------------
 export const addCard = createAsyncThunk<
@@ -18,7 +23,10 @@ export const addCard = createAsyncThunk<
   async ({ boardId, listId, name }, { dispatch, rejectWithValue }) => {
     try {
       const workspaces = getWorkspaces();
-      const board = workspaces.flatMap((ws) => ws.boards).find((b) => b.id === boardId);
+      const board = workspaces
+        .flatMap((ws) => ws.boards)
+        .find((b) => b.id === boardId);
+
       if (!board) {
         const msg = "Board not found";
         dispatch(setError(msg));
@@ -26,6 +34,7 @@ export const addCard = createAsyncThunk<
       }
 
       const list = board.lists.find((l) => l.id === listId);
+
       if (!list) {
         const msg = "List not found";
         dispatch(setError(msg));
@@ -40,19 +49,27 @@ export const addCard = createAsyncThunk<
       dispatch(updateListInBoard({ boardId, list }));
 
       const currentUser = getCurrentUser();
+
       if (currentUser) {
         currentUser.workspaces =
           currentUser.workspaces?.map((ws) => ({
             ...ws,
             boards: ws.boards.map((b) =>
-              b.id === boardId ? { ...b, lists: b.lists.map((l) => (l.id === listId ? list : l)) } : b
+              b.id === boardId
+                ? {
+                    ...b,
+                    lists: b.lists.map((l) => (l.id === listId ? list : l)),
+                  }
+                : b
             ),
           })) || [];
+
         saveUser(currentUser);
         dispatch(updateUser({ workspaces: currentUser.workspaces }));
       }
 
       dispatch(setMessage("Card added successfully!"));
+
       return { boardId, listId, card: newCard };
     } catch (err) {
       const msg = (err as Error).message || "Failed to add card";
@@ -69,10 +86,16 @@ export const editCard = createAsyncThunk<
   { rejectValue: string }
 >(
   "card/editCard",
-  async ({ boardId, listId, cardId, updates }, { dispatch, rejectWithValue }) => {
+  async (
+    { boardId, listId, cardId, updates },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
       const workspaces = getWorkspaces();
-      const board = workspaces.flatMap((ws) => ws.boards).find((b) => b.id === boardId);
+      const board = workspaces
+        .flatMap((ws) => ws.boards)
+        .find((b) => b.id === boardId);
+
       if (!board) {
         const msg = "Board not found";
         dispatch(setError(msg));
@@ -80,6 +103,7 @@ export const editCard = createAsyncThunk<
       }
 
       const list = board.lists.find((l) => l.id === listId);
+
       if (!list) {
         const msg = "List not found";
         dispatch(setError(msg));
@@ -87,6 +111,7 @@ export const editCard = createAsyncThunk<
       }
 
       const index = list.cards.findIndex((c) => c.id === cardId);
+
       if (index === -1) {
         const msg = "Card not found";
         dispatch(setError(msg));
@@ -101,19 +126,27 @@ export const editCard = createAsyncThunk<
       dispatch(updateListInBoard({ boardId, list }));
 
       const currentUser = getCurrentUser();
+
       if (currentUser) {
         currentUser.workspaces =
           currentUser.workspaces?.map((ws) => ({
             ...ws,
             boards: ws.boards.map((b) =>
-              b.id === boardId ? { ...b, lists: b.lists.map((l) => (l.id === listId ? list : l)) } : b
+              b.id === boardId
+                ? {
+                    ...b,
+                    lists: b.lists.map((l) => (l.id === listId ? list : l)),
+                  }
+                : b
             ),
           })) || [];
+
         saveUser(currentUser);
         dispatch(updateUser({ workspaces: currentUser.workspaces }));
       }
 
       dispatch(setMessage("Card updated successfully!"));
+
       return { boardId, listId, card: updated };
     } catch (err) {
       const msg = (err as Error).message || "Failed to update card";
@@ -133,7 +166,10 @@ export const deleteCard = createAsyncThunk<
   async ({ boardId, listId, cardId }, { dispatch, rejectWithValue }) => {
     try {
       const workspaces = getWorkspaces();
-      const board = workspaces.flatMap((ws) => ws.boards).find((b) => b.id === boardId);
+      const board = workspaces
+        .flatMap((ws) => ws.boards)
+        .find((b) => b.id === boardId);
+
       if (!board) {
         const msg = "Board not found";
         dispatch(setError(msg));
@@ -141,6 +177,7 @@ export const deleteCard = createAsyncThunk<
       }
 
       const list = board.lists.find((l) => l.id === listId);
+
       if (!list) {
         const msg = "List not found";
         dispatch(setError(msg));
@@ -154,19 +191,27 @@ export const deleteCard = createAsyncThunk<
       dispatch(updateListInBoard({ boardId, list }));
 
       const currentUser = getCurrentUser();
+
       if (currentUser) {
         currentUser.workspaces =
           currentUser.workspaces?.map((ws) => ({
             ...ws,
             boards: ws.boards.map((b) =>
-              b.id === boardId ? { ...b, lists: b.lists.map((l) => (l.id === listId ? list : l)) } : b
+              b.id === boardId
+                ? {
+                    ...b,
+                    lists: b.lists.map((l) => (l.id === listId ? list : l)),
+                  }
+                : b
             ),
           })) || [];
+
         saveUser(currentUser);
         dispatch(updateUser({ workspaces: currentUser.workspaces }));
       }
 
       dispatch(setMessage("Card deleted successfully!"));
+
       return { boardId, listId, cardId };
     } catch (err) {
       const msg = (err as Error).message || "Failed to delete card";

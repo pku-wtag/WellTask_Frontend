@@ -7,6 +7,7 @@ import { Button } from "../base-component/Button";
 import { Form, Field } from "react-final-form";
 import { FieldWrapper } from "@/components/fields/FieldWrapper";
 import { editCard, deleteCard } from "@/redux/thunks/cardThunks";
+import { useToaster } from "@/components/base-component/toaster";
 
 type BoardCardProps = {
   id: string;
@@ -24,11 +25,13 @@ export function BoardCard({
   onClick,
 }: BoardCardProps) {
   const dispatch = useDispatch<AppDispatch>();
+  const { toast, confirm } = useToaster();
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleSaveCard = async (values: { name: string }) => {
     if (!values.name.trim()) {
-      alert("Card name cannot be empty");
+      toast("Card name cannot be empty", "error");
+      
       return;
     }
 
@@ -42,15 +45,16 @@ export function BoardCard({
         })
       ).unwrap();
 
+      toast(`Card "${values.name}" updated successfully`, "success");
       setModalOpen(false);
     } catch (err) {
       console.error("Failed to update card", err);
-      alert("Failed to update card");
+      toast("Failed to update card", "error");
     }
   };
 
   const handleDeleteCard = async () => {
-    const confirmed = confirm(
+    const confirmed = await confirm(
       `Delete card "${title}"? This action is permanent.`
     );
 
@@ -60,10 +64,11 @@ export function BoardCard({
 
     try {
       await dispatch(deleteCard({ boardId, listId, cardId: id })).unwrap();
+      toast(`Card "${title}" deleted successfully`, "success");
       setModalOpen(false);
     } catch (err) {
       console.error("Failed to delete card", err);
-      alert("Failed to delete card");
+      toast("Failed to delete card", "error");
     }
   };
 
@@ -98,7 +103,13 @@ export function BoardCard({
             onSubmit={handleSaveCard}
             initialValues={{ name: title }}
             render={({ handleSubmit }) => (
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }}
+                className="space-y-4"
+              >
                 <Field name="name">
                   {({ input }) => (
                     <FieldWrapper

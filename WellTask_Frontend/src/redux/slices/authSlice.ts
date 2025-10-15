@@ -37,6 +37,7 @@ const authSlice = createSlice({
       state.user = user;
       state.isAuthenticated = true;
       state.error = null;
+
       saveUser(user);
       setCurrentUser(user.id);
     },
@@ -53,7 +54,10 @@ const authSlice = createSlice({
     },
 
     updateUser: (state, action: PayloadAction<Partial<User>>) => {
-      if (!state.user) return;
+      if (!state.user) {
+        return;
+      }
+
       state.user = { ...state.user, ...action.payload };
       saveUser(state.user);
     },
@@ -62,10 +66,14 @@ const authSlice = createSlice({
       state,
       action: PayloadAction<{ workspaceId: string; board: Board }>
     ) => {
-      if (!state.user?.workspaces) return;
+      if (!state.user?.workspaces) {
+        return;
+      }
+
       const workspace = state.user.workspaces.find(
         (w) => w.id === action.payload.workspaceId
       );
+
       if (workspace) {
         workspace.boards.push(action.payload.board);
         saveUser(state.user);
@@ -76,7 +84,9 @@ const authSlice = createSlice({
       state,
       action: PayloadAction<{ boardId: string; list: List }>
     ) => {
-      if (!state.user?.workspaces) return;
+      if (!state.user?.workspaces) {
+        return;
+      }
 
       for (const ws of state.user.workspaces) {
         const board = ws.boards.find((b) => b.id === action.payload.boardId);
@@ -86,7 +96,9 @@ const authSlice = createSlice({
         }
       }
 
-      if (state.user) saveUser(state.user);
+      if (state.user) {
+        saveUser(state.user);
+      }
     },
 
     setError: (state, action: PayloadAction<string>) => {

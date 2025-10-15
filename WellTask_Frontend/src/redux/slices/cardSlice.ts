@@ -59,7 +59,11 @@ const cardSlice = createSlice({
       action: PayloadAction<{ listId: string; card: Card }>
     ) => {
       const { listId, card } = action.payload;
-      if (!state.cards[listId]) state.cards[listId] = [];
+
+      if (!state.cards[listId]) {
+        state.cards[listId] = [];
+      }
+
       state.cards[listId].push(card);
     },
 
@@ -69,7 +73,11 @@ const cardSlice = createSlice({
     ) => {
       const { listId, card } = action.payload;
       const listCards = state.cards[listId];
-      if (!listCards) return;
+
+      if (!listCards) {
+        return;
+      }
+
       state.cards[listId] = listCards.map((c) => (c.id === card.id ? card : c));
     },
 
@@ -79,7 +87,11 @@ const cardSlice = createSlice({
     ) => {
       const { listId, cardId } = action.payload;
       const listCards = state.cards[listId];
-      if (!listCards) return;
+
+      if (!listCards) {
+        return;
+      }
+
       state.cards[listId] = listCards.filter((c) => c.id !== cardId);
     },
   },

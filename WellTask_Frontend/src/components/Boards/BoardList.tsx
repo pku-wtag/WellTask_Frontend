@@ -16,6 +16,7 @@ import { Modal } from "../base-component/modal";
 import { Form, Field } from "react-final-form";
 import { FieldWrapper } from "@/components/fields/FieldWrapper";
 import { editList, deleteList } from "@/redux/thunks/listThunks";
+import { useToaster } from "@/components/base-component/toaster";
 
 type ListProps = {
   boardId: string;
@@ -26,17 +27,20 @@ type ListProps = {
 
 export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
   const dispatch = useDispatch<AppDispatch>();
+  const { toast, confirm } = useToaster();
+
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isCreateCardOpen, setCreateCardOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
   const cards: Card[] = useSelector((state: RootState) => {
     const list = state.list.lists[boardId]?.find((l) => l.id === listId);
-    if (list) {
-      return list.cards;
-    } else {
+
+    if (!list) {
       return [];
     }
+
+    return list.cards;
   });
 
   const handleAddCard = () => {
@@ -45,7 +49,7 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
 
   const handleSaveList = async (values: { name: string }) => {
     if (!values.name.trim()) {
-      alert("List name cannot be empty");
+      toast("List name cannot be empty", "error");
       return;
     }
 
@@ -53,16 +57,16 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
       await dispatch(
         editList({ boardId, listId, updates: { name: values.name } })
       ).unwrap();
-
+      toast(`List "${values.name}" updated successfully`, "success");
       setModalOpen(false);
     } catch (err) {
       console.error("Failed to update list", err);
-      alert("Failed to update list");
+      toast("Failed to update list", "error");
     }
   };
 
   const handleDeleteList = async () => {
-    const confirmed = confirm(
+    const confirmed = await confirm(
       `Delete list "${title}"? This action is permanent.`
     );
 
@@ -72,19 +76,18 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
 
     try {
       await dispatch(deleteList({ boardId, listId })).unwrap();
+      toast(`List "${title}" deleted successfully`, "success");
       setModalOpen(false);
     } catch (err) {
       console.error("Failed to delete list", err);
-      alert("Failed to delete list");
+      toast("Failed to delete list", "error");
     }
   };
 
   if (isCollapsed) {
     return (
       <div
-        onClick={() => {
-          setIsCollapsed(false);
-        }}
+        onClick={() => setIsCollapsed(false)}
         className="w-14 h-full bg-gray-50 rounded-lg shadow-sm border border-gray-200 py-4 px-2 cursor-pointer flex flex-col items-center justify-start hover:bg-gray-100 transition-colors"
         style={{ minHeight: "10rem" }}
       >
@@ -106,15 +109,11 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
           <div className="flex items-center gap-1">
             <MoreHorizontal
               className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-700"
-              onClick={() => {
-                setModalOpen(true);
-              }}
+              onClick={() => setModalOpen(true)}
             />
             <ChevronsRightLeft
               className="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-700"
-              onClick={() => {
-                setIsCollapsed(true);
-              }}
+              onClick={() => setIsCollapsed(true)}
             />
           </div>
         </div>
@@ -145,9 +144,7 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
         boardId={boardId}
         listId={listId}
         isOpen={isCreateCardOpen}
-        onClose={() => {
-          setCreateCardOpen(false);
-        }}
+        onClose={() => setCreateCardOpen(false)}
       />
 
       {modalOpen && (
@@ -160,7 +157,13 @@ export function BoardList({ boardId, listId, title, onCardClick }: ListProps) {
             onSubmit={handleSaveList}
             initialValues={{ name: title }}
             render={({ handleSubmit }) => (
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSubmit(e);
+                }}
+                className="space-y-4"
+              >
                 <Field name="name">
                   {({ input }) => (
                     <FieldWrapper

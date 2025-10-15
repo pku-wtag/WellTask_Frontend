@@ -35,16 +35,20 @@ export const addList = createAsyncThunk<
     saveWorkspaces(workspaces);
 
     const user = getCurrentUser();
+
     if (user) {
       user.workspaces =
-        user.workspaces?.map((w) =>
-          w.boards.some((b) => b.id === boardId)
-            ? {
-                ...w,
-                boards: w.boards.map((b) => (b.id === boardId ? board : b)),
-              }
-            : w
-        ) || [];
+        user.workspaces?.map((w) => {
+          if (w.boards.some((b) => b.id === boardId)) {
+            return {
+              ...w,
+              boards: w.boards.map((b) => (b.id === boardId ? board : b)),
+            };
+          } else {
+            return w;
+          }
+        }) || [];
+
       saveUser(user);
       dispatch(updateUser({ workspaces: user.workspaces }));
     }
@@ -81,6 +85,7 @@ export const editList = createAsyncThunk<
       }
 
       const index = board.lists.findIndex((l) => l.id === listId);
+
       if (index === -1) {
         const msg = "List not found";
         dispatch(setError(msg));
@@ -92,16 +97,20 @@ export const editList = createAsyncThunk<
       saveWorkspaces(workspaces);
 
       const user = getCurrentUser();
+
       if (user) {
         user.workspaces =
-          user.workspaces?.map((w) =>
-            w.boards.some((b) => b.id === boardId)
-              ? {
-                  ...w,
-                  boards: w.boards.map((b) => (b.id === boardId ? board : b)),
-                }
-              : w
-          ) || [];
+          user.workspaces?.map((w) => {
+            if (w.boards.some((b) => b.id === boardId)) {
+              return {
+                ...w,
+                boards: w.boards.map((b) => (b.id === boardId ? board : b)),
+              };
+            } else {
+              return w;
+            }
+          }) || [];
+
         saveUser(user);
         dispatch(updateUser({ workspaces: user.workspaces }));
       }
@@ -142,16 +151,20 @@ export const deleteList = createAsyncThunk<
       saveWorkspaces(workspaces);
 
       const user = getCurrentUser();
+
       if (user) {
         user.workspaces =
-          user.workspaces?.map((w) =>
-            w.boards.some((b) => b.id === boardId)
-              ? {
-                  ...w,
-                  boards: w.boards.map((b) => (b.id === boardId ? board : b)),
-                }
-              : w
-          ) || [];
+          user.workspaces?.map((w) => {
+            if (w.boards.some((b) => b.id === boardId)) {
+              return {
+                ...w,
+                boards: w.boards.map((b) => (b.id === boardId ? board : b)),
+              };
+            } else {
+              return w;
+            }
+          }) || [];
+
         saveUser(user);
         dispatch(updateUser({ workspaces: user.workspaces }));
       }
