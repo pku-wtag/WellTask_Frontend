@@ -20,15 +20,19 @@ export function ProtectedRoute() {
   }, [windowWidth]);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 p-2 gap-2">
+    <div className="flex flex-col h-screen bg-gray-100 p-2 gap-1">
       <Navbar onMenuClick={() => setIsSidebarOpen((prev) => !prev)} />
 
-      <div className="flex flex-1 overflow-hidden gap-2">
+      <div
+        className={`flex flex-1 overflow-hidden ${
+          isSidebarOpen ? "gap-1" : "gap-0"
+        }`}
+      >
         <Sidebar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
         />
-        <main className="flex-1 p-6 overflow-y-auto rounded-lg shadow-sm transition-all duration-300 bg-gray-50">
+        <main className="flex-1 overflow-y-auto shadow-sm transition-all duration-300 bg-gray-50">
           <Outlet />
         </main>
       </div>
