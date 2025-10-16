@@ -11,6 +11,7 @@ import WorkspacePage from "./pages/work-space";
 import DashBoardPage from "./pages/dash-board";
 import BoardPage from "./pages/board";
 import { ProtectedRoute } from "./components/base-component/ProtectedRoute";
+import WorkspaceBoardsPage from "./pages/workspace-boards";
 
 const RoutesComponent: React.FC = () => {
   const isAuthenticated = useSelector(
@@ -45,6 +46,10 @@ const RoutesComponent: React.FC = () => {
       <Route path="/dashboard/*" element={<ProtectedRoute />}>
         <Route index element={<DashBoardPage />} />
         <Route path="board" element={<BoardPage />} />
+        <Route
+          path="workspace/:workspaceId/boards"
+          element={<WorkspaceBoardsPage />}
+        />
       </Route>
     </Routes>
   );

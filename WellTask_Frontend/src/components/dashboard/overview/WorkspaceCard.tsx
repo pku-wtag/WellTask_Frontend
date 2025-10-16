@@ -1,6 +1,7 @@
 import { Folder, Plus, Settings } from "lucide-react";
 import { Button } from "@/components/base-component/Button";
 import { BoardCard } from "./BoardCard";
+import { CreateBoard } from "./CreateBoard";
 import { WorkspaceSettings } from "./WorkspaceSettings";
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
@@ -29,15 +30,16 @@ export function WorkspaceCard({
   onSelectWorkspace,
   isPageView = false,
 }: WorkspaceCardProps) {
+  const [isCreateBoardOpen, setCreateBoardOpen] = useState(false);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
   const dispatch = useDispatch();
 
   const workspace: WorkspaceType = {
     id: workspaceId,
-    name: name,
-    type: type,
-    description: description,
-    boards: boards,
+    name,
+    type,
+    description,
+    boards,
     ownerId: ownerId || "",
     members: members || [],
   };
@@ -53,11 +55,7 @@ export function WorkspaceCard({
       className={`bg-gray-50 rounded-xl p-4 shadow-sm transition-shadow ${
         !isPageView ? "cursor-pointer hover:shadow-md" : ""
       }`}
-      onClick={() => {
-        if (onSelectWorkspace) {
-          onSelectWorkspace();
-        }
-      }}
+      onClick={onSelectWorkspace}
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
         <div className="flex items-center gap-2 text-gray-800 font-medium">
@@ -89,26 +87,38 @@ export function WorkspaceCard({
             : "grid-cols-1 sm:grid-cols-2 md:grid-cols-4"
         }`}
       >
-        {boards.map((board) => {
-          return <BoardCard key={board.id} name={board.name} />;
-        })}
+        {boards.map((board) => (
+          <BoardCard
+            key={board.id}
+            id={board.id}
+            name={board.name}
+            workspaceId={workspace.id}
+          />
+        ))}
 
         <div
           className="flex items-center justify-center p-4 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200 text-gray-600 font-medium"
           onClick={(e) => {
             e.stopPropagation();
+            setCreateBoardOpen(true);
           }}
         >
           <Plus className="w-5 h-5 mr-2" /> Create Board
         </div>
       </div>
 
+      {isCreateBoardOpen && (
+        <CreateBoard
+          workspaceId={workspace.id}
+          isOpen={isCreateBoardOpen}
+          onClose={() => setCreateBoardOpen(false)}
+        />
+      )}
+
       {isSettingsOpen && !isPageView && (
         <WorkspaceSettings
           workspace={workspace}
-          onClose={() => {
-            setSettingsOpen(false);
-          }}
+          onClose={() => setSettingsOpen(false)}
         />
       )}
     </div>
