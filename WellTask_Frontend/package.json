@@ -13,6 +13,7 @@
     "@tailwindcss/vite": "^4.1.13",
     "classnames": "^2.5.1",
     "final-form": "^5.0.0",
+    "lucide-react": "^0.544.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-final-form": "^7.0.0",
