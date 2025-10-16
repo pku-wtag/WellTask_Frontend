@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "@/redux/store";
 import { setCurrentWorkspace } from "@/redux/slices/workspaceSlice";
 import { useState } from "react";
-import { Modal } from "@/components/base-component/modal";
+import { Modal } from "@/components/base-component/Modal/modal";
 import { Button } from "@/components/base-component/Button";
 import { Form, Field } from "react-final-form";
 import { FieldWrapper } from "@/components/fields/FieldWrapper";

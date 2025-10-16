@@ -1,6 +1,6 @@
 import React, { type ReactNode } from "react";
 import { X as XIcon } from "lucide-react";
-import { Button } from "./Button";
+import { Button } from "../Button";
 
 interface ModalProps {
   isOpen: boolean;
@@ -29,6 +29,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
             size="small"
             className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 z-10"
             onClick={onClose}
+            data-testid="button"
           >
             <XIcon className="w-5 h-5 text-gray-600" />
           </Button>

@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { Button } from "@/components/base-component/Button";
 import { Form } from "react-final-form";
-import { AuthCardLayout } from "../base-component/AuthCardLayout";
-import { OTPInput } from "../base-component/OTPinput";
+import { AuthCardLayout } from "../../base-component/AuthCardLayout/AuthCardLayout";
+
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
@@ -13,11 +13,12 @@ import {
   clearError,
 } from "@/redux/slices/authSlice";
 import type { FormApi } from "final-form";
-import { authPageConfigs } from "./authPageConfigs";
+import { authPageConfigs } from "../authPageConfigs";
 import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
 import { useMessage } from "@/hooks/useMessage";
-import { Dialog } from "../base-component/Dialog";
+import { Dialog } from "../../base-component/Dialog/Dialog";
 import { verifyOTPThunk, forgotPassword } from "@/redux/thunks/authThunks";
+import { OTPInput } from "@/components/base-component/OTPinput";
 
 export default function VerifyCode() {
   const navigate = useNavigate();
@@ -39,41 +40,32 @@ export default function VerifyCode() {
     }
   }, [forgotEmail, navigate]);
 
-  const resetOTPFields = (form: FormApi<Record<string, unknown>>) => {
-    form.reset();
-
-    Array.from({ length: 6 }).forEach((_, i) =>
-      form.resetFieldState(`otp-${i}`)
-    );
-  };
-
   const handleVerifyCode = async (
     values: Record<string, unknown>,
     form: FormApi<Record<string, unknown>>
   ) => {
-    const otp = Array.from(
+    const otpValues = Array.from(
       { length: 6 },
       (_, i) => values[`otp-${i}`] || ""
-    ).join("");
+    );
+    const empty = otpValues.some((v) => !v);
 
-    const result = await dispatch(verifyOTPThunk({ otp }));
-
-    if (verifyOTPThunk.fulfilled.match(result)) {
-      resetOTPFields(form);
-
-      setTimeout(() => {
-        navigate("/reset-password");
-      }, NAVIGATION_DELAY_MS);
-
+    if (empty) {
+      dispatch(setError("Please fill all OTP fields"));
       return;
     }
 
-    if (verifyOTPThunk.rejected.match(result)) {
-      resetOTPFields(form);
+    const otp = otpValues.join("");
+    const result = await dispatch(verifyOTPThunk({ otp }));
 
-      if (result.payload?.code === "INVALID_CREDENTIALS") {
-        return;
-      }
+    if (verifyOTPThunk.fulfilled.match(result)) {
+      form.reset();
+      setTimeout(() => navigate("/reset-password"), NAVIGATION_DELAY_MS);
+    }
+
+    if (verifyOTPThunk.rejected.match(result)) {
+      form.reset();
+      if (result.payload?.code === "INVALID_CREDENTIALS") return;
     }
   };
 
@@ -82,33 +74,15 @@ export default function VerifyCode() {
       dispatch(
         setError("Email not found. Please go back and enter your email.")
       );
-
       setTimeout(() => navigate("/forgot-password"), NAVIGATION_DELAY_MS);
-
       return;
     }
 
     const result = await dispatch(forgotPassword(forgotEmail));
-
     if (forgotPassword.fulfilled.match(result)) {
       dispatch(setMessage("OTP resent! Check console for code."));
     }
   };
-
-  const handleFormSubmit =
-    (
-      handleSubmit: (
-        event?: SubmitEvent
-      ) => Promise<Record<string, unknown> | undefined> | undefined,
-      form: FormApi<Record<string, unknown>>
-    ) =>
-    async (event: React.FormEvent<HTMLFormElement>) => {
-      const result = await handleSubmit(event.nativeEvent as SubmitEvent);
-
-      resetOTPFields(form);
-
-      return result;
-    };
 
   return (
     <AuthCardLayout
@@ -127,12 +101,9 @@ export default function VerifyCode() {
 
       <Form
         onSubmit={handleVerifyCode}
-        render={({ handleSubmit, form, submitting }) => (
+        render={({ handleSubmit, submitting }) => (
           <>
-            <form
-              onSubmit={handleFormSubmit(handleSubmit, form)}
-              className="space-y-6 text-left"
-            >
+            <form onSubmit={handleSubmit} className="space-y-6 text-left">
               <OTPInput length={6} namePrefix="otp" />
 
               <Button htmlType="submit" fullWidth disabled={submitting}>

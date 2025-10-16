@@ -1,15 +1,15 @@
 import { Button } from "@/components/base-component/Button";
 import { Form } from "react-final-form";
-import { Input } from "../fields/Input";
-import { AuthCardLayout } from "../base-component/AuthCardLayout";
-import type { FormField } from "../base-component/FormPanel";
+import { Input } from "../../fields/Input";
+import { AuthCardLayout } from "../../base-component/AuthCardLayout/AuthCardLayout";
+import type { FormField } from "../../base-component/FormPanel/FormPanel";
 import { email } from "@/utils/validators";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { AppDispatch, RootState } from "@/redux/store";
-import { Dialog } from "../base-component/Dialog";
+import { Dialog } from "../../base-component/Dialog/Dialog";
 import type { FormApi } from "final-form";
-import { authPageConfigs } from "./authPageConfigs";
+import { authPageConfigs } from "../authPageConfigs";
 import { clearMessage, clearError } from "@/redux/slices/authSlice";
 import { useMessage } from "@/hooks/useMessage";
 import { MESSAGE_DURATION_MS, NAVIGATION_DELAY_MS } from "@/utils/constants";
@@ -75,9 +75,11 @@ export default function ForgotPassword() {
     async (event: React.FormEvent<HTMLFormElement>) => {
       const result = await handleSubmit(event.nativeEvent as SubmitEvent);
 
-      form.reset();
-
-      formFields.forEach((f) => form.resetFieldState(f.name));
+      const errors = form.getState().errors;
+      if (!errors || Object.keys(errors).length === 0) {
+        form.reset();
+        formFields.forEach((f) => form.resetFieldState(f.name));
+      }
 
       return result;
     };

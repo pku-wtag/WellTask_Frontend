@@ -10,26 +10,30 @@ import VerifyCodePage from "./pages/verify-code";
 import WorkspacePage from "./pages/work-space";
 import DashBoardPage from "./pages/dash-board";
 import BoardPage from "./pages/board";
-import { ProtectedRoute } from "./components/base-component/ProtectedRoute";
 import WorkspaceBoardsPage from "./pages/workspace-boards";
+import { ProtectedRoute } from "./components/base-component/ProtectedRoute";
 
 const RoutesComponent: React.FC = () => {
   const isAuthenticated = useSelector(
     (state: RootState) => state.auth.isAuthenticated
   );
+  const user = useSelector((state: RootState) => state.auth.user);
 
   const PublicRouteWrapper: React.FC = () => {
-    return isAuthenticated ? <Navigate to="/" replace /> : <Outlet />;
+    if (isAuthenticated) {
+      if ((user?.workspaces?.length ?? 0) === 0) {
+        return <Navigate to="/workspace" replace />;
+      } else {
+        return <Navigate to="/dashboard" replace />;
+      }
+    }
+    return <Outlet />;
   };
 
   return (
     <Routes>
-      <Route path="/" element={<ProtectedRoute />}>
-        <Route index element={<DashBoardPage />} />
-      </Route>
-
       <Route element={<PublicRouteWrapper />}>
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -38,7 +42,7 @@ const RoutesComponent: React.FC = () => {
 
       <Route
         path="/workspace"
-        element={<ProtectedRoute showNavbar={false} showSidebar={false} />}
+        element={<ProtectedRoute showNavbar={true} showSidebar={false} />}
       >
         <Route index element={<WorkspacePage />} />
       </Route>
@@ -51,6 +55,8 @@ const RoutesComponent: React.FC = () => {
           element={<WorkspaceBoardsPage />}
         />
       </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };
