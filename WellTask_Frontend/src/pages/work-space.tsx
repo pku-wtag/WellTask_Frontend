@@ -1,5 +1,5 @@
-import Workspace from "@/components/workspace/Workspace";
+import WorkSpace from "@/components/workspace/Workspace";
 
 export default function WorkspacePage() {
-  return <Workspace />;
+  return <WorkSpace />;
 }

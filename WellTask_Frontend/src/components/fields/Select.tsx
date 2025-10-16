@@ -1,6 +1,6 @@
 import React from "react";
 import classNames from "classnames";
-import { FieldWrapper } from "./FieldWrapper";
+import { FieldWrapper, type ValidatorFn } from "./FieldWrapper";
 
 export type Option = { value: string; label: string };
 
@@ -12,6 +12,7 @@ export interface SelectProps {
   hint?: string;
   fullWidth?: boolean;
   className?: string;
+  validate?: ValidatorFn<string>;
 }
 
 export function SelectBox({
@@ -22,6 +23,7 @@ export function SelectBox({
   hint,
   fullWidth = false,
   className,
+  validate,
 }: SelectProps) {
   const inputClass = classNames(
     "input",
@@ -30,7 +32,13 @@ export function SelectBox({
   );
 
   return (
-    <FieldWrapper id={id} name={name} label={label} hint={hint}>
+    <FieldWrapper
+      id={id}
+      name={name}
+      label={label}
+      hint={hint}
+      validate={validate}
+    >
       {(input) => (
         <select {...input} id={id} className={inputClass}>
           {options.map((option) => (

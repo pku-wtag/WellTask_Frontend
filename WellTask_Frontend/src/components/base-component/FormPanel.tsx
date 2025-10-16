@@ -72,6 +72,7 @@ export function FormPanel({
             hint={field.hint}
             placeholder={field.placeholder}
             fullWidth
+            validate={field.validate}
           />
         );
 
@@ -85,6 +86,7 @@ export function FormPanel({
             hint={field.hint}
             options={field.options ?? []}
             fullWidth
+            validate={field.validate}
           />
         );
 

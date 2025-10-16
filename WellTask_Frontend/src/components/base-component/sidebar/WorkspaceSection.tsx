@@ -1,21 +1,40 @@
 import { Plus, X } from "lucide-react";
 import { Button } from "../Button";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import type { Workspace } from "@/types/Workspace";
+import type { RootState } from "@/redux/store";
 
 interface WorkspaceSectionProps {
   isOpen: boolean;
   onToggle: () => void;
   onClose: () => void;
+  onWorkspaceSelect: (workspace: Workspace) => void;
+  onAddWorkspace: () => void;
 }
 
 export function WorkspaceSection({
   isOpen,
   onToggle,
   onClose,
+  onWorkspaceSelect,
+  onAddWorkspace,
 }: WorkspaceSectionProps) {
+  const userWorkspaces = useSelector(
+    (state: RootState) => state.auth.user?.workspaces || []
+  );
+
+  const navigate = useNavigate();
+
+  const handleSelect = (workspace: Workspace) => {
+    onWorkspaceSelect(workspace);
+    navigate("/dashboard");
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between px-2 pt-2">
-        <span className="px-1 text-gray-500 uppercase text-xs font-semibold">
+        <span className="px-1 mb-2 text-gray-500 uppercase text-sm font-semibold">
           Workspaces
         </span>
         <Button
@@ -32,7 +51,7 @@ export function WorkspaceSection({
         onClick={onToggle}
         className="flex items-center justify-between w-full py-2 px-3 bg-blue-100 rounded-lg hover:bg-blue-200"
       >
-        <span className="font-semibold">Team Alpha</span>
+        <span className="font-semibold">My Workspaces</span>
         <Plus
           className={`w-5 h-5 transition-transform ${
             isOpen ? "rotate-45" : ""
@@ -42,21 +61,27 @@ export function WorkspaceSection({
 
       {isOpen && (
         <div className="w-full bg-blue-50 rounded-lg shadow-sm p-2 flex flex-col gap-1 transition-all duration-300">
+          {userWorkspaces.length === 0 && (
+            <span className="px-3 py-2 text-sm text-gray-500">
+              No workspaces yet.
+            </span>
+          )}
+
+          {userWorkspaces.map((workspace) => (
+            <Button
+              key={workspace.id}
+              type="custom"
+              onClick={() => handleSelect(workspace)}
+              className="w-full text-left px-3 py-2 text-sm rounded hover:bg-blue-100 font-semibold"
+            >
+              {workspace.name}
+            </Button>
+          ))}
+
           <Button
             type="custom"
-            className="w-full text-left px-3 py-2 text-sm rounded hover:bg-blue-100 font-semibold bg-blue-100"
-          >
-            Team Alpha
-          </Button>
-          <Button
-            type="custom"
-            className="w-full text-left px-3 py-2 text-sm rounded hover:bg-blue-100"
-          >
-            Marketing
-          </Button>
-          <Button
-            type="custom"
-            className="w-full text-left px-3 py-2 text-sm rounded hover:bg-blue-100 flex items-center gap-2"
+            onClick={onAddWorkspace}
+            className="w-full text-left px-3 py-2 text-sm rounded hover:bg-blue-100 flex items-center gap-2 font-semibold"
           >
             <Plus className="w-4 h-4" /> Add Workspace
           </Button>
