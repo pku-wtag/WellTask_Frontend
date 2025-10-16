@@ -1,4 +1,4 @@
-import type { Workspace } from "./Workspace";
+import type { Workspace } from "@/types/Workspace";
 
 export interface User {
   id: string;

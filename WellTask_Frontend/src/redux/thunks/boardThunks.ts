@@ -7,9 +7,10 @@ import {
   addBoardToWorkspace,
   updateBoard,
   removeBoard,
+  setError,
+  setMessage,
 } from "../slices/boardSlice";
 import { updateUser } from "../slices/authSlice";
-import { setError, setMessage } from "../slices/workspaceSlice";
 
 // ---------------- ADD BOARD ----------------
 export const addBoard = createAsyncThunk<
@@ -22,6 +23,7 @@ export const addBoard = createAsyncThunk<
     try {
       const workspaces = getWorkspaces();
       const workspace = workspaces.find((w) => w.id === workspaceId);
+
       if (!workspace) {
         const msg = "Workspace not found";
         dispatch(setError(msg));
@@ -56,6 +58,7 @@ export const addBoard = createAsyncThunk<
       saveWorkspaces(workspaces);
 
       const user = getCurrentUser();
+
       if (user) {
         user.workspaces =
           user.workspaces?.map((w) => {
@@ -65,6 +68,7 @@ export const addBoard = createAsyncThunk<
               return w;
             }
           }) || [];
+
         saveUser(user);
         dispatch(updateUser({ workspaces: user.workspaces }));
       }
@@ -92,6 +96,7 @@ export const editBoard = createAsyncThunk<
     try {
       const workspaces = getWorkspaces();
       const workspace = workspaces.find((w) => w.id === workspaceId);
+
       if (!workspace) {
         const msg = "Workspace not found";
         dispatch(setError(msg));
@@ -99,6 +104,7 @@ export const editBoard = createAsyncThunk<
       }
 
       const index = workspace.boards.findIndex((b) => b.id === boardId);
+
       if (index === -1) {
         const msg = "Board not found";
         dispatch(setError(msg));
@@ -110,6 +116,7 @@ export const editBoard = createAsyncThunk<
       saveWorkspaces(workspaces);
 
       const user = getCurrentUser();
+
       if (user) {
         user.workspaces =
           user.workspaces?.map((w) => {
@@ -119,6 +126,7 @@ export const editBoard = createAsyncThunk<
               return w;
             }
           }) || [];
+
         saveUser(user);
         dispatch(updateUser({ workspaces: user.workspaces }));
       }
@@ -146,6 +154,7 @@ export const deleteBoard = createAsyncThunk<
     try {
       const workspaces = getWorkspaces();
       const workspace = workspaces.find((w) => w.id === workspaceId);
+
       if (!workspace) {
         const msg = "Workspace not found";
         dispatch(setError(msg));
@@ -156,6 +165,7 @@ export const deleteBoard = createAsyncThunk<
       saveWorkspaces(workspaces);
 
       const user = getCurrentUser();
+
       if (user) {
         user.workspaces =
           user.workspaces?.map((w) => {
@@ -165,6 +175,7 @@ export const deleteBoard = createAsyncThunk<
               return w;
             }
           }) || [];
+
         saveUser(user);
         dispatch(updateUser({ workspaces: user.workspaces }));
       }
