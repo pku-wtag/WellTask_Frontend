@@ -1,16 +1,16 @@
-import React from "react";
 import { Form } from "react-final-form";
-import { Button } from "./Button";
+import { Button } from "@/components/base-component/Button";
 import { Input } from "../fields/Input";
 import { Textarea } from "../fields/Textarea";
 import { SelectBox } from "../fields/Select";
 import { Checkbox } from "../fields/Checkbox";
 import { Radio } from "../fields/Radio";
 import { Link } from "react-router-dom";
+import type { FormApi } from "final-form";
 
 export type Option = { value: string; label: string };
 
-export interface FormField {
+export interface FormField<T = string> {
   id: string;
   name: string;
   label?: React.ReactNode;
@@ -19,6 +19,10 @@ export interface FormField {
   placeholder?: string;
   options?: Option[];
   fieldType: "input" | "textarea" | "select" | "checkbox" | "radio";
+  validate?: (
+    value: T,
+    allValues?: Record<string, unknown>
+  ) => string | undefined;
 }
 
 interface FormProps {
@@ -27,6 +31,10 @@ interface FormProps {
   submitText: string;
   redirectLink?: { text: string; path: string };
   fields: FormField[];
+  onSubmit?: (
+    values: Record<string, unknown>,
+    form: FormApi<Record<string, unknown>>
+  ) => void | Promise<void>;
 }
 
 export function FormPanel({
@@ -35,6 +43,7 @@ export function FormPanel({
   submitText,
   redirectLink,
   fields,
+  onSubmit,
 }: FormProps) {
   const renderField = (field: FormField) => {
     switch (field.fieldType) {
@@ -49,6 +58,7 @@ export function FormPanel({
             placeholder={field.placeholder}
             inputType={field.inputType}
             fullWidth
+            validate={field.validate}
           />
         );
 
@@ -105,6 +115,22 @@ export function FormPanel({
     }
   };
 
+  const handleFormSubmit =
+    (
+      handleSubmit: (
+        event?: SubmitEvent
+      ) => Promise<Record<string, unknown> | undefined> | undefined,
+      form: FormApi<Record<string, unknown>>
+    ) =>
+    async (event: React.FormEvent<HTMLFormElement>) => {
+      const result = await handleSubmit(event.nativeEvent as SubmitEvent);
+
+      form.reset();
+      fields.forEach((f) => form.resetFieldState(f.name));
+
+      return result;
+    };
+
   return (
     <div className="flex-1 p-10 flex items-center justify-center bg-white">
       <div className="w-full max-w-md">
@@ -114,11 +140,15 @@ export function FormPanel({
         )}
 
         <Form
-          onSubmit={() => {}}
-          render={({ handleSubmit }) => (
-            <form onSubmit={handleSubmit} className="space-y-5">
+          onSubmit={onSubmit || (() => {})}
+          render={({ handleSubmit, form, submitting }) => (
+            <form
+              onSubmit={handleFormSubmit(handleSubmit, form)}
+              className="space-y-5"
+              noValidate
+            >
               {fields.map(renderField)}
-              <Button htmlType="submit" fullWidth>
+              <Button htmlType="submit" fullWidth disabled={submitting}>
                 {submitText}
               </Button>
             </form>

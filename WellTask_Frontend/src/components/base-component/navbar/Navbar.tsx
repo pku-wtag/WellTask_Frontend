@@ -1,11 +1,12 @@
-import { Bell, Menu, User, HelpCircle } from "lucide-react";
+import { Bell, Menu, User, HelpCircle, LogOut } from "lucide-react";
 import { NavButton } from "./NavButton";
 
 interface NavbarProps {
   onMenuClick: () => void;
+  onLogout: () => void;
 }
 
-export function Navbar({ onMenuClick }: NavbarProps) {
+export function Navbar({ onMenuClick, onLogout }: NavbarProps) {
   return (
     <header className="flex items-center justify-between px-4 h-14 bg-white shadow-sm">
       <div className="flex items-center gap-3">
@@ -33,6 +34,11 @@ export function Navbar({ onMenuClick }: NavbarProps) {
           aria-label="Help"
         />
         <NavButton icon={<User className="w-5 h-5" />} />
+        <NavButton
+          icon={<LogOut className="w-5 h-5 text-red-600" />}
+          onClick={onLogout}
+          aria-label="Logout"
+        />
       </div>
     </header>
   );

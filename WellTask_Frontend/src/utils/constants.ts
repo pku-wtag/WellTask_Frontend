@@ -1,0 +1,3 @@
+export const MESSAGE_DURATION_MS = 3000;
+
+export const NAVIGATION_DELAY_MS = 1000;
