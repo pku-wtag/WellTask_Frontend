@@ -75,9 +75,11 @@ export default function ForgotPassword() {
     async (event: React.FormEvent<HTMLFormElement>) => {
       const result = await handleSubmit(event.nativeEvent as SubmitEvent);
 
-      form.reset();
-
-      formFields.forEach((f) => form.resetFieldState(f.name));
+      const errors = form.getState().errors;
+      if (!errors || Object.keys(errors).length === 0) {
+        form.reset();
+        formFields.forEach((f) => form.resetFieldState(f.name));
+      }
 
       return result;
     };

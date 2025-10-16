@@ -16,7 +16,7 @@ export interface FormField<T = string> {
   hint?: string;
   placeholder?: string;
   options?: Option[];
-  fieldType: "input" | "textarea" | "select" ;
+  fieldType: "input" | "textarea" | "select";
   validate?: (
     value: T,
     allValues?: Record<string, unknown>
@@ -100,8 +100,11 @@ export function FormPanel({
     async (event: React.FormEvent<HTMLFormElement>) => {
       const result = await handleSubmit(event.nativeEvent as SubmitEvent);
 
-      form.reset();
-      fields.forEach((f) => form.resetFieldState(f.name));
+      const errors = form.getState().errors;
+      if (!errors || Object.keys(errors).length === 0) {
+        form.reset();
+        fields.forEach((f) => form.resetFieldState(f.name));
+      }
 
       return result;
     };

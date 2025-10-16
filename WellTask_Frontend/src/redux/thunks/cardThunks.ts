@@ -9,9 +9,11 @@ import {
   removeCardFromList,
   setError,
   setMessage,
+  moveCardBetweenLists,
 } from "../slices/cardSlice";
 import { updateListInBoard } from "../slices/listSlice";
 import { updateUser } from "../slices/authSlice";
+import { getColorByStatus } from "@/utils/statusColor";
 
 // ---------------- ADD CARD ----------------
 export const addCard = createAsyncThunk<
@@ -26,22 +28,19 @@ export const addCard = createAsyncThunk<
       const board = workspaces
         .flatMap((ws) => ws.boards)
         .find((b) => b.id === boardId);
-
-      if (!board) {
-        const msg = "Board not found";
-        dispatch(setError(msg));
-        return rejectWithValue(msg);
-      }
+      if (!board) return rejectWithValue("Board not found");
 
       const list = board.lists.find((l) => l.id === listId);
+      if (!list) return rejectWithValue("List not found");
 
-      if (!list) {
-        const msg = "List not found";
-        dispatch(setError(msg));
-        return rejectWithValue(msg);
-      }
+      const newCard: Card = {
+        id: uuidv4(),
+        name,
+        status: list.name,
+        color: getColorByStatus(list.name),
+        createdAt: new Date().toISOString(),
+      };
 
-      const newCard: Card = { id: uuidv4(), name };
       list.cards.push(newCard);
       saveWorkspaces(workspaces);
 
@@ -49,7 +48,6 @@ export const addCard = createAsyncThunk<
       dispatch(updateListInBoard({ boardId, list }));
 
       const currentUser = getCurrentUser();
-
       if (currentUser) {
         currentUser.workspaces =
           currentUser.workspaces?.map((ws) => ({
@@ -63,13 +61,11 @@ export const addCard = createAsyncThunk<
                 : b
             ),
           })) || [];
-
         saveUser(currentUser);
         dispatch(updateUser({ workspaces: currentUser.workspaces }));
       }
 
       dispatch(setMessage("Card added successfully!"));
-
       return { boardId, listId, card: newCard };
     } catch (err) {
       const msg = (err as Error).message || "Failed to add card";
@@ -95,30 +91,19 @@ export const editCard = createAsyncThunk<
       const board = workspaces
         .flatMap((ws) => ws.boards)
         .find((b) => b.id === boardId);
-
-      if (!board) {
-        const msg = "Board not found";
-        dispatch(setError(msg));
-        return rejectWithValue(msg);
-      }
+      if (!board) return rejectWithValue("Board not found");
 
       const list = board.lists.find((l) => l.id === listId);
-
-      if (!list) {
-        const msg = "List not found";
-        dispatch(setError(msg));
-        return rejectWithValue(msg);
-      }
+      if (!list) return rejectWithValue("List not found");
 
       const index = list.cards.findIndex((c) => c.id === cardId);
+      if (index === -1) return rejectWithValue("Card not found");
 
-      if (index === -1) {
-        const msg = "Card not found";
-        dispatch(setError(msg));
-        return rejectWithValue(msg);
-      }
-
-      const updated = { ...list.cards[index], ...updates };
+      const updated: Card = {
+        ...list.cards[index],
+        ...updates,
+        updatedAt: new Date().toISOString(),
+      };
       list.cards[index] = updated;
       saveWorkspaces(workspaces);
 
@@ -126,7 +111,6 @@ export const editCard = createAsyncThunk<
       dispatch(updateListInBoard({ boardId, list }));
 
       const currentUser = getCurrentUser();
-
       if (currentUser) {
         currentUser.workspaces =
           currentUser.workspaces?.map((ws) => ({
@@ -140,13 +124,11 @@ export const editCard = createAsyncThunk<
                 : b
             ),
           })) || [];
-
         saveUser(currentUser);
         dispatch(updateUser({ workspaces: currentUser.workspaces }));
       }
 
       dispatch(setMessage("Card updated successfully!"));
-
       return { boardId, listId, card: updated };
     } catch (err) {
       const msg = (err as Error).message || "Failed to update card";
@@ -169,20 +151,10 @@ export const deleteCard = createAsyncThunk<
       const board = workspaces
         .flatMap((ws) => ws.boards)
         .find((b) => b.id === boardId);
-
-      if (!board) {
-        const msg = "Board not found";
-        dispatch(setError(msg));
-        return rejectWithValue(msg);
-      }
+      if (!board) return rejectWithValue("Board not found");
 
       const list = board.lists.find((l) => l.id === listId);
-
-      if (!list) {
-        const msg = "List not found";
-        dispatch(setError(msg));
-        return rejectWithValue(msg);
-      }
+      if (!list) return rejectWithValue("List not found");
 
       list.cards = list.cards.filter((c) => c.id !== cardId);
       saveWorkspaces(workspaces);
@@ -191,7 +163,6 @@ export const deleteCard = createAsyncThunk<
       dispatch(updateListInBoard({ boardId, list }));
 
       const currentUser = getCurrentUser();
-
       if (currentUser) {
         currentUser.workspaces =
           currentUser.workspaces?.map((ws) => ({
@@ -205,16 +176,123 @@ export const deleteCard = createAsyncThunk<
                 : b
             ),
           })) || [];
-
         saveUser(currentUser);
         dispatch(updateUser({ workspaces: currentUser.workspaces }));
       }
 
       dispatch(setMessage("Card deleted successfully!"));
-
       return { boardId, listId, cardId };
     } catch (err) {
       const msg = (err as Error).message || "Failed to delete card";
+      dispatch(setError(msg));
+      return rejectWithValue(msg);
+    }
+  }
+);
+
+// ---------------- MOVE CARD ----------------
+export const moveCard = createAsyncThunk<
+  {
+    boardId: string;
+    sourceListId: string;
+    destListId: string;
+    cardId: string;
+    sourceIndex: number;
+    destIndex: number;
+    destListName: string;
+  },
+  {
+    boardId: string;
+    sourceListId: string;
+    destListId: string;
+    sourceIndex: number;
+    destIndex: number;
+  },
+  { rejectValue: string }
+>(
+  "card/moveCard",
+  async (
+    { boardId, sourceListId, destListId, sourceIndex, destIndex },
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      const workspaces = getWorkspaces();
+      const board = workspaces
+        .flatMap((ws) => ws.boards)
+        .find((b) => b.id === boardId);
+      if (!board) return rejectWithValue("Board not found");
+
+      const sourceList = board.lists.find((l) => l.id === sourceListId);
+      const destList = board.lists.find((l) => l.id === destListId);
+      if (!sourceList || !destList) return rejectWithValue("List not found");
+
+      const sourceCards = [...sourceList.cards];
+      const destCards =
+        sourceListId === destListId ? sourceCards : [...destList.cards];
+
+      const [movedCard] = sourceCards.splice(sourceIndex, 1);
+      if (!movedCard) return rejectWithValue("Card not found");
+
+      // Update card status and color based on destination list NAME
+      if (sourceListId !== destListId) {
+        movedCard.status = destList.name;
+        movedCard.color = getColorByStatus(destList.name);
+      }
+      movedCard.updatedAt = new Date().toISOString();
+
+      destCards.splice(destIndex, 0, movedCard);
+
+      // Dispatch the Redux action with destination list name
+      dispatch(
+        moveCardBetweenLists({
+          sourceListId,
+          destListId,
+          sourceIndex,
+          destIndex,
+          destListName: destList.name,
+        })
+      );
+
+      sourceList.cards = sourceCards;
+      destList.cards = destCards;
+      saveWorkspaces(workspaces);
+
+      const currentUser = getCurrentUser();
+      if (currentUser) {
+        currentUser.workspaces =
+          currentUser.workspaces?.map((ws) => ({
+            ...ws,
+            boards: ws.boards.map((b) =>
+              b.id === boardId
+                ? {
+                    ...b,
+                    lists: b.lists.map((l) =>
+                      l.id === sourceListId
+                        ? sourceList
+                        : l.id === destListId
+                        ? destList
+                        : l
+                    ),
+                  }
+                : b
+            ),
+          })) || [];
+        saveUser(currentUser);
+        dispatch(updateUser({ workspaces: currentUser.workspaces }));
+      }
+
+      dispatch(setMessage("Card moved successfully!"));
+      return {
+        boardId,
+        sourceListId,
+        destListId,
+        cardId: movedCard.id,
+        sourceIndex,
+        destIndex,
+        destListName: destList.name,
+      };
+    } catch (err) {
+      const msg = (err as Error).message || "Failed to move card";
       dispatch(setError(msg));
       return rejectWithValue(msg);
     }

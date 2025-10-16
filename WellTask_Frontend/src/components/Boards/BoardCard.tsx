@@ -14,6 +14,7 @@ type BoardCardProps = {
   boardId: string;
   listId: string;
   title: string;
+  color?: string;
   onClick?: (id: string) => void;
 };
 
@@ -22,16 +23,16 @@ export function BoardCard({
   title,
   boardId,
   listId,
+  color = "#ffffff",
   onClick,
 }: BoardCardProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { toast, confirm } = useToaster();
   const [modalOpen, setModalOpen] = useState(false);
 
-  const handleSaveCard = async (values: { name: string }) => {
+  const handleSaveCard = async (values: { name: string; color: string }) => {
     if (!values.name.trim()) {
       toast("Card name cannot be empty", "error");
-      
       return;
     }
 
@@ -41,7 +42,7 @@ export function BoardCard({
           boardId,
           listId,
           cardId: id,
-          updates: { name: values.name },
+          updates: { name: values.name, color: values.color },
         })
       ).unwrap();
 
@@ -58,9 +59,7 @@ export function BoardCard({
       `Delete card "${title}"? This action is permanent.`
     );
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     try {
       await dispatch(deleteCard({ boardId, listId, cardId: id })).unwrap();
@@ -75,11 +74,11 @@ export function BoardCard({
   return (
     <>
       <div
-        className="relative p-2 text-sm bg-white rounded-md shadow-sm border border-gray-200 hover:bg-gray-50 cursor-pointer flex justify-between items-center"
-        onClick={() => {
-          if (onClick) {
-            onClick(id);
-          }
+        className="relative p-2 text-sm rounded-md shadow-sm border hover:bg-gray-50 cursor-pointer flex justify-between items-center"
+        onClick={() => onClick?.(id)}
+        style={{
+          backgroundColor: color,
+          borderColor: "#D1D5DB",
         }}
       >
         <span className="truncate">{title}</span>
@@ -101,7 +100,7 @@ export function BoardCard({
 
           <Form
             onSubmit={handleSaveCard}
-            initialValues={{ name: title }}
+            initialValues={{ name: title, color }}
             render={({ handleSubmit }) => (
               <form
                 onSubmit={(e) => {
@@ -122,6 +121,24 @@ export function BoardCard({
                           {...input}
                           placeholder="Card Name"
                           className="mt-1 w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
+                        />
+                      )}
+                    </FieldWrapper>
+                  )}
+                </Field>
+
+                <Field name="color">
+                  {({ input }) => (
+                    <FieldWrapper
+                      id="cardColor"
+                      name="cardColor"
+                      label="Card Color"
+                    >
+                      {() => (
+                        <input
+                          {...input}
+                          type="color"
+                          className="mt-1 w-16 h-8 border rounded-lg p-1 cursor-pointer"
                         />
                       )}
                     </FieldWrapper>
